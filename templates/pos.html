@@ -39,17 +39,19 @@
       <button class="btn btn-ghost btn-sm text-danger" id="clearCartBtn" style="padding: 2px 8px; font-size: 11px;"><span class="lang-en">Clear</span><span class="lang-ta">அழி</span></button>
     </div>
 
-    <!-- Customer & Dedicated WhatsApp Phone -->
+    <!-- Customer & Dedicated WhatsApp Phone (Compact 2-Column Grid) -->
     <div class="cart-customer">
-      <div class="customer-row">
-        <label class="form-label mb-0 text-xs text-muted" style="font-size:11px; font-weight:600;"><span class="lang-en">Customer</span><span class="lang-ta">வாடிக்கையாளர்</span></label>
-        <select id="customerSelect" class="form-select form-select-sm" style="padding: 3px 20px 3px 8px; font-size: 12px; height: 30px;"></select>
-      </div>
-      <div class="customer-phone-row" style="margin-top: 5px;">
-        <label class="form-label mb-0 text-xs" style="font-size:11px; font-weight:600; color:#10b981; display:flex; align-items:center; gap:3px;">
-          <span>📱</span><span class="lang-en">WhatsApp Mobile</span><span class="lang-ta">வாட்ஸ்அப் எண்</span>
-        </label>
-        <input type="tel" id="customerPhoneInput" class="form-control" placeholder="10-digit mobile (e.g. 9840012345)" maxlength="10" style="padding: 3px 8px; font-size: 12px; height: 30px; background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary); border-radius:6px; width:100%;">
+      <div class="cart-customer-grid">
+        <div class="customer-field">
+          <label class="form-label mb-1 text-xs text-muted" style="font-size:10px; font-weight:600;"><span class="lang-en">Customer</span><span class="lang-ta">வாடிக்கையாளர்</span></label>
+          <select id="customerSelect" class="form-select form-select-sm" style="padding: 2px 20px 2px 6px; font-size: 11px; height: 26px;"></select>
+        </div>
+        <div class="phone-field">
+          <label class="form-label mb-1 text-xs" style="font-size:10px; font-weight:600; color:#10b981; display:flex; align-items:center; gap:2px;">
+            <span>📱</span><span class="lang-en">WhatsApp</span><span class="lang-ta">வாட்ஸ்அப்</span>
+          </label>
+          <input type="tel" id="customerPhoneInput" class="form-control" placeholder="10-digit mobile" maxlength="10" style="padding: 2px 6px; font-size: 11px; height: 26px; background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary); border-radius:6px; width:100%;">
+        </div>
       </div>
     </div>
 
@@ -64,18 +66,15 @@
 
     <!-- Pinned Cart Footer (Summary + Payment + Always Visible Actions) -->
     <div class="pos-cart-footer">
-      <!-- GST Breakdown -->
-      <div class="gst-breakdown" id="gstBreakdown" style="display:none">
-        <div class="gst-row"><span><span class="lang-en">Taxable Amt</span><span class="lang-ta">வரிக்குரிய தொகை</span></span><span id="taxableAmt">₹0.00</span></div>
-        <div class="gst-row"><span>CGST</span><span id="cgstAmt">₹0.00</span></div>
-        <div class="gst-row"><span>SGST</span><span id="sgstAmt">₹0.00</span></div>
-      </div>
-
       <!-- Cart Summary -->
       <div class="cart-summary">
         <div class="summary-row">
           <span><span class="lang-en">Subtotal</span><span class="lang-ta">துணை மொத்தம்</span></span>
           <span id="cartSubtotal">₹0.00</span>
+        </div>
+        <div class="summary-row" id="gstSummaryRow" style="display:none; color:var(--cyan); font-size:11px;">
+          <span><span class="lang-en">GST Tax</span><span class="lang-ta">ஜிஎஸ்டி வரி</span></span>
+          <span id="gstTotalAmt">₹0.00</span>
         </div>
         <div class="summary-row">
           <span><span class="lang-en">Discount</span><span class="lang-ta">தள்ளுபடி</span></span>
@@ -88,6 +87,11 @@
           <span><span class="lang-en">Total</span><span class="lang-ta">மொத்தம்</span></span>
           <span id="cartTotal">₹0.00</span>
         </div>
+        <!-- Hidden elements for JS compatibility -->
+        <span id="taxableAmt" style="display:none"></span>
+        <span id="cgstAmt" style="display:none"></span>
+        <span id="sgstAmt" style="display:none"></span>
+        <div id="gstBreakdown" style="display:none"></div>
       </div>
 
       <!-- Payment Section -->
@@ -341,11 +345,11 @@ function renderCart() {
       <div class="cart-item" tabindex="0" onkeydown="handleCartItemKey(event, ${idx})">
         <div class="cart-item-info">
           <div class="cart-item-name">${escapeHtml(item.name)}</div>
-          <div class="cart-item-price">${fmt(item.price)} · GST ${item.gstRate}%</div>
+          <div class="cart-item-price"><span class="item-unit-price">${fmt(item.price)}</span> · <span class="item-gst-tag">GST ${item.gstRate}%</span></div>
         </div>
         <div class="cart-item-controls d-flex align-items-center gap-1">
           <button class="qty-btn" onclick="changeQty(${idx},-1)">−</button>
-          <input type="number" class="qty-input text-center" style="width:48px;height:28px;background:var(--bg-input);border:1px solid var(--border);color:var(--text-primary);border-radius:4px" value="${item.qty}" min="1" max="${item.stock}" onchange="setQty(${idx}, this.value)">
+          <input type="number" class="qty-input text-center" style="width:36px;height:22px;background:var(--bg-input);border:1px solid var(--border);color:var(--text-primary);border-radius:4px;font-size:12px;" value="${item.qty}" min="1" max="${item.stock}" onchange="setQty(${idx}, this.value)">
           <button class="qty-btn" onclick="changeQty(${idx},1)">+</button>
         </div>
         <div class="cart-item-total">${fmt(item.price * item.qty)}</div>
@@ -390,6 +394,17 @@ function updateTotals() {
   document.getElementById('taxableAmt').textContent = fmt(taxable);
   document.getElementById('cgstAmt').textContent = fmt(cgst);
   document.getElementById('sgstAmt').textContent = fmt(sgst);
+
+  const totalGst = cgst + sgst;
+  const gstRow = document.getElementById('gstSummaryRow');
+  if (gstRow) {
+    if (totalGst > 0.005) {
+      gstRow.style.display = 'flex';
+      document.getElementById('gstTotalAmt').textContent = fmt(totalGst);
+    } else {
+      gstRow.style.display = 'none';
+    }
+  }
 
   updateChange(total);
   const hasCart = cart.length > 0;
@@ -445,8 +460,10 @@ document.getElementById('clearCartBtn').addEventListener('click', () => {
 async function performCheckout(mode = 'standard') {
   if (!cart.length) return;
   const total = cartTotal;
-  const paid = parseFloat(document.getElementById('amountPaid').value) || 0;
-  if (selectedPayment === 'cash' && paid < total) {
+  let paid = parseFloat(document.getElementById('amountPaid').value) || 0;
+  if (selectedPayment === 'cash' && paid === 0) {
+    paid = total;
+  } else if (selectedPayment === 'cash' && paid < total) {
     showToast(getLangTxt('Received amount is less than total', 'பெற்ற தொகை குறைவாக உள்ளது'), 'error');
     return;
   }
