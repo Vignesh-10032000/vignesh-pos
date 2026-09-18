@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}<span class="lang-en">Products</span><span class="lang-ta">பொருட்கள்</span>{% endblock %}
+{% block title %}Products / பொருட்கள்{% endblock %}
 {% block page_title %}<span class="lang-en">Products / Inventory Management</span><span class="lang-ta">பொருட்கள் / இருப்பு நிர்வாகம்</span>{% endblock %}
 
 {% block content %}
@@ -22,20 +22,20 @@
 
 <div class="products-stats" id="productsStats"></div>
 
-<div class="card">
-  <div class="card-body p0">
-    <table class="table">
+<div class="card products-card">
+  <div class="card-body p0 table-responsive-container" id="productsTableContainer">
+    <table class="table products-inventory-table">
       <thead>
         <tr>
-          <th><span class="lang-en">Product</span><span class="lang-ta">பொருள்</span></th>
-          <th>SKU</th>
-          <th>HSN</th>
-          <th>GST%</th>
-          <th><span class="lang-en">Price (₹)</span><span class="lang-ta">விலை (₹)</span></th>
-          <th><span class="lang-en">Margin</span><span class="lang-ta">இலாபம்</span></th>
-          <th><span class="lang-en">Stock</span><span class="lang-ta">இருப்பு</span></th>
-          <th><span class="lang-en">Status</span><span class="lang-ta">நிலை</span></th>
-          <th><span class="lang-en">Actions</span><span class="lang-ta">செயல்கள்</span></th>
+          <th class="th-product"><span class="lang-en">Product</span><span class="lang-ta">பொருள்</span></th>
+          <th class="th-sku">SKU</th>
+          <th class="th-hsn">HSN</th>
+          <th class="th-gst">GST%</th>
+          <th class="th-price"><span class="lang-en">Price (₹)</span><span class="lang-ta">விலை (₹)</span></th>
+          <th class="th-margin"><span class="lang-en">Margin</span><span class="lang-ta">இலாபம்</span></th>
+          <th class="th-stock"><span class="lang-en">Stock</span><span class="lang-ta">இருப்பு</span></th>
+          <th class="th-status"><span class="lang-en">Status</span><span class="lang-ta">நிலை</span></th>
+          <th class="th-actions text-end"><span class="lang-en">Actions</span><span class="lang-ta">செயல்கள்</span></th>
         </tr>
       </thead>
       <tbody id="productsTbody">
@@ -212,31 +212,32 @@ function renderProducts(products) {
   const tbody = document.getElementById('productsTbody');
   if (!products.length) { tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">${getLangTxt('No products found', 'பொருட்கள் இல்லை')}</td></tr>`; return; }
   tbody.innerHTML = products.map(p => {
-    const sC = p.stock === 0 ? 'text-danger' : p.stock <= p.low_stock_threshold ? 'text-warning' : 'text-success';
+    const sC = p.stock === 0 ? 'stock-out' : p.stock <= p.low_stock_threshold ? 'stock-low' : 'stock-ok';
     const profit = p.price > 0 && p.cost > 0 ? Math.round((p.price - p.cost) / p.price * 100) : '—';
-    const gstCls = p.gst_rate === 0 ? 'badge--muted' : 'badge--success';
+    const profitCls = profit !== '—' && profit >= 20 ? 'profit-good' : 'profit-normal';
+    const gstCls = p.gst_rate === 0 ? 'badge-gst badge-gst-zero' : 'badge-gst badge-gst-tax';
     return `<tr>
       <td>
         <div class="product-name-cell">
-          <span class="product-icon">${escapeHtml(p.category_icon)}</span>
-          <div>
-            <div class="fw-500">${escapeHtml(p.name)}</div>
-            ${p.barcode ? `<div class="text-muted text-sm">${escapeHtml(p.barcode)}</div>` : ''}
+          <span class="product-icon">${escapeHtml(p.category_icon || '📦')}</span>
+          <div class="product-meta">
+            <div class="product-title-text">${escapeHtml(p.name)}</div>
+            ${p.barcode ? `<div class="product-barcode-text">${escapeHtml(p.barcode)}</div>` : ''}
           </div>
         </div>
       </td>
       <td><code class="sku-code">${escapeHtml(p.sku)}</code></td>
-      <td class="text-muted text-sm">${escapeHtml(p.hsn_code || '—')}</td>
-      <td><span class="badge ${gstCls}">${p.gst_rate}%</span></td>
-      <td class="fw-600 text-primary">${fmt(p.price)}</td>
-      <td class="${profit !== '—' && profit > 20 ? 'text-success' : 'text-muted'}">${profit !== '—' ? profit + '%' : '—'}</td>
-      <td><span class="${sC}">${p.stock}</span></td>
-      <td><span class="badge badge--${p.active ? 'success' : 'muted'}">${p.active ? getLangTxt('Active', 'செயலில்') : getLangTxt('Discontinued', 'நிறுத்தப்பட்டது')}</span></td>
-      <td>
+      <td><span class="hsn-code-cell">${escapeHtml(p.hsn_code || '—')}</span></td>
+      <td><span class="${gstCls}">GST ${p.gst_rate}%</span></td>
+      <td><span class="product-price-cell">${fmt(p.price)}</span></td>
+      <td><span class="${profitCls}">${profit !== '—' ? profit + '%' : '—'}</span></td>
+      <td><span class="stock-pill ${sC}">${p.stock}</span></td>
+      <td><span class="status-pill ${p.active ? 'status-active' : 'status-inactive'}">${p.active ? getLangTxt('Active', 'செயலில்') : getLangTxt('Discontinued', 'நிறுத்தப்பட்டது')}</span></td>
+      <td class="text-end">
         <div class="action-btns">
-          <button class="btn btn-ghost btn-sm" onclick="editProduct(${p.id})">✏️ ${getLangTxt('Edit', 'திருத்து')}</button>
-          <button class="btn btn-ghost btn-sm" onclick="openStockModal(${p.id}, ${p.stock})" title="Adjust Stock">📦 ${getLangTxt('Stock', 'இருப்பு')}</button>
-          <button class="btn btn-ghost btn-sm text-danger" onclick="deleteProduct(${p.id}, '${escapeHtml(escJsString(p.name))}')">🗑️</button>
+          <button class="btn btn-action-edit btn-sm" onclick="editProduct(${p.id})">✏️ <span class="btn-lbl">${getLangTxt('Edit', 'திருத்து')}</span></button>
+          <button class="btn btn-action-stock btn-sm" onclick="openStockModal(${p.id}, ${p.stock})" title="${getLangTxt('Adjust Stock', 'இருப்பு திருத்து')}">📦 <span class="btn-lbl">${getLangTxt('Stock', 'இருப்பு')}</span></button>
+          <button class="btn btn-action-delete btn-sm" onclick="deleteProduct(${p.id}, '${escapeHtml(escJsString(p.name))}')" title="${getLangTxt('Delete', 'அழி')}">🗑️</button>
         </div>
       </td>
     </tr>`;

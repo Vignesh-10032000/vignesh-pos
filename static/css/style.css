@@ -1197,9 +1197,242 @@ body {
 }
 .stat-strip-item { color: var(--text-secondary); }
 .product-name-cell { display: flex; align-items: center; gap: 10px; }
-.product-icon { font-size: 20px; }
-.sku-code { background: rgba(139,92,246,0.1); color: var(--primary); padding: 2px 8px; border-radius: 4px; font-size: 12px; }
-.action-btns { display: flex; gap: 6px; }
+/* ============================================================
+   Products Inventory Table & Sticky Header
+   ============================================================ */
+.products-card {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.table-responsive-container {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  position: relative;
+  scrollbar-width: thin;
+}
+
+.products-inventory-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 0;
+}
+
+.products-inventory-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #151c2e;
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 11px 14px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+}
+
+.products-inventory-table tbody td {
+  padding: 9px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: middle;
+  font-size: 13px;
+}
+
+.products-inventory-table tbody tr:hover td {
+  background: rgba(139, 92, 246, 0.06);
+}
+
+.product-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.product-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.product-meta {
+  min-width: 0;
+}
+
+.product-title-text {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.25;
+}
+
+.product-barcode-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: monospace;
+  margin-top: 1px;
+}
+
+.sku-code {
+  background: rgba(139, 92, 246, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  white-space: nowrap;
+}
+
+.hsn-code-cell {
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  font-family: monospace;
+}
+
+.badge-gst {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.badge-gst-zero {
+  background: rgba(148, 163, 184, 0.15);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.badge-gst-tax {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.product-price-cell {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f1f5f9;
+  white-space: nowrap;
+}
+
+.profit-good {
+  color: #34d399;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.profit-normal {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.stock-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stock-ok {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.stock-low {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.stock-out {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.status-active {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-inactive {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.action-btns {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
+}
+
+.btn-action-edit {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+.btn-action-edit:hover {
+  background: rgba(59, 130, 246, 0.25);
+  color: #ffffff;
+}
+
+.btn-action-stock {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+.btn-action-stock:hover {
+  background: rgba(245, 158, 11, 0.25);
+  color: #ffffff;
+}
+
+.btn-action-delete {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  padding: 4px 8px;
+  font-size: 11px;
+  border-radius: 6px;
+}
+.btn-action-delete:hover {
+  background: rgba(239, 68, 68, 0.25);
+  color: #ffffff;
+}
 
 /* ============================================================
    Customers Grid
@@ -1634,6 +1867,145 @@ html.theme-light .gst-strip-divider {
   background: rgba(6,182,212,0.15) !important;
 }
 
+/* Light Theme Inventory Table Overrides (CRISP CONTRAST FOR LAPTOP & MONITOR) */
+html.theme-light .products-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.theme-light .products-inventory-table thead th {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  border-bottom: 2px solid #cbd5e1 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+html.theme-light .products-inventory-table tbody td {
+  border-bottom: 1px solid #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+html.theme-light .products-inventory-table tbody tr:hover td {
+  background: #f8fafc !important;
+}
+
+html.theme-light .product-title-text {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+html.theme-light .product-barcode-text {
+  color: #64748b !important;
+}
+
+/* Light theme SKU: bold royal purple on pale violet - 7.5:1 ratio */
+html.theme-light .sku-code {
+  background: #ede9fe !important;
+  color: #5b21b6 !important;
+  border: 1px solid #c4b5fd !important;
+  font-weight: 700 !important;
+}
+
+/* Light theme HSN: crisp dark slate */
+html.theme-light .hsn-code-cell {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+
+/* Light theme GST 0% (Toor Dal, Ponni Rice, Atta) */
+html.theme-light .badge-gst-zero {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+  font-weight: 700 !important;
+}
+
+/* Light theme GST taxable (5%, 12%, 18%, 28%) */
+html.theme-light .badge-gst-tax {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  border: 1px solid #86efac !important;
+  font-weight: 700 !important;
+}
+
+/* Light theme Price */
+html.theme-light .product-price-cell {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+/* Light theme Profit */
+html.theme-light .profit-good {
+  color: #166534 !important;
+  font-weight: 700 !important;
+}
+html.theme-light .profit-normal {
+  color: #475569 !important;
+  font-weight: 600 !important;
+}
+
+/* Light theme Stock Pills */
+html.theme-light .stock-ok {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  border: 1px solid #86efac !important;
+}
+html.theme-light .stock-low {
+  background: #fef3c7 !important;
+  color: #b45309 !important;
+  border: 1px solid #fcd34d !important;
+}
+html.theme-light .stock-out {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fca5a5 !important;
+}
+
+/* Light theme Status */
+html.theme-light .status-active {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  border: 1px solid #86efac !important;
+}
+html.theme-light .status-inactive {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+/* Light theme Action Buttons */
+html.theme-light .btn-action-edit {
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border: 1px solid #bfdbfe !important;
+}
+html.theme-light .btn-action-edit:hover {
+  background: #dbeafe !important;
+  color: #1e40af !important;
+}
+
+html.theme-light .btn-action-stock {
+  background: #fffbeb !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
+}
+html.theme-light .btn-action-stock:hover {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+}
+
+html.theme-light .btn-action-delete {
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fecaca !important;
+}
+html.theme-light .btn-action-delete:hover {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
 /* Transitions for Theme Switch Smoothness */
 body, aside, main, .card, .stat-card, input, select, button, .top-bar, .table, th, td, .nav-item, .nav-icon {
   transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease !important;
@@ -1886,3 +2258,73 @@ body, aside, main, .card, .stat-card, input, select, button, .top-bar, .table, t
     font-size: 10px !important;
   }
 }
+
+/* ============================================================
+   Inventory Table Laptop & Compact Display Adjustments
+   ============================================================ */
+@media (max-width: 1200px) {
+  .content-area {
+    padding: 8px 12px !important;
+  }
+  .page-toolbar {
+    margin-bottom: 8px !important;
+  }
+  .products-stats {
+    margin-bottom: 8px !important;
+  }
+  .products-inventory-table {
+    table-layout: auto !important;
+  }
+  .products-inventory-table thead th {
+    padding: 7px 6px !important;
+    font-size: 10px !important;
+  }
+  .products-inventory-table tbody td {
+    padding: 6px 6px !important;
+    font-size: 12px !important;
+  }
+  .product-name-cell {
+    min-width: 120px !important;
+    max-width: 150px !important;
+    gap: 6px !important;
+  }
+  .product-icon {
+    font-size: 16px !important;
+  }
+  .product-title-text {
+    font-size: 12px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  .product-barcode-text {
+    font-size: 10px !important;
+  }
+  .sku-code {
+    padding: 1px 4px !important;
+    font-size: 11px !important;
+  }
+  .action-btns {
+    gap: 3px !important;
+    justify-content: flex-end !important;
+  }
+  .action-btns .btn-lbl {
+    display: none !important;
+  }
+  .action-btns .btn-sm {
+    padding: 3px 6px !important;
+    font-size: 12px !important;
+    min-width: 26px !important;
+    justify-content: center !important;
+  }
+  .table-responsive-container {
+    max-height: calc(100vh - 165px) !important;
+  }
+}
+
+@media (max-height: 700px) {
+  .table-responsive-container {
+    max-height: calc(100vh - 145px) !important;
+  }
+}
+
