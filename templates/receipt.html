@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>விக்னேஷ் குரோத் லேப் — ரசீது #{{ "%05d"|format(sale.id) }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-primary: 'Inter', 'Noto Sans Tamil', sans-serif;
+      --color-bg: #f8fafc;
+      --color-card: #ffffff;
+      --color-text: #1e293b;
+      --color-text-light: #64748b;
+      --color-border: #e2e8f0;
+      --color-success: #10b981;
+    }
+
+    body {
+      font-family: var(--font-primary);
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    /* Action Toolbar */
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      width: 100%;
+      max-width: 480px;
+      justify-content: center;
+    }
+
+    .btn {
+      font-family: var(--font-primary);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .btn-print {
+      background-color: #3b82f6;
+      color: white;
+    }
+
+    .btn-print:hover {
+      background-color: #2563eb;
+    }
+
+    .btn-pdf {
+      background-color: #10b981;
+      color: white;
+    }
+
+    .btn-pdf:hover {
+      background-color: #059669;
+    }
+
+    /* Receipt Card */
+    .receipt-container {
+      background-color: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+      padding: 36px;
+      width: 100%;
+      max-width: 480px;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    /* Header styling */
+    .header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .brand-name {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 4px 0;
+    }
+
+    .brand-sub {
+      font-size: 13px;
+      color: var(--color-text-light);
+      margin: 0;
+    }
+
+    .gstin {
+      display: inline-block;
+      background-color: #f1f5f9;
+      color: #334155;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      margin-top: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .divider {
+      border-top: 1px dashed var(--color-border);
+      margin: 20px 0;
+    }
+
+    /* Details Grid */
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      font-size: 13px;
+      color: var(--color-text-light);
+      margin-bottom: 20px;
+    }
+
+    .detail-item strong {
+      color: var(--color-text);
+      display: block;
+      margin-top: 2px;
+    }
+
+    /* Items Table */
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+    }
+
+    .items-table th {
+      border-bottom: 1px solid var(--color-border);
+      color: var(--color-text-light);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 8px 0;
+      text-align: left;
+    }
+
+    .items-table th.text-right,
+    .items-table td.text-right {
+      text-align: right;
+    }
+
+    .items-table td {
+      padding: 10px 0;
+      border-bottom: 1px dashed #f1f5f9;
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    .item-name {
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .item-meta {
+      font-size: 11px;
+      color: var(--color-text-light);
+      margin-top: 2px;
+    }
+
+    /* Totals block */
+    .totals-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--color-text-light);
+    }
+
+    .total-row.grand-total {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+      border-top: 1px solid var(--color-border);
+      padding-top: 12px;
+      margin-top: 4px;
+    }
+
+    .total-row strong {
+      color: var(--color-text);
+    }
+
+    /* Footer message */
+    .footer-msg {
+      text-align: center;
+      font-size: 12px;
+      color: var(--color-text-light);
+      margin-top: 32px;
+      line-height: 1.5;
+    }
+
+    .thank-you {
+      font-weight: 700;
+      color: var(--color-success);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    /* Formatting helper */
+    .tamil-label {
+      font-size: 11px;
+      color: var(--color-text-light);
+      display: block;
+      margin-bottom: 1px;
+    }
+
+    /* Print Styles overrides */
+    @media print {
+      body {
+        background-color: white;
+        padding: 0;
+        margin: 0;
+        display: block;
+      }
+      .toolbar {
+        display: none !important;
+      }
+      .receipt-container {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+      }
+      @page {
+        margin: 1.5cm;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 16px 8px;
+      }
+      .receipt-container {
+        padding: 20px;
+        border-radius: 12px;
+      }
+      .brand-name {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Print Action Buttons -->
+  <div class="toolbar">
+    <button class="btn btn-print" onclick="window.print()">
+      <span>🖨️</span> Print / அச்சிடுக
+    </button>
+    <button class="btn btn-pdf" onclick="window.print()">
+      <span>💾</span> Save PDF / பிடிஎஃப் ஆக சேமி
+    </button>
+  </div>
+
+  <!-- Main Thermal Receipt Card -->
+  <div class="receipt-container">
+    <div class="header">
+      <h1 class="brand-name">விக்னேஷ் குரோத் லேப்</h1>
+      <p class="brand-sub">VIGNESH GROWTH LAB POS</p>
+      <p class="brand-sub" style="font-size:11px; margin-top:2px;">23, Anna Salai, Chennai - 600002</p>
+      <div class="gstin">GSTIN: 33AABCU9603R1ZX</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Metadata Details -->
+    <div class="details-grid">
+      <div class="detail-item">
+        <span class="tamil-label">ரசீது எண்</span>
+        Invoice No: <strong>#{{ "%05d"|format(sale.id) }}</strong>
+      </div>
+      <div class="detail-item" style="text-align: right;">
+        <span class="tamil-label">தேதி / நேரம்</span>
+        Date/Time: <strong>{{ sale.created_at.strftime('%d-%m-%Y %I:%M %p') }}</strong>
+      </div>
+      <div class="detail-item">
+        <span class="tamil-label">வாடிக்கையாளர்</span>
+        Customer: <strong>{{ sale.customer.name if sale.customer else 'Walk-in' }}</strong>
+      </div>
+      <div class="detail-item" style="text-align: right;">
+        <span class="tamil-label">கட்டண முறை</span>
+        Payment Mode: <strong>{{ sale.payment_method.upper() }}</strong>
+      </div>
+    </div>
+
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>
+            <span class="tamil-label" style="font-size: 9px;">பொருள் (HSN)</span>
+            Product
+          </th>
+          <th style="text-align: center; width: 60px;">
+            <span class="tamil-label" style="font-size: 9px;">அளவு</span>
+            Qty
+          </th>
+          <th class="text-right" style="width: 80px;">
+            <span class="tamil-label" style="font-size: 9px;">விலை</span>
+            Price
+          </th>
+          <th class="text-right" style="width: 80px;">
+            <span class="tamil-label" style="font-size: 9px;">மொத்தம்</span>
+            Total
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in sale.items %}
+          {% set taxable = (item.subtotal / (1 + item.gst_rate / 100))|round(2) %}
+          {% set gst_amt = (item.subtotal - taxable)|round(2) %}
+          <tr>
+            <td>
+              <div class="item-name">{{ item.product.name }}</div>
+              <div class="item-meta">
+                HSN: {{ item.product.hsn_code or '—' }} | GST: {{ item.gst_rate }}%
+                <br>
+                CGST: ₹{{ (gst_amt/2)|round(2) }} | SGST: ₹{{ (gst_amt/2)|round(2) }}
+              </div>
+            </td>
+            <td style="text-align: center;">{{ item.quantity }}</td>
+            <td class="text-right">₹{{ "%.2f"|format(item.price) }}</td>
+            <td class="text-right">₹{{ "%.2f"|format(item.subtotal) }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <!-- Pricing Summary -->
+    <div class="totals-box">
+      <div class="total-row">
+        <span>
+          <span class="tamil-label">வரிக்குரிய தொகை</span>
+          Taxable Amount
+        </span>
+        <strong>₹{{ "%.2f"|format(sale.subtotal) }}</strong>
+      </div>
+      <div class="total-row">
+        <span>
+          <span class="tamil-label">மத்திய ஜிஎஸ்டி (CGST)</span>
+          CGST Total
+        </span>
+        <strong>₹{{ "%.2f"|format(sale.total_cgst) }}</strong>
+      </div>
+      <div class="total-row">
+        <span>
+          <span class="tamil-label">மாநில ஜிஎஸ்டி (SGST)</span>
+          SGST Total
+        </span>
+        <strong>₹{{ "%.2f"|format(sale.total_sgst) }}</strong>
+      </div>
+      {% if sale.discount > 0 %}
+        <div class="total-row">
+          <span>
+            <span class="tamil-label">தள்ளுபடி</span>
+            Discount
+          </span>
+          <strong style="color: #ef4444;">-₹{{ "%.2f"|format(sale.discount) }}</strong>
+        </div>
+      {% endif %}
+      <div class="total-row grand-total">
+        <span>
+          <span class="tamil-label" style="font-weight: 700;">மொத்த தொகை</span>
+          Grand Total
+        </span>
+        <strong>₹{{ "%.2f"|format(sale.total) }}</strong>
+      </div>
+      <div class="total-row" style="margin-top: 8px;">
+        <span>
+          <span class="tamil-label">பெற்ற தொகை</span>
+          Amount Paid
+        </span>
+        <strong>₹{{ "%.2f"|format(sale.amount_paid) }}</strong>
+      </div>
+      <div class="total-row">
+        <span>
+          <span class="tamil-label">மீதித் தொகை</span>
+          Change Given
+        </span>
+        <strong>₹{{ "%.2f"|format(sale.change_given) }}</strong>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="footer-msg">
+      <div class="thank-you">விற்பனைக்கு நன்றி!</div>
+      <div>Bilingual GST invoice processed for Vignesh Growth Lab POS.</div>
+      <div style="font-size: 10px; margin-top: 8px; color: var(--color-text-light);">Have a nice day! 🙏</div>
+    </div>
+  </div>
+
+</body>
+</html>

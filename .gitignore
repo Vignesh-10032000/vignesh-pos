@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# PyInstaller / Build
+build/
+dist/
+*.spec
+
+# Database
+instance/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Large executables and files
+ngrok.exe
+*.zip
+*.log
+
+# Tunnel/load-test credentials — never commit these
+ngrok.yml
+static/loaderio-*.txt
+loaderio-*.txt
+
+# Editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp

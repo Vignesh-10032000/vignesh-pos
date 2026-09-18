@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% block title %}<span class="lang-en">Reports</span><span class="lang-ta">அறிக்கைகள்</span>{% endblock %}
+{% block page_title %}<span class="lang-en">Reports & Analytics</span><span class="lang-ta">அறிக்கைகள் & பகுப்பாய்வு</span>{% endblock %}
+
+{% block content %}
+<div class="reports-toolbar">
+  <div class="period-selector">
+    <button class="period-btn" data-days="7"><span class="lang-en">7 Days</span><span class="lang-ta">7 நாட்கள்</span></button>
+    <button class="period-btn active" data-days="30"><span class="lang-en">30 Days</span><span class="lang-ta">30 நாட்கள்</span></button>
+    <button class="period-btn" data-days="90"><span class="lang-en">90 Days</span><span class="lang-ta">90 நாட்கள்</span></button>
+  </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="stats-grid">
+  <div class="stat-card stat-card--primary">
+    <div class="stat-icon">💰</div>
+    <div class="stat-info">
+      <div class="stat-label"><span class="lang-en">Total Revenue</span><span class="lang-ta">மொத்த வருவாய்</span></div>
+      <div class="stat-value" id="rptRevenue">—</div>
+    </div>
+  </div>
+  <div class="stat-card stat-card--cyan">
+    <div class="stat-icon">🛒</div>
+    <div class="stat-info">
+      <div class="stat-label"><span class="lang-en">Total Sales</span><span class="lang-ta">மொத்த விற்பனை</span></div>
+      <div class="stat-value" id="rptOrders">—</div>
+    </div>
+  </div>
+  <div class="stat-card stat-card--purple">
+    <div class="stat-icon">📊</div>
+    <div class="stat-info">
+      <div class="stat-label"><span class="lang-en">Average Order</span><span class="lang-ta">சராசரி விற்பனை</span></div>
+      <div class="stat-value" id="rptAvg">—</div>
+    </div>
+  </div>
+  <div class="stat-card stat-card--green">
+    <div class="stat-icon">🏛️</div>
+    <div class="stat-info">
+      <div class="stat-label"><span class="lang-en">Total GST (CGST+SGST)</span><span class="lang-ta">மொத்த GST (CGST+SGST)</span></div>
+      <div class="stat-value" id="rptGst">—</div>
+      <div class="stat-sub" id="rptGstBreakdown">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts -->
+<div class="charts-row">
+  <div class="card chart-card chart-card--wide">
+    <div class="card-header"><h3 class="card-title"><span class="lang-en">Revenue Trend (₹)</span><span class="lang-ta">வருவாய் வரைபடம் (₹)</span></h3></div>
+    <div class="card-body"><canvas id="revenueLineChart" height="120"></canvas></div>
+  </div>
+  <div class="card chart-card">
+    <div class="card-header"><h3 class="card-title"><span class="lang-en">Payment Methods</span><span class="lang-ta">கட்டண முறைகள்</span></h3></div>
+    <div class="card-body"><canvas id="paymentDoughnutChart" height="200"></canvas></div>
+  </div>
+</div>
+
+<div class="charts-row">
+  <div class="card chart-card chart-card--wide">
+    <div class="card-header"><h3 class="card-title"><span class="lang-en">Revenue by Category (₹)</span><span class="lang-ta">வகை வாரியான வருவாய் (₹)</span></h3></div>
+    <div class="card-body"><canvas id="categoryBarChart" height="120"></canvas></div>
+  </div>
+  <div class="card chart-card">
+    <div class="card-header"><h3 class="card-title"><span class="lang-en">Top 10 Products</span><span class="lang-ta">சிறந்த 10 பொருட்கள்</span></h3></div>
+    <div class="card-body p0">
+      <div id="topProductsReport" style="padding:16px"></div>
+    </div>
+  </div>
+</div>
+
+<div class="charts-row">
+  <div class="card chart-card chart-card--wide">
+    <div class="card-header">
+      <h3 class="card-title">⭐ <span class="lang-en">Best Customers</span><span class="lang-ta">சிறந்த வாடிக்கையாளர்கள்</span></h3>
+    </div>
+    <div class="card-body p0">
+      <table class="table mb-0">
+        <thead>
+          <tr>
+            <th class="ps-3"><span class="lang-en">Name</span><span class="lang-ta">பெயர்</span></th>
+            <th><span class="lang-en">Phone</span><span class="lang-ta">கைபேசி</span></th>
+            <th><span class="lang-en">Orders</span><span class="lang-ta">விற்பனை</span></th>
+            <th><span class="lang-en">Total Spent</span><span class="lang-ta">செலவு</span></th>
+            <th class="pe-3"><span class="lang-en">Points</span><span class="lang-ta">புள்ளிகள்</span></th>
+          </tr>
+        </thead>
+        <tbody id="bestCustomersTbody">
+          <tr><td colspan="5" class="text-center text-muted"><span class="lang-en">Loading...</span><span class="lang-ta">ஏற்றுகிறது...</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card chart-card">
+    <div class="card-header">
+      <h3 class="card-title">📊 <span class="lang-en">Inventory Performance</span><span class="lang-ta">தயாரிப்பு செயல்திறன்</span></h3>
+    </div>
+    <div class="card-body">
+      <h5 class="text-success fw-bold mb-2"><span class="lang-en">Fast-Moving Items</span><span class="lang-ta">அதிக விற்பனையானவை (Fast-Moving)</span></h5>
+      <div id="fastMovingList" class="mb-4"></div>
+      
+      <h5 class="text-warning fw-bold mb-2"><span class="lang-en">Slow-Moving Stocks</span><span class="lang-ta">குறைந்த விற்பனையானவை (Slow-Moving)</span></h5>
+      <div id="slowMovingList"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let charts = {};
+let selectedPeriod = 30;
+
+async function loadReports() {
+  const [revRes, prodRes, payRes, catRes, custRes, perfRes] = await Promise.all([
+    fetch(`/api/reports/revenue?period=${selectedPeriod}`),
+    fetch(`/api/reports/top-products?period=${selectedPeriod}`),
+    fetch(`/api/reports/payment-methods?period=${selectedPeriod}`),
+    fetch(`/api/reports/categories?period=${selectedPeriod}`),
+    fetch(`/api/reports/customers?period=${selectedPeriod}`),
+    fetch(`/api/reports/performance?period=${selectedPeriod}`),
+  ]);
+  const [rev, prods, pay, cats, cust, perf] = await Promise.all([
+    revRes.json(), prodRes.json(), payRes.json(), catRes.json(), custRes.json(), perfRes.json()
+  ]);
+
+  document.getElementById('rptRevenue').textContent = fmt(rev.total);
+  document.getElementById('rptOrders').textContent = rev.total_orders;
+  document.getElementById('rptAvg').textContent = fmt(rev.avg_order);
+  document.getElementById('rptGst').textContent = fmt((rev.total_cgst||0) + (rev.total_sgst||0));
+  document.getElementById('rptGstBreakdown').textContent =
+    `CGST: ${fmt(rev.total_cgst||0)} | SGST: ${fmt(rev.total_sgst||0)}`;
+
+  const colors = ['#8b5cf6','#06b6d4','#10b981','#f59e0b','#ef4444','#ec4899'];
+
+  if (charts.revenue) charts.revenue.destroy();
+  charts.revenue = new Chart(document.getElementById('revenueLineChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: rev.data.map(d => d.date),
+      datasets: [{
+        label: getLangTxt('Revenue (₹)', 'வருவாய் (₹)'),
+        data: rev.data.map(d => d.revenue),
+        borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.15)',
+        fill: true, tension: 0.4, pointBackgroundColor: '#8b5cf6', pointRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', maxTicksLimit: 12 } },
+        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', callback: v => '₹' + v } }
+      }
+    }
+  });
+
+  if (charts.payment) charts.payment.destroy();
+  charts.payment = new Chart(document.getElementById('paymentDoughnutChart').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: pay.map(p => payLabel(p.method)),
+      datasets: [{ data: pay.map(p => p.total), backgroundColor: colors, borderWidth: 0, hoverOffset: 8 }]
+    },
+    options: {
+      responsive: true, cutout: '70%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 16 } },
+        tooltip: { callbacks: { label: ctx => ' ' + fmt(ctx.parsed) } }
+      }
+    }
+  });
+
+  const catTranslations = {
+    'உணவு & பானம்': 'Food & Drinks',
+    'மளிகை': 'Grocery',
+    'மின்னணுவியல்': 'Electronics',
+    'ஆடை & துணி': 'Clothing & Textiles',
+    'சுகாதார பொருட்கள்': 'Health & Care',
+    'எழுதுபொருட்கள்': 'Stationery'
+  };
+
+  if (charts.category) charts.category.destroy();
+  charts.category = new Chart(document.getElementById('categoryBarChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: cats.map(c => getLangTxt(catTranslations[c.name] || c.name, c.name)),
+      datasets: [{ label: getLangTxt('Revenue', 'வருவாய்'), data: cats.map(c => c.revenue), backgroundColor: colors, borderRadius: 8 }]
+    },
+    options: {
+      responsive: true, plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', callback: v => '₹' + v } }
+      }
+    }
+  });
+
+  const maxRev = prods[0] ? prods[0].revenue : 1;
+  document.getElementById('topProductsReport').innerHTML = prods.map((p, i) => `
+    <div class="top-product-item">
+      <div class="top-product-rank">#${i+1}</div>
+      <div class="top-product-info">
+        <div class="top-product-name">${escapeHtml(p.name)}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${(p.revenue/maxRev*100).toFixed(1)}%"></div></div>
+      </div>
+      <div>
+        <div class="top-product-revenue">${fmt(p.revenue)}</div>
+        <div class="text-muted text-sm">${p.qty} ${getLangTxt('sold', 'விற்கப்பட்டது')}</div>
+      </div>
+    </div>
+  `).join('') || `<p class="text-muted text-center">${getLangTxt('No data available', 'தரவு இல்லை')}</p>`;
+
+  // Render Best Customers Table
+  document.getElementById('bestCustomersTbody').innerHTML = cust.map(c => `
+    <tr>
+      <td class="ps-3"><span class="fw-bold">${escapeHtml(c.name)}</span></td>
+      <td class="text-muted">${escapeHtml(c.phone)}</td>
+      <td>${c.orders} ${getLangTxt('times', 'முறை')}</td>
+      <td class="fw-semibold text-primary">${fmt(c.total_spent)}</td>
+      <td class="pe-3">⭐ ${c.points}</td>
+    </tr>
+  `).join('') || `<tr><td colspan="5" class="text-center text-muted">${getLangTxt('No data available', 'தரவு இல்லை')}</td></tr>`;
+
+  // Render Product Performance lists
+  document.getElementById('fastMovingList').innerHTML = perf.fast_moving.map(p => `
+    <div class="d-flex justify-content-between align-items-center mb-2 text-sm">
+      <span>📦 ${escapeHtml(p.name)} <code class="sku-code text-xs">${escapeHtml(p.sku)}</code></span>
+      <span class="badge badge--success">${p.qty} ${getLangTxt('sold', 'விற்கப்பட்டது')}</span>
+    </div>
+  `).join('') || `<p class="text-muted text-xs">${getLangTxt('No sales', 'விற்பனை இல்லை')}</p>`;
+
+  document.getElementById('slowMovingList').innerHTML = perf.slow_moving.map(p => `
+    <div class="d-flex justify-content-between align-items-center mb-2 text-sm">
+      <span>📦 ${escapeHtml(p.name)} <code class="sku-code text-xs">${escapeHtml(p.sku)}</code></span>
+      <span class="badge badge--upi">${p.stock} ${getLangTxt('in stock', 'உள்ளது')}</span>
+    </div>
+  `).join('') || `<p class="text-muted text-xs">${getLangTxt('No slow moving products', 'விற்பனை இல்லாத பொருட்கள் இல்லை')}</p>`;
+}
+
+document.querySelectorAll('.period-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedPeriod = btn.dataset.days;
+    loadReports();
+  });
+});
+
+// Override global toggleLanguage callback to re-trigger reports rendering
+const originalToggleLanguage = window.toggleLanguage;
+window.toggleLanguage = function() {
+  if (typeof originalToggleLanguage === 'function') originalToggleLanguage();
+  loadReports();
+};
+
+loadReports();
+</script>
+{% endblock %}

@@ -1,0 +1,351 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "VGL Retail POS API",
+    "description": "Bilingual Point of Sale and Retail Management System API for Vignesh Global Logistics",
+    "version": "1.2.0-TN"
+  },
+  "servers": [
+    {
+      "url": "https://web-production-9375fc.up.railway.app",
+      "description": "Production Server"
+    }
+  ],
+  "paths": {
+    "/api/products": {
+      "get": {
+        "summary": "List all active products",
+        "description": "Retrieves a list of all products in the database that are currently active.",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Product"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new product",
+        "description": "Creates a new product in the system catalog.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "sku": { "type": "string" },
+                  "price": { "type": "number" },
+                  "stock": { "type": "integer" },
+                  "category_id": { "type": "integer" },
+                  "hsn": { "type": "string" }
+                },
+                "required": ["name", "price", "stock"]
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Product created successfully"
+            }
+          }
+        }
+      }
+    },
+    "/api/products/{pid}": {
+      "get": {
+        "summary": "Retrieve product details",
+        "parameters": [
+          {
+            "name": "pid",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product details retrieved",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update product details",
+        "parameters": [
+          {
+            "name": "pid",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "sku": { "type": "string" },
+                  "price": { "type": "number" },
+                  "stock": { "type": "integer" },
+                  "category_id": { "type": "integer" },
+                  "hsn": { "type": "string" }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": { "description": "Product updated successfully" }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Soft delete product",
+        "parameters": [
+          {
+            "name": "pid",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Product deactivated successfully" }
+        }
+      }
+    },
+    "/api/products/{pid}/stock": {
+      "patch": {
+        "summary": "Adjust stock levels",
+        "description": "Performs incremental positive or negative stock adjustments.",
+        "parameters": [
+          {
+            "name": "pid",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "adjustment": { "type": "integer", "description": "Positive or negative stock offset (e.g. +5 or -2)" }
+                },
+                "required": ["adjustment"]
+              }
+            }
+          },
+          "responses": {
+            "200": { "description": "Stock adjusted successfully" }
+          }
+        }
+      }
+    },
+    "/api/customers": {
+      "get": {
+        "summary": "List all customers",
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Customer" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add new customer",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "email": { "type": "string" },
+                  "phone": { "type": "string" },
+                  "gstin": { "type": "string" }
+                },
+                "required": ["name"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Customer created successfully" }
+        }
+      }
+    },
+    "/api/checkout": {
+      "post": {
+        "summary": "Process POS checkout sale",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "customer_id": { "type": "integer" },
+                  "payment_method": { "type": "string", "enum": ["cash", "upi", "card"] },
+                  "discount": { "type": "number" },
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "product_id": { "type": "integer" },
+                        "qty": { "type": "integer" },
+                        "price": { "type": "number" }
+                      },
+                      "required": ["product_id", "qty", "price"]
+                    }
+                  }
+                },
+                "required": ["payment_method", "items"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Checkout complete"
+          }
+        }
+      }
+    },
+    "/api/sales/{sale_id}/whatsapp": {
+      "get": {
+        "summary": "Generate WhatsApp Receipt message and URL redirect",
+        "parameters": [
+          {
+            "name": "sale_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "WhatsApp payload compiled"
+          }
+        }
+      }
+    },
+    "/api/sales/{sale_id}/return": {
+      "post": {
+        "summary": "Process itemized sales returns and updates inventory stock",
+        "parameters": [
+          {
+            "name": "sale_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "product_id": { "type": "integer" },
+                        "quantity": { "type": "integer" }
+                      },
+                      "required": ["product_id", "quantity"]
+                    }
+                  },
+                  "payment_method": { "type": "string", "enum": ["cash", "upi", "card"] },
+                  "reason": { "type": "string" }
+                },
+                "required": ["items", "payment_method"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Refund processed successfully" }
+        }
+      }
+    },
+    "/api/reports/day-close": {
+      "get": {
+        "summary": "Retrieve Day Close Summary financial data",
+        "responses": {
+          "200": {
+            "description": "EOD closing statistics retrieved"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Check API health status",
+        "responses": {
+          "200": {
+            "description": "Healthy"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "sku": { "type": "string" },
+          "price": { "type": "number" },
+          "stock": { "type": "integer" },
+          "category_id": { "type": "integer" },
+          "active": { "type": "boolean" },
+          "hsn": { "type": "string" }
+        }
+      },
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "email": { "type": "string" },
+          "phone": { "type": "string" },
+          "gstin": { "type": "string" }
+        }
+      }
+    }
+  }
+}

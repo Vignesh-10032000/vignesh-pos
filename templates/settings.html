@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% block title %}Settings / அமைப்புகள்{% endblock %}
+{% block page_title %}
+  <span class="lang-en">Settings / Core Settings</span>
+  <span class="lang-ta">அமைப்புகள் / முக்கிய அமைப்புகள்</span>
+{% endblock %}
+
+{% block content %}
+<div class="settings-page container-fluid p-0">
+  <div class="row g-4">
+    
+    <!-- Branding & Identity Column -->
+    <div class="col-md-4">
+      <div class="card h-100 text-center p-4">
+        <div class="card-body d-flex flex-column align-items-center justify-content-center">
+          
+          <!-- VGL Brand Logo -->
+          <div class="vgl-logo-wrapper mb-3" style="display: inline-flex; filter: drop-shadow(0 0 15px rgba(34,211,238,0.25));">
+            <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="vglGradientLg" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#22d3ee" />
+                  <stop offset="100%" stop-color="#c084fc" />
+                </linearGradient>
+              </defs>
+              <circle cx="60" cy="60" r="56" fill="#18181b" />
+              <circle cx="60" cy="60" r="52" stroke="url(#vglGradientLg)" stroke-width="5" fill="none" style="filter: drop-shadow(0 0 8px rgba(34,211,238,0.4));" />
+              <g fill="#ffffff" style="font-family:'Inter', sans-serif; font-weight:800;">
+                <path d="M 24 45 L 34 81 L 43 81 L 53 45 L 45 45 L 38.5 71 L 32 45 Z" />
+                <path d="M 72 53 C 72 47.5 68 44 62.5 44 C 55.5 44 51.5 49 51.5 58 C 51.5 67 55.5 72 62.5 72 C 67.5 72 71.5 68.5 72 63 L 64.5 63 C 64 65.5 62.5 66.5 60.5 66.5 C 57.5 66.5 56 64 56 58 C 56 52 57.5 49.5 60.5 49.5 C 62.5 49.5 64 50.5 64.5 53 Z" />
+                <path d="M 64.5 60 L 71 53.5 M 71 53.5 L 67 53.5 M 71 53.5 L 71 57.5" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M 77 45 L 77 81 L 97 81 L 97 74 L 84 74 L 84 45 Z" />
+              </g>
+            </svg>
+          </div>
+
+          <h3 class="fw-bold mt-2" style="background: linear-gradient(135deg, #22d3ee, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 24px;">VIGNESH GROWTH LAB POS</h3>
+          <p class="text-muted text-sm mb-4">
+            <span class="lang-en">Vignesh Growth Lab · GST Point of Sale</span>
+            <span class="lang-ta">விக்னேஷ் குரோத் லேப் · விற்பனை முனையம்</span>
+          </p>
+
+          <div class="w-100 p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+            <div class="d-flex justify-content-between mb-2 text-sm">
+              <span class="text-muted"><span class="lang-en">Version</span><span class="lang-ta">பதிப்பு</span></span>
+              <strong class="text-white">v1.2.0-TN</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2 text-sm">
+              <span class="text-muted">GSTIN</span>
+              <strong class="text-success">33AABCU9603R1ZX</strong>
+            </div>
+            <div class="d-flex justify-content-between text-sm">
+              <span class="text-muted"><span class="lang-en">Status</span><span class="lang-ta">நிலை</span></span>
+              <span class="badge bg-success py-1 px-2 text-white">Active / இயங்குகிறது</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Core Preferences Column -->
+    <div class="col-md-8">
+      <div class="card h-100">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="lang-en">System Preferences / கணினி விருப்பங்கள்</span>
+            <span class="lang-ta">கணினி விருப்பங்கள் / System Preferences</span>
+          </h3>
+        </div>
+        <div class="card-body d-flex flex-column gap-4">
+
+          <!-- 1. Language Toggle Segment -->
+          <div class="pref-segment p-3 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border);">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+              <div>
+                <h4 class="h6 text-warning mb-1 fw-bold">
+                  <span class="lang-en">Language / மொழி</span>
+                  <span class="lang-ta">மொழி அமைப்புகள் (Language)</span>
+                </h4>
+                <p class="text-muted text-xs mb-0">
+                  <span class="lang-en">Choose your interface language. Works instantly.</span>
+                  <span class="lang-ta">விற்பனை திரையின் மொழியை உடனடியாக மாற்றியமைக்கலாம்.</span>
+                </p>
+              </div>
+              <div class="btn-group" role="group" aria-label="Language Selector">
+                <button type="button" class="btn btn-ghost px-3 py-2" id="btn-lang-en" onclick="setAppLanguage('en')">English</button>
+                <button type="button" class="btn btn-ghost px-3 py-2" id="btn-lang-ta" onclick="setAppLanguage('ta')">தமிழ் (Tamil)</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Theme Toggle Segment -->
+          <div class="pref-segment p-3 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border);">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+              <div>
+                <h4 class="h6 text-warning mb-1 fw-bold">
+                  <span class="lang-en">Interface Mode / தீம் விருப்பங்கள்</span>
+                  <span class="lang-ta">தீம் அமைப்புகள் (Interface Mode)</span>
+                </h4>
+                <p class="text-muted text-xs mb-0">
+                  <span class="lang-en">Switch between dark mode and clean eye-comfort light mode.</span>
+                  <span class="lang-ta">இருண்ட மற்றும் வெளிச்சமான வண்ண அமைப்பை தேர்வு செய்யவும்.</span>
+                </p>
+              </div>
+              <div class="btn-group" role="group" aria-label="Theme Selector">
+                <button type="button" class="btn btn-ghost px-3 py-2" id="btn-theme-dark" onclick="setAppTheme('dark')">
+                  <span>🌙</span> <span class="lang-en">Dark Theme</span><span class="lang-ta">டார்க் தீம்</span>
+                </button>
+                <button type="button" class="btn btn-ghost px-3 py-2" id="btn-theme-light" onclick="setAppTheme('light')">
+                  <span>☀️</span> <span class="lang-en">Light Theme</span><span class="lang-ta">லைட் தீம்</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Terminal Config Info Segment -->
+          <div class="pref-segment p-3 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border);">
+            <h4 class="h6 text-warning mb-2 fw-bold">
+              <span class="lang-en">Billing Diagnostics / விற்பனைத் தகவல்</span>
+              <span class="lang-ta">விற்பனைத் தகவல் விவரங்கள்</span>
+            </h4>
+            <div class="row g-3 mt-1">
+              <div class="col-sm-6">
+                <div class="p-2 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10 text-xs">
+                  <span class="text-muted d-block"><span class="lang-en">State Code</span><span class="lang-ta">மாநில குறியீடு</span></span>
+                  <span class="fw-bold text-white">33 (Tamil Nadu)</span>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="p-2 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10 text-xs">
+                  <span class="text-muted d-block"><span class="lang-en">Default Sales Tax</span><span class="lang-ta">வழக்கமான விற்பனை வரி</span></span>
+                  <span class="fw-bold text-white">Bilingual GST split (CGST 50% / SGST 50%)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function setAppLanguage(lang) {
+    if (localStorage.getItem('vgl_lang') !== lang) {
+      toggleLanguage(); // executes switch in pos.js
+    }
+    syncButtons();
+  }
+
+  function setAppTheme(theme) {
+    const isLight = document.documentElement.classList.contains('theme-light');
+    if (theme === 'light' && !isLight) {
+      toggleTheme();
+    } else if (theme === 'dark' && isLight) {
+      toggleTheme();
+    }
+    syncButtons();
+  }
+
+  function syncButtons() {
+    const activeLang = localStorage.getItem('vgl_lang') || 'ta';
+    const activeTheme = localStorage.getItem('vgl_theme') || 'dark';
+
+    // Sync Lang Buttons
+    const btnEn = document.getElementById('btn-lang-en');
+    const btnTa = document.getElementById('btn-lang-ta');
+    if (activeLang === 'en') {
+      btnEn.classList.add('btn-primary');
+      btnEn.classList.remove('btn-ghost');
+      btnTa.classList.add('btn-ghost');
+      btnTa.classList.remove('btn-primary');
+    } else {
+      btnTa.classList.add('btn-primary');
+      btnTa.classList.remove('btn-ghost');
+      btnEn.classList.add('btn-ghost');
+      btnEn.classList.remove('btn-primary');
+    }
+
+    // Sync Theme Buttons
+    const btnDark = document.getElementById('btn-theme-dark');
+    const btnLight = document.getElementById('btn-theme-light');
+    if (activeTheme === 'light') {
+      btnLight.classList.add('btn-primary');
+      btnLight.classList.remove('btn-ghost');
+      btnDark.classList.add('btn-ghost');
+      btnDark.classList.remove('btn-primary');
+    } else {
+      btnDark.classList.add('btn-primary');
+      btnDark.classList.remove('btn-ghost');
+      btnLight.classList.add('btn-ghost');
+      btnLight.classList.remove('btn-primary');
+    }
+  }
+
+  // Initial Sync
+  syncButtons();
+
+  // Override language toggle callback to sync settings buttons in real-time
+  const baseToggleLanguage = window.toggleLanguage;
+  window.toggleLanguage = function() {
+    if (typeof baseToggleLanguage === 'function') {
+      baseToggleLanguage();
+    }
+    syncButtons();
+  }
+</script>
+{% endblock %}

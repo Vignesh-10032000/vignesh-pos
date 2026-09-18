@@ -1,0 +1,374 @@
+{% extends 'base.html' %}
+{% block title %}<span class="lang-en">Sales History</span><span class="lang-ta">விற்பனை வரலாறு</span>{% endblock %}
+{% block page_title %}<span class="lang-en">Sales History</span><span class="lang-ta">விற்பனை வரலாறு</span>{% endblock %}
+
+{% block content %}
+<div class="page-toolbar">
+  <div class="toolbar-left">
+    <div class="search-input-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="saleSearch" placeholder="ரசீது # தேடுக..." class="search-input" style="width:200px">
+    </div>
+    <select id="paymentFilter" class="form-select" style="width:auto">
+      <option value=""><span class="lang-en">All Payments</span><span class="lang-ta">அனைத்து கட்டணமும்</span></option>
+      <option value="cash"><span class="lang-en">💵 Cash</span><span class="lang-ta">💵 ரொக்கம்</span></option>
+      <option value="upi"><span class="lang-en">📱 UPI</span><span class="lang-ta">📱 UPI</span></option>
+      <option value="card"><span class="lang-en">💳 Card</span><span class="lang-ta">💳 அட்டை</span></option>
+    </select>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p0">
+    <table class="table">
+      <thead>
+        <tr>
+          <th><span class="lang-en">Invoice #</span><span class="lang-ta">ரசீது #</span></th>
+          <th><span class="lang-en">Customer</span><span class="lang-ta">வாடிக்கையாளர்</span></th>
+          <th><span class="lang-en">Items</span><span class="lang-ta">பொருட்கள்</span></th>
+          <th><span class="lang-en">Payment</span><span class="lang-ta">கட்டணம்</span></th>
+          <th><span class="lang-en">GST Tax</span><span class="lang-ta">வரி (GST)</span></th>
+          <th><span class="lang-en">Total</span><span class="lang-ta">மொத்தம்</span></th>
+          <th><span class="lang-en">Date</span><span class="lang-ta">தேதி</span></th>
+          <th><span class="lang-en">Actions</span><span class="lang-ta">செயல்கள்</span></th>
+        </tr>
+      </thead>
+      <tbody id="salesTbody">
+        <tr><td colspan="8" class="text-center text-muted"><span class="lang-en">Loading...</span><span class="lang-ta">ஏற்றுகிறது...</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer">
+    <div class="pagination" id="pagination"></div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block modals %}
+<!-- Receipt Detail Modal -->
+<div class="modal" id="saleModal">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-header">
+      <h3><span class="lang-en">🧾 GST Receipt Details</span><span class="lang-ta">🧾 GST ரசீது விவரம்</span></h3>
+      <button class="modal-close" onclick="closeModal('saleModal')">✕</button>
+    </div>
+    <div class="modal-body" id="saleModalContent"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('saleModal')"><span class="lang-en">Close</span><span class="lang-ta">மூடு</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Return Sale Modal -->
+<div class="modal" id="returnModal">
+  <div class="modal-dialog modal-md" style="pointer-events: auto !important;">
+    <div class="modal-header">
+      <h3>↩️ <span class="lang-en">Sale Return</span><span class="lang-ta">பொருட்கள் திரும்பப் பெறுதல்</span></h3>
+      <button class="modal-close" onclick="closeModal('returnModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="returnForm" onsubmit="submitReturn(event)">
+        <input type="hidden" id="returnSaleId">
+        
+        <div class="mb-3">
+          <label class="form-label text-warning fw-bold"><span class="lang-en">Items to Return</span><span class="lang-ta">திரும்பப் பெற வேண்டிய பொருட்கள்</span></label>
+          <div id="returnItemsContainer" class="d-flex flex-column gap-2" style="max-height: 250px; overflow-y: auto;">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label text-warning"><span class="lang-en">Refund Method</span><span class="lang-ta">திரும்பத் தரும் முறை</span></label>
+            <select id="returnPaymentMethod" class="form-select" style="background-color: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border);">
+              <option value="cash"><span class="lang-en">💵 Cash</span><span class="lang-ta">💵 ரொக்கம்</span></option>
+              <option value="upi"><span class="lang-en">📱 UPI</span><span class="lang-ta">📱 UPI</span></option>
+              <option value="card"><span class="lang-en">💳 Card</span><span class="lang-ta">💳 அட்டை</span></option>
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label text-warning"><span class="lang-en">Reason</span><span class="lang-ta">காரணம்</span></label>
+            <input type="text" id="returnReason" class="form-control text-white" style="background-color: var(--bg-input); border: 1px solid var(--border);" placeholder="e.g. Damaged / சேதமடைந்தது">
+          </div>
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center mt-3 p-3 rounded" style="background-color: var(--bg-input); border: 1px solid var(--border);">
+          <span class="text-white"><span class="lang-en">Total Refund:</span><span class="lang-ta">மொத்த ரீஃபண்ட்:</span></span>
+          <span id="returnRefundTotal" class="h5 mb-0 text-success fw-bold">₹0.00</span>
+        </div>
+
+        <div class="modal-footer px-0 pb-0 mt-3 border-0">
+          <button type="submit" class="btn btn-warning text-dark fw-bold" id="submitReturnBtn">↩️ <span class="lang-en">Process Refund</span><span class="lang-ta">ரீஃபண்ட் செய்க</span></button>
+          <button type="button" class="btn btn-ghost" onclick="closeModal('returnModal')"><span class="lang-en">Close</span><span class="lang-ta">மூடு</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentPage = 1;
+
+async function loadSales(page = 1) {
+  const searchInput = document.getElementById('saleSearch');
+  if (searchInput) {
+    searchInput.placeholder = getLangTxt('Search invoice #...', 'ரசீது # தேடுக...');
+  }
+  const q = searchInput ? searchInput.value : '';
+  const payment = document.getElementById('paymentFilter').value;
+  const params = new URLSearchParams({ page, per_page: 20 });
+  if (q) params.set('q', q);
+  if (payment) params.set('payment', payment);
+  const res = await fetch('/api/sales?' + params);
+  const data = await res.json();
+  renderSales(data.sales);
+  renderPagination(data.current_page, data.pages);
+  currentPage = page;
+}
+
+function renderSales(sales) {
+  const tbody = document.getElementById('salesTbody');
+  if (!sales.length) { tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">${getLangTxt('No sales found', 'விற்பனை இல்லை')}</td></tr>`; return; }
+  tbody.innerHTML = sales.map(s => {
+    const gstTotal = (s.total_cgst || 0) + (s.total_sgst || 0);
+    return `<tr>
+      <td><span class="sale-id">#${s.id}</span></td>
+      <td>${escapeHtml(s.customer)}</td>
+      <td>${s.item_count} ${getLangTxt('items', 'பொருட்கள்')}</td>
+      <td><span class="badge badge--${escapeHtml(s.payment_method)}">${escapeHtml(payLabel(s.payment_method))}</span></td>
+      <td class="text-muted text-sm">${fmt(gstTotal)}</td>
+      <td class="fw-600">${fmt(s.total)}</td>
+      <td class="text-muted text-sm">${escapeHtml(s.created_at)}</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn btn-ghost btn-sm" onclick="viewSale(${s.id})">👁 ${getLangTxt('View', 'காண')}</button>
+          <button class="btn btn-ghost btn-sm text-warning" onclick="openReturnModal(${s.id})">↩️ ${getLangTxt('Return', 'Return')}</button>
+          <button class="btn btn-ghost btn-sm text-danger" onclick="deleteSale(${s.id})">🗑️</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderPagination(current, total) {
+  const pg = document.getElementById('pagination');
+  if (total <= 1) { pg.innerHTML = ''; return; }
+  let html = '';
+  if (current > 1) html += `<button class="page-btn" onclick="loadSales(${current-1})">← ${getLangTxt('Previous', 'முந்தையது')}</button>`;
+  for (let i = Math.max(1, current-2); i <= Math.min(total, current+2); i++)
+    html += `<button class="page-btn ${i===current?'active':''}" onclick="loadSales(${i})">${i}</button>`;
+  if (current < total) html += `<button class="page-btn" onclick="loadSales(${current+1})">${getLangTxt('Next', 'அடுத்தது')} →</button>`;
+  pg.innerHTML = html;
+}
+
+async function viewSale(id) {
+  const res = await fetch(`/api/sales/${id}`);
+  const s = await res.json();
+  document.getElementById('saleModalContent').innerHTML = `
+    <div class="receipt">
+      <div class="receipt-header">
+        <div class="receipt-logo">🏪 ${getLangTxt('Vignesh Growth Lab POS', 'விக்னேஷ் குரோத் லேப்')}</div>
+        <div style="font-size:11px;color:#94a3b8">GSTIN: 33AABCU9603R1ZX · ${getLangTxt('Tamil Nadu', 'தமிழ்நாடு')}</div>
+        <div class="receipt-id">${getLangTxt('Receipt', 'ரசீது')} #${s.id}</div>
+        <div class="receipt-date">${escapeHtml(s.created_at)}</div>
+        <div class="receipt-customer">${getLangTxt('Customer', 'வாடிக்கையாளர்')}: ${escapeHtml(s.customer)}</div>
+        <div class="receipt-payment">${getLangTxt('Payment Method', 'கட்டணம்')}: ${escapeHtml(payLabel(s.payment_method))}</div>
+      </div>
+      <div class="receipt-divider"></div>
+      <div class="receipt-items">
+        ${s.items.map(i => `
+          <div class="receipt-item">
+            <div>
+              <div>${escapeHtml(i.product_name)}</div>
+              <div class="text-muted text-sm">${i.quantity} × ${fmt(i.price)} | HSN: ${escapeHtml(i.hsn_code||'—')} | GST ${i.gst_rate}%</div>
+              <div class="text-muted text-sm">${getLangTxt('Taxable', 'வரிக்குரிய')}: ${fmt(i.taxable)} | CGST: ${fmt(i.cgst)} | SGST: ${fmt(i.sgst)}</div>
+            </div>
+            <div>${fmt(i.subtotal)}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="receipt-divider"></div>
+      <div class="receipt-totals">
+        <div class="receipt-row"><span>${getLangTxt('Taxable Amount', 'வரிக்குரிய தொகை')}</span><span>${fmt(s.subtotal)}</span></div>
+        <div class="receipt-row"><span>CGST</span><span>${fmt(s.total_cgst)}</span></div>
+        <div class="receipt-row"><span>SGST</span><span>${fmt(s.total_sgst)}</span></div>
+        ${s.discount > 0 ? `<div class="receipt-row"><span>${getLangTxt('Discount', 'தள்ளுபடி')}</span><span>-${fmt(s.discount)}</span></div>` : ''}
+        <div class="receipt-row receipt-row--total"><span>${getLangTxt('Total', 'மொத்தம்')}</span><span>${fmt(s.total)}</span></div>
+        <div class="receipt-row"><span>${getLangTxt('Amount Paid', 'பெற்ற தொகை')}</span><span>${fmt(s.amount_paid)}</span></div>
+        ${s.change_given > 0 ? `<div class="receipt-row"><span>${getLangTxt('Change Given', 'திரும்ப')}</span><span>${fmt(s.change_given)}</span></div>` : ''}
+      </div>
+    </div>
+  `;
+  openModal('saleModal');
+}
+
+async function deleteSale(id) {
+  if (!confirm(getLangTxt('Cancel this sale? Stock will be reverted.', 'இந்த விற்பனையை ரத்து செய்யவா? இருப்பு திரும்ப வரும்.'))) return;
+  const res = await fetch(`/api/sales/${id}`, { method: 'DELETE' });
+  if (res.ok) { showToast(getLangTxt('Sale cancelled successfully', 'விற்பனை ரத்து செய்யப்பட்டது'), 'success'); loadSales(currentPage); }
+}
+
+async function openReturnModal(id) {
+  try {
+    const res = await fetch(`/api/sales/${id}`);
+    const s = await res.json();
+    
+    document.getElementById('returnSaleId').value = s.id;
+    document.getElementById('returnReason').value = '';
+    document.getElementById('returnPaymentMethod').value = s.payment_method === 'mobile' ? 'upi' : s.payment_method;
+    
+    const container = document.getElementById('returnItemsContainer');
+    container.innerHTML = s.items.map(i => {
+      const returnableQty = i.quantity - (i.returned_quantity || 0);
+      return `<div class="d-flex justify-content-between align-items-center p-2 rounded mb-1" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+        <div class="d-flex align-items-center gap-2 flex-grow-1">
+          ${returnableQty > 0 ? `
+            <input type="checkbox" class="form-check-input return-item-checkbox me-2" 
+                   style="background-color: var(--bg-input); border: 1px solid var(--border);"
+                   data-pid="${i.product_id}"
+                   onchange="toggleReturnItem(this, ${i.product_id})">
+          ` : ''}
+          <div>
+            <div class="fw-bold text-white d-flex align-items-center">
+              <span>${escapeHtml(i.product_name)}</span>
+              ${returnableQty > 0 ? `
+                <span id="badge-select-${i.product_id}" class="badge bg-success ms-2 d-none">Returned</span>
+              ` : `
+                <span class="badge bg-secondary ms-2">Returned</span>
+              `}
+            </div>
+            <div class="text-xs text-muted">
+              ${getLangTxt('Price', 'விலை')}: ${fmt(i.price)} | ${getLangTxt('Purchased', 'வாங்கியது')}: ${i.quantity} | ${getLangTxt('Returned', 'திரும்பப் பெற்றது')}: ${i.returned_quantity || 0}
+            </div>
+          </div>
+        </div>
+        <div style="width: 120px;">
+          ${returnableQty > 0 ? `
+            <input type="number" class="form-control form-control-sm return-qty-input text-center text-white d-none" 
+                   style="background: var(--bg-input); border: 1px solid var(--border);"
+                   id="qty-input-${i.product_id}"
+                   data-pid="${i.product_id}" data-price="${i.price}" 
+                   min="1" max="${returnableQty}" value="1" 
+                   oninput="calculateRefundTotal()">
+          ` : `
+            <span class="badge bg-secondary w-100 text-center d-block py-2">Returned</span>
+          `}
+        </div>
+      </div>`;
+    }).join('');
+    
+    calculateRefundTotal();
+    openModal('returnModal');
+  } catch (err) {
+    showToast(getLangTxt('Failed to load sale details for return', 'விற்பனை தகவல்களைப் பெறுவதில் பிழை'), 'error');
+  }
+}
+
+function toggleReturnItem(checkbox, productId) {
+  const badge = document.getElementById(`badge-select-${productId}`);
+  const qtyInput = document.getElementById(`qty-input-${productId}`);
+  if (checkbox.checked) {
+    if (badge) badge.classList.remove('d-none');
+    if (qtyInput) {
+      qtyInput.classList.remove('d-none');
+      qtyInput.value = 1;
+    }
+  } else {
+    if (badge) badge.classList.add('d-none');
+    if (qtyInput) {
+      qtyInput.classList.add('d-none');
+      qtyInput.value = 0;
+    }
+  }
+  calculateRefundTotal();
+}
+
+function calculateRefundTotal() {
+  let total = 0;
+  document.querySelectorAll('.return-item-checkbox').forEach(chk => {
+    if (chk.checked) {
+      const pid = chk.dataset.pid;
+      const qtyInput = document.getElementById(`qty-input-${pid}`);
+      if (qtyInput) {
+        const qty = parseInt(qtyInput.value) || 0;
+        const price = parseFloat(qtyInput.dataset.price) || 0;
+        total += qty * price;
+      }
+    }
+  });
+  document.getElementById('returnRefundTotal').textContent = fmt(total);
+}
+
+async function submitReturn(event) {
+  event.preventDefault();
+  const saleId = document.getElementById('returnSaleId').value;
+  const paymentMethod = document.getElementById('returnPaymentMethod').value;
+  const reason = document.getElementById('returnReason').value;
+  
+  const items = [];
+  document.querySelectorAll('.return-item-checkbox').forEach(chk => {
+    if (chk.checked) {
+      const pid = chk.dataset.pid;
+      const qtyInput = document.getElementById(`qty-input-${pid}`);
+      if (qtyInput) {
+        const qty = parseInt(qtyInput.value) || 0;
+        if (qty > 0) {
+          items.push({
+            product_id: parseInt(pid),
+            quantity: qty
+          });
+        }
+      }
+    }
+  });
+  
+  if (items.length === 0) {
+    showToast(getLangTxt('Please select at least one item to return', 'திரும்பப் பெற ஒரு பொருளையாவது தேர்வு செய்யவும்.'), 'error');
+    return;
+  }
+  
+  const btn = document.getElementById('submitReturnBtn');
+  btn.disabled = true;
+  btn.textContent = getLangTxt('Processing...', 'செயலாக்குகிறது...');
+  
+  try {
+    const res = await fetch(`/api/sales/${saleId}/return`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items, payment_method: paymentMethod, reason })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      closeModal('returnModal');
+      loadSales(currentPage);
+    } else {
+      showToast(data.error || getLangTxt('Failed to process return', 'திரும்பப் பெறுதலைச் செயலாக்குவதில் பிழை'), 'error');
+    }
+  } catch (err) {
+    showToast(getLangTxt('Network error while processing return', 'திரும்பப் பெறுதலின் போது பிழை'), 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `↩️ <span class="lang-en">Process Refund</span><span class="lang-ta">ரீஃபண்ட் செய்க</span>`;
+  }
+}
+
+let st;
+document.getElementById('saleSearch').addEventListener('input', () => { clearTimeout(st); st = setTimeout(() => loadSales(1), 300); });
+document.getElementById('paymentFilter').addEventListener('change', () => loadSales(1));
+
+// Override the global toggle callback if present to re-trigger list
+const originalToggleLanguage = window.toggleLanguage;
+window.toggleLanguage = function() {
+  if (typeof originalToggleLanguage === 'function') originalToggleLanguage();
+  loadSales(currentPage);
+};
+
+loadSales();
+</script>
+{% endblock %}

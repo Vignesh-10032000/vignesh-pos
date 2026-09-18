@@ -1,0 +1,370 @@
+{% extends 'base.html' %}
+{% block title %}<span class="lang-en">Products</span><span class="lang-ta">பொருட்கள்</span>{% endblock %}
+{% block page_title %}<span class="lang-en">Products / Inventory Management</span><span class="lang-ta">பொருட்கள் / இருப்பு நிர்வாகம்</span>{% endblock %}
+
+{% block content %}
+<div class="page-toolbar">
+  <div class="toolbar-left">
+    <div class="search-input-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="productSearch" placeholder="பொருள் / SKU / HSN தேடுக..." class="search-input">
+    </div>
+    <select id="categoryFilter" class="form-select" style="width:auto">
+      <option value=""><span class="lang-en">All Categories</span><span class="lang-ta">அனைத்து வகைகளும்</span></option>
+    </select>
+  </div>
+  <div class="toolbar-right">
+    <button class="btn btn-primary" id="addProductBtn">+ <span class="lang-en">Add Product</span><span class="lang-ta">பொருள் சேர்</span></button>
+  </div>
+</div>
+
+<div class="products-stats" id="productsStats"></div>
+
+<div class="card">
+  <div class="card-body p0">
+    <table class="table">
+      <thead>
+        <tr>
+          <th><span class="lang-en">Product</span><span class="lang-ta">பொருள்</span></th>
+          <th>SKU</th>
+          <th>HSN</th>
+          <th>GST%</th>
+          <th><span class="lang-en">Price (₹)</span><span class="lang-ta">விலை (₹)</span></th>
+          <th><span class="lang-en">Margin</span><span class="lang-ta">இலாபம்</span></th>
+          <th><span class="lang-en">Stock</span><span class="lang-ta">இருப்பு</span></th>
+          <th><span class="lang-en">Status</span><span class="lang-ta">நிலை</span></th>
+          <th><span class="lang-en">Actions</span><span class="lang-ta">செயல்கள்</span></th>
+        </tr>
+      </thead>
+      <tbody id="productsTbody">
+        <tr><td colspan="9" class="text-center text-muted"><span class="lang-en">Loading...</span><span class="lang-ta">ஏற்றுகிறது...</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block modals %}
+<!-- Product Modal -->
+<div class="modal" id="productModal">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3 id="productModalTitle"><span class="lang-en">Add Product</span><span class="lang-ta">பொருள் சேர்</span></h3>
+      <button class="modal-close" onclick="closeModal('productModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="productId">
+      <div class="form-grid">
+        <div class="form-group form-group--wide">
+          <label class="form-label"><span class="lang-en">Product Name *</span><span class="lang-ta">பொருளின் பெயர் *</span></label>
+          <input type="text" id="productName" class="form-input" placeholder="e.g. Filter Coffee">
+        </div>
+        <div class="form-group">
+          <label class="form-label">SKU *</label>
+          <input type="text" id="productSku" class="form-input" placeholder="FB001">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Barcode</label>
+          <input type="text" id="productBarcode" class="form-input" placeholder="8901234560001">
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="lang-en">HSN / SAC Code</span><span class="lang-ta">HSN / SAC குறியீடு</span></label>
+          <input type="text" id="productHsn" class="form-input" placeholder="e.g. 0901">
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="lang-en">GST Rate (%)</span><span class="lang-ta">GST விகிதம் (%)</span></label>
+          <select id="productGstRate" class="form-select">
+            <option value="0">0% — Exempted / விலக்கு</option>
+            <option value="5">5% (CGST 2.5% + SGST 2.5%)</option>
+            <option value="12">12% (CGST 6% + SGST 6%)</option>
+            <option value="18">18% (CGST 9% + SGST 9%)</option>
+            <option value="28">28% (CGST 14% + SGST 14%)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="lang-en">Category</span><span class="lang-ta">வகை</span></label>
+          <select id="productCategory" class="form-select"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="lang-en">Sales Price MRP (₹) *</span><span class="lang-ta">விற்பனை விலை MRP (₹) *</span></label>
+          <input type="number" id="productPrice" class="form-input" placeholder="0.00" step="0.50" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="lang-en">Cost Price (₹)</span><span class="lang-ta">கொள்முதல் விலை (₹)</span></label>
+          <input type="number" id="productCost" class="form-input" placeholder="0.00" step="0.50" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="lang-en">Stock Quantity</span><span class="lang-ta">இருப்பு அளவு</span></label>
+          <input type="number" id="productStock" class="form-input" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="lang-en">Low Stock Alert</span><span class="lang-ta">குறைந்த இருப்பு எச்சரிக்கை</span></label>
+          <input type="number" id="productLowStock" class="form-input" value="10" min="0">
+        </div>
+      </div>
+      <div class="gst-preview" id="gstPreview"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('productModal')"><span class="lang-en">Cancel</span><span class="lang-ta">ரத்து</span></button>
+      <button class="btn btn-primary" id="saveProductBtn"><span class="lang-en">Save</span><span class="lang-ta">சேமி</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Stock Modal -->
+<div class="modal" id="stockModal">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-header">
+      <h3>📦 <span class="lang-en">Stock Adjustment</span><span class="lang-ta">இருப்பு திருத்தம் (Stock Adjust)</span></h3>
+      <button class="modal-close" onclick="closeModal('stockModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="stockProductId">
+      <div class="form-group">
+        <label class="form-label"><span class="lang-en">Current Stock</span><span class="lang-ta">தற்போதைய இருப்பு</span></label>
+        <div class="fw-bold fs-4" id="stockCurrent">0</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label"><span class="lang-en">Adjustment (+/-)</span><span class="lang-ta">திருத்த அளவு</span></label>
+        <input type="number" id="stockAdjustment" class="form-input" placeholder="e.g. 5 or -3">
+        <div class="text-muted text-sm" style="margin-top:4px">
+          <span class="lang-en">Enter positive number to add, negative to reduce stock.</span>
+          <span class="lang-ta">இருப்பை கூட்ட நேர்மறை எண்ணும் (+), குறைக்க எதிர்மறை எண்ணும் (-) உள்ளிடவும்.</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('stockModal')"><span class="lang-en">Cancel</span><span class="lang-ta">ரத்து</span></button>
+      <button class="btn btn-primary" id="saveStockBtn"><span class="lang-en">Save</span><span class="lang-ta">சேமி</span></button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let categories = [];
+
+async function loadCategories() {
+  const res = await fetch('/api/categories');
+  categories = await res.json();
+  renderCategoryOptions();
+}
+
+function renderCategoryOptions() {
+  const sel1 = document.getElementById('categoryFilter');
+  const sel2 = document.getElementById('productCategory');
+  if (!sel1 || !sel2) return;
+  
+  const val1 = sel1.value;
+  const val2 = sel2.value;
+  
+  sel1.innerHTML = `<option value="">${getLangTxt('All Categories', 'அனைத்து வகைகளும்')}</option>`;
+  sel2.innerHTML = '';
+  
+  const catTranslations = {
+    'உணவு & பானம்': 'Food & Drinks',
+    'மளிகை': 'Grocery',
+    'மின்னணுவியல்': 'Electronics',
+    'ஆடை & துணி': 'Clothing & Textiles',
+    'சுகாதார பொருட்கள்': 'Health & Care',
+    'எழுதுபொருட்கள்': 'Stationery'
+  };
+  
+  categories.forEach(c => {
+    const name = getLangTxt(catTranslations[c.name] || c.name, c.name);
+    sel1.innerHTML += `<option value="${c.id}">${escapeHtml(c.icon)} ${escapeHtml(name)}</option>`;
+    sel2.innerHTML += `<option value="${c.id}">${escapeHtml(c.icon)} ${escapeHtml(name)}</option>`;
+  });
+  
+  sel1.value = val1;
+  sel2.value = val2;
+}
+
+async function loadProducts() {
+  const searchInput = document.getElementById('productSearch');
+  if (searchInput) {
+    searchInput.placeholder = getLangTxt('Search product / SKU / HSN...', 'பொருள் / SKU / HSN தேடுக...');
+  }
+  const q = searchInput ? searchInput.value : '';
+  const cat = document.getElementById('categoryFilter').value;
+  const params = new URLSearchParams();
+  if (q) params.set('q', q);
+  if (cat) params.set('category_id', cat);
+  const res = await fetch('/api/products?' + params);
+  const products = await res.json();
+  renderProducts(products);
+
+  const total = products.length;
+  const lowStock = products.filter(p => p.stock <= p.low_stock_threshold && p.stock > 0).length;
+  const outOfStock = products.filter(p => p.stock === 0).length;
+  document.getElementById('productsStats').innerHTML = `
+    <div class="stat-strip-item">${total} ${getLangTxt('total products', 'மொத்த பொருட்கள்')}</div>
+    <div class="stat-strip-item text-warning">${lowStock} ${getLangTxt('low stock', 'குறைந்த இருப்பு')}</div>
+    <div class="stat-strip-item text-danger">${outOfStock} ${getLangTxt('out of stock', 'இல்லாதவை')}</div>
+  `;
+}
+
+function renderProducts(products) {
+  const tbody = document.getElementById('productsTbody');
+  if (!products.length) { tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">${getLangTxt('No products found', 'பொருட்கள் இல்லை')}</td></tr>`; return; }
+  tbody.innerHTML = products.map(p => {
+    const sC = p.stock === 0 ? 'text-danger' : p.stock <= p.low_stock_threshold ? 'text-warning' : 'text-success';
+    const profit = p.price > 0 && p.cost > 0 ? Math.round((p.price - p.cost) / p.price * 100) : '—';
+    const gstCls = p.gst_rate === 0 ? 'badge--muted' : 'badge--success';
+    return `<tr>
+      <td>
+        <div class="product-name-cell">
+          <span class="product-icon">${escapeHtml(p.category_icon)}</span>
+          <div>
+            <div class="fw-500">${escapeHtml(p.name)}</div>
+            ${p.barcode ? `<div class="text-muted text-sm">${escapeHtml(p.barcode)}</div>` : ''}
+          </div>
+        </div>
+      </td>
+      <td><code class="sku-code">${escapeHtml(p.sku)}</code></td>
+      <td class="text-muted text-sm">${escapeHtml(p.hsn_code || '—')}</td>
+      <td><span class="badge ${gstCls}">${p.gst_rate}%</span></td>
+      <td class="fw-600 text-primary">${fmt(p.price)}</td>
+      <td class="${profit !== '—' && profit > 20 ? 'text-success' : 'text-muted'}">${profit !== '—' ? profit + '%' : '—'}</td>
+      <td><span class="${sC}">${p.stock}</span></td>
+      <td><span class="badge badge--${p.active ? 'success' : 'muted'}">${p.active ? getLangTxt('Active', 'செயலில்') : getLangTxt('Discontinued', 'நிறுத்தப்பட்டது')}</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="btn btn-ghost btn-sm" onclick="editProduct(${p.id})">✏️ ${getLangTxt('Edit', 'திருத்து')}</button>
+          <button class="btn btn-ghost btn-sm" onclick="openStockModal(${p.id}, ${p.stock})" title="Adjust Stock">📦 ${getLangTxt('Stock', 'இருப்பு')}</button>
+          <button class="btn btn-ghost btn-sm text-danger" onclick="deleteProduct(${p.id}, '${escapeHtml(escJsString(p.name))}')">🗑️</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// GST preview
+function updateGstPreview() {
+  const price = parseFloat(document.getElementById('productPrice').value) || 0;
+  const rate = parseFloat(document.getElementById('productGstRate').value) || 0;
+  if (price && rate > 0) {
+    const taxable = price / (1 + rate/100);
+    const gst = price - taxable;
+    document.getElementById('gstPreview').innerHTML = `
+      <div class="gst-calc-preview">
+        <span>${getLangTxt('Taxable:', 'வரிக்குரிய:')} ${fmt(taxable)}</span>
+        <span>CGST (${rate/2}%): ${fmt(gst/2)}</span>
+        <span>SGST (${rate/2}%): ${fmt(gst/2)}</span>
+      </div>`;
+  } else {
+    document.getElementById('gstPreview').innerHTML = '';
+  }
+}
+document.getElementById('productPrice').addEventListener('input', updateGstPreview);
+document.getElementById('productGstRate').addEventListener('change', updateGstPreview);
+
+document.getElementById('addProductBtn').addEventListener('click', () => {
+  document.getElementById('productModalTitle').innerHTML = `<span class="lang-en">Add New Product</span><span class="lang-ta">புதிய பொருள் சேர்</span>`;
+  document.getElementById('productId').value = '';
+  ['productName','productSku','productBarcode','productHsn','productPrice','productCost','productStock'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('productLowStock').value = 10;
+  document.getElementById('productGstRate').value = '0';
+  document.getElementById('gstPreview').innerHTML = '';
+  openModal('productModal');
+});
+
+async function editProduct(id) {
+  const res = await fetch(`/api/products/${id}`);
+  const p = await res.json();
+  document.getElementById('productModalTitle').innerHTML = `<span class="lang-en">Edit Product</span><span class="lang-ta">பொருள் திருத்து</span>`;
+  document.getElementById('productId').value = p.id;
+  document.getElementById('productName').value = p.name;
+  document.getElementById('productSku').value = p.sku;
+  document.getElementById('productBarcode').value = p.barcode || '';
+  document.getElementById('productHsn').value = p.hsn_code || '';
+  document.getElementById('productPrice').value = p.price;
+  document.getElementById('productCost').value = p.cost;
+  document.getElementById('productStock').value = p.stock;
+  document.getElementById('productLowStock').value = p.low_stock_threshold;
+  document.getElementById('productCategory').value = p.category_id;
+  document.getElementById('productGstRate').value = p.gst_rate;
+  updateGstPreview();
+  openModal('productModal');
+}
+
+document.getElementById('saveProductBtn').addEventListener('click', async () => {
+  const id = document.getElementById('productId').value;
+  const payload = {
+    name: document.getElementById('productName').value,
+    sku: document.getElementById('productSku').value,
+    barcode: document.getElementById('productBarcode').value,
+    hsn_code: document.getElementById('productHsn').value,
+    price: document.getElementById('productPrice').value,
+    cost: document.getElementById('productCost').value,
+    stock: document.getElementById('productStock').value,
+    low_stock_threshold: document.getElementById('productLowStock').value,
+    category_id: document.getElementById('productCategory').value,
+    gst_rate: document.getElementById('productGstRate').value,
+    active: true,
+  };
+  if (!payload.name || !payload.sku || !payload.price) { showToast(getLangTxt('Please fill all required fields', 'தேவையான தகவல்கள் நிரப்பவும்'), 'error'); return; }
+  const url = id ? `/api/products/${id}` : '/api/products';
+  const method = id ? 'PUT' : 'POST';
+  const res = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+  const data = await res.json();
+  if (res.ok) { showToast(id ? getLangTxt('Updated successfully!', 'திருத்தப்பட்டது!') : getLangTxt('Added successfully!', 'சேர்க்கப்பட்டது!'), 'success'); closeModal('productModal'); loadProducts(); }
+  else showToast(data.error || getLangTxt('An error occurred', 'பிழை ஏற்பட்டது'), 'error');
+});
+
+async function deleteProduct(id, name) {
+  if (!confirm(getLangTxt(`Discontinue "${name}"?`, `"${name}" பொருளை நிறுத்தவா?`))) return;
+  const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+  if (res.ok) { showToast(getLangTxt('Discontinued', 'நிறுத்தப்பட்டது'), 'success'); loadProducts(); }
+}
+
+function openStockModal(id, currentStock) {
+  document.getElementById('stockProductId').value = id;
+  document.getElementById('stockCurrent').textContent = currentStock;
+  document.getElementById('stockAdjustment').value = '';
+  openModal('stockModal');
+}
+
+document.getElementById('saveStockBtn').addEventListener('click', async () => {
+  const id = document.getElementById('stockProductId').value;
+  const adjustment = parseInt(document.getElementById('stockAdjustment').value) || 0;
+  if (adjustment === 0) { showToast(getLangTxt('Stock adjustment amount is required', 'இருப்பு மாற்றம் தேவை'), 'error'); return; }
+  
+  try {
+    const res = await fetch(`/api/products/${id}/stock`, {
+      method: 'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ adjustment })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast(getLangTxt('Stock adjusted successfully!', 'இருப்பு திருத்தப்பட்டது!'), 'success');
+      closeModal('stockModal');
+      loadProducts();
+    } else {
+      showToast(data.error || getLangTxt('Stock adjustment failed', 'இருப்பு மாற்றத்தில் பிழை'), 'error');
+    }
+  } catch (e) {
+    showToast(getLangTxt('Connection error', 'இணைப்பு பிழை'), 'error');
+  }
+});
+
+let st;
+document.getElementById('productSearch').addEventListener('input', () => { clearTimeout(st); st = setTimeout(loadProducts, 300); });
+document.getElementById('categoryFilter').addEventListener('change', loadProducts);
+
+// Override the global toggle callback if present to re-trigger lists
+const originalToggleLanguage = window.toggleLanguage;
+window.toggleLanguage = function() {
+  if (typeof originalToggleLanguage === 'function') originalToggleLanguage();
+  renderCategoryOptions();
+  loadProducts();
+};
+
+loadCategories(); loadProducts();
+</script>
+{% endblock %}
