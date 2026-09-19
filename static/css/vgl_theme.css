@@ -1237,27 +1237,29 @@ body {
    Receipt
    ============================================================ */
 .receipt {
-  font-family: 'Courier New', monospace;
-  font-size: 13px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 12px;
+  color: #0f172a;
 }
 
 .receipt-header { text-align: center; margin-bottom: 12px; }
-.receipt-logo { font-size: 18px; font-weight: bold; font-family: 'Inter', sans-serif; margin-bottom: 6px; }
-.receipt-id { font-weight: bold; font-size: 15px; }
-.receipt-date, .receipt-customer, .receipt-payment { color: var(--text-secondary); font-size: 12px; margin-top: 3px; }
-.receipt-divider { border-top: 1px dashed rgba(255,255,255,0.2); margin: 12px 0; }
+.receipt-logo { font-size: 18px; font-weight: 800; font-family: 'Inter', sans-serif; margin-bottom: 4px; color: #0f172a; letter-spacing: -0.02em; }
+.receipt-id { font-weight: 800; font-size: 14px; color: #0f172a; margin-top: 4px; }
+.receipt-date, .receipt-customer, .receipt-payment { color: #64748b; font-size: 11px; margin-top: 2px; }
+.receipt-divider { border-top: 1px dashed #cbd5e1; margin: 10px 0; }
 
 .receipt-item {
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
   gap: 12px;
+  font-size: 12px;
 }
 
-.receipt-totals { margin-top: 4px; }
-.receipt-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
-.receipt-row--total { font-size: 16px; font-weight: bold; color: var(--text-primary); border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px; }
-.receipt-footer { text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 16px; font-family: 'Inter', sans-serif; }
+.receipt-totals { margin-top: 6px; }
+.receipt-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 12px; color: #475569; }
+.receipt-row--total { font-size: 15px; font-weight: 800; color: #0f172a; border-top: 1.5px solid #0f172a; border-bottom: 1.5px solid #0f172a; padding: 6px 0; margin-top: 4px; }
+.receipt-footer { text-align: center; color: #64748b; font-size: 11px; margin-top: 14px; font-family: 'Inter', sans-serif; }
 
 /* ============================================================
    Modals
@@ -3252,4 +3254,36 @@ body, aside, main, .card, .stat-card, input, select, button, .top-bar, .table, t
     max-height: calc(100vh - 145px) !important;
   }
 }
+
+/* ============================================================
+   Strict Global Print Overrides (Ensures zero bleed from app)
+   ============================================================ */
+@media print {
+  body > *:not(#receiptModal),
+  .sidebar,
+  .top-bar,
+  .main-content > header,
+  .pos-layout,
+  .pos-products-panel,
+  .products-grid,
+  .product-card,
+  .pos-cart-panel,
+  .pos-mobile-nav,
+  .pos-mobile-floating-bar,
+  .page-toolbar,
+  .toast-container,
+  .modal-backdrop,
+  .modal-header,
+  .modal-footer,
+  #demoConsoleModal,
+  #receiptPrintIframe {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
+  }
+}
+
 
