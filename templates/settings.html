@@ -1,213 +1,850 @@
 {% extends 'base.html' %}
-{% block title %}Settings / அமைப்புகள்{% endblock %}
+{% block title %}Settings & Store Branding — POS{% endblock %}
 {% block page_title %}
-  <span class="lang-en">Settings / Core Settings</span>
-  <span class="lang-ta">அமைப்புகள் / முக்கிய அமைப்புகள்</span>
+  <span class="lang-en">Settings & Configuration</span>
+  <span class="lang-ta">அமைப்புகள்</span>
 {% endblock %}
 
 {% block content %}
-<div class="settings-page container-fluid p-0">
+<style>
+/* ── Settings Page Modern Styling ───────────────────────────── */
+.settings-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-bottom: 40px;
+}
+
+.settings-nav-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.settings-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.settings-tab-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.settings-tab-btn.active {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #ffffff;
+  border-color: #d97706;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+}
+
+.settings-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+}
+
+.settings-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-card-title .icon {
+  font-size: 18px;
+}
+
+.form-label-custom {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.form-control-custom {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  padding: 10px 14px;
+  font-size: 13px;
+  width: 100%;
+  transition: all var(--transition);
+}
+
+.form-control-custom:focus {
+  outline: none;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+  background: var(--bg-input-focus);
+  color: var(--text-primary);
+}
+
+.form-select-custom {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  padding: 10px 14px;
+  font-size: 13px;
+  width: 100%;
+  transition: all var(--transition);
+  cursor: pointer;
+}
+
+.form-select-custom:focus {
+  outline: none;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.brand-preview-card {
+  background: linear-gradient(145deg, rgba(245, 158, 11, 0.08), rgba(17, 24, 39, 0.95));
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.brand-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);
+  margin-bottom: 14px;
+}
+
+.preview-store-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+
+.preview-tagline {
+  font-size: 12px;
+  color: #f59e0b;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.preview-info-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin: 3px;
+}
+
+.toggle-switch-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+}
+
+.toggle-switch-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.toggle-switch-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.form-check-input:checked {
+  background-color: #f59e0b;
+  border-color: #f59e0b;
+}
+
+.settings-action-bar {
+  position: sticky;
+  bottom: 16px;
+  z-index: 50;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  backdrop-filter: blur(12px);
+}
+
+/* Light Theme Overrides */
+html.theme-light .settings-tab-btn {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+html.theme-light .settings-tab-btn:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+html.theme-light .settings-tab-btn.active {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  color: #ffffff !important;
+}
+html.theme-light .settings-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+html.theme-light .form-control-custom,
+html.theme-light .form-select-custom {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+html.theme-light .form-control-custom:focus,
+html.theme-light .form-select-custom:focus {
+  background: #ffffff;
+  border-color: #f59e0b;
+  color: #0f172a;
+}
+html.theme-light .brand-preview-card {
+  background: linear-gradient(145deg, #fffbeb, #ffffff);
+  border-color: #fde68a;
+}
+html.theme-light .preview-store-name {
+  color: #0f172a;
+}
+html.theme-light .preview-info-chip {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+html.theme-light .toggle-switch-group {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+html.theme-light .toggle-switch-label {
+  color: #0f172a;
+}
+html.theme-light .settings-action-bar {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+</style>
+
+<div class="settings-container">
+  
+  <!-- Navigation Tabs -->
+  <div class="settings-nav-tabs">
+    <button class="settings-tab-btn active" onclick="switchSettingsTab('brandTab', this)">
+      <span class="icon">🏪</span> Store Profile & Brand
+    </button>
+    <button class="settings-tab-btn" onclick="switchSettingsTab('receiptTab', this)">
+      <span class="icon">🧾</span> Bill & Receipt Setup
+    </button>
+    <button class="settings-tab-btn" onclick="switchSettingsTab('taxTab', this)">
+      <span class="icon">⚖️</span> GST & Legal Compliance
+    </button>
+    <button class="settings-tab-btn" onclick="switchSettingsTab('terminalTab', this)">
+      <span class="icon">💻</span> Terminal & Hardware
+    </button>
+    <button class="settings-tab-btn" onclick="switchSettingsTab('systemTab', this)">
+      <span class="icon">⚙️</span> System & Diagnostics
+    </button>
+  </div>
+
   <div class="row g-4">
     
-    <!-- Branding & Identity Column -->
-    <div class="col-md-4">
-      <div class="card h-100 text-center p-4">
-        <div class="card-body d-flex flex-column align-items-center justify-content-center">
+    <!-- LEFT COLUMN: Live Store Brand Card & Diagnostics -->
+    <div class="col-lg-4">
+      
+      <!-- Live Preview Card -->
+      <div class="brand-preview-card mb-4">
+        <div class="brand-avatar" id="previewLogo">🍽️</div>
+        <h2 class="preview-store-name" id="previewStoreName">Vignesh Growth Lab POS</h2>
+        <div class="preview-tagline" id="previewTagline">Premium Restaurant & Cafe Point of Sale</div>
+        
+        <div class="mb-3">
+          <span class="preview-info-chip" id="previewBusinessTypeChip">🍽️ Restaurant & Dine-in</span>
+          <span class="preview-info-chip" id="previewStateChip">📍 33 - Tamil Nadu</span>
+        </div>
+
+        <div class="p-3 rounded text-start" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border); font-size: 12px;">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">GSTIN:</span>
+            <span class="fw-bold text-success font-monospace" id="previewGstin">33AABCU9603R1ZX</span>
+          </div>
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Contact:</span>
+            <span class="fw-semibold text-white" id="previewPhone">+91 98400 00001</span>
+          </div>
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Currency:</span>
+            <span class="fw-bold text-warning" id="previewCurrency">₹ INR</span>
+          </div>
+          <div class="text-muted text-xs mt-2 border-top border-secondary border-opacity-25 pt-2" id="previewAddress">
+            23, Anna Salai, Chennai - 600002, Tamil Nadu
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick System Overview -->
+      <div class="settings-card">
+        <div class="settings-card-title">
+          <span class="icon">⚡</span> System Health & Status
+        </div>
+        <div class="d-flex flex-column gap-2 text-xs">
+          <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border);">
+            <span class="text-muted">Terminal Status</span>
+            <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25">● Online & Ready</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border);">
+            <span class="text-muted">Backend Framework</span>
+            <span class="fw-semibold text-white">Flask 3.0.3 / Waitress</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border);">
+            <span class="text-muted">Database Storage</span>
+            <span class="fw-semibold text-white">SQLite (pos.db)</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border);">
+            <span class="text-muted">GST Tax Split</span>
+            <span class="fw-semibold text-cyan">CGST (50%) + SGST (50%)</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: Tabbed Configuration Panels -->
+    <div class="col-lg-8">
+      
+      <!-- TAB 1: Store Profile & Rebranding -->
+      <div class="settings-tab-pane" id="brandTab">
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <span class="icon">🏪</span> Store Profile & Identity
+          </div>
           
-          <!-- VGL Brand Logo -->
-          <div class="vgl-logo-wrapper mb-3" style="display: inline-flex; filter: drop-shadow(0 0 15px rgba(34,211,238,0.25));">
-            <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="vglGradientLg" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#22d3ee" />
-                  <stop offset="100%" stop-color="#c084fc" />
-                </linearGradient>
-              </defs>
-              <circle cx="60" cy="60" r="56" fill="#18181b" />
-              <circle cx="60" cy="60" r="52" stroke="url(#vglGradientLg)" stroke-width="5" fill="none" style="filter: drop-shadow(0 0 8px rgba(34,211,238,0.4));" />
-              <g fill="#ffffff" style="font-family:'Inter', sans-serif; font-weight:800;">
-                <path d="M 24 45 L 34 81 L 43 81 L 53 45 L 45 45 L 38.5 71 L 32 45 Z" />
-                <path d="M 72 53 C 72 47.5 68 44 62.5 44 C 55.5 44 51.5 49 51.5 58 C 51.5 67 55.5 72 62.5 72 C 67.5 72 71.5 68.5 72 63 L 64.5 63 C 64 65.5 62.5 66.5 60.5 66.5 C 57.5 66.5 56 64 56 58 C 56 52 57.5 49.5 60.5 49.5 C 62.5 49.5 64 50.5 64.5 53 Z" />
-                <path d="M 64.5 60 L 71 53.5 M 71 53.5 L 67 53.5 M 71 53.5 L 71 57.5" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M 77 45 L 77 81 L 97 81 L 97 74 L 84 74 L 84 45 Z" />
-              </g>
-            </svg>
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label-custom">Store / Business Name *</label>
+              <input type="text" class="form-control-custom" id="cfgStoreName" value="Vignesh Growth Lab POS" oninput="updateLivePreview()">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label-custom">Brand Emoji / Icon</label>
+              <select class="form-select-custom" id="cfgStoreIcon" onchange="updateLivePreview()">
+                <option value="🍽️">🍽️ Restaurant (Plate & Fork)</option>
+                <option value="☕">☕ Cafe & Coffee</option>
+                <option value="🍕">🍕 Pizzeria & Bakery</option>
+                <option value="🛒">🛒 Supermarket / Grocery</option>
+                <option value="🛍️">🛍️ Retail & Fashion</option>
+                <option value="📱">📱 Electronics & Mobile</option>
+                <option value="📦">📦 General Store</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label-custom">Store Tagline / Slogan</label>
+              <input type="text" class="form-control-custom" id="cfgTagline" value="Premium Restaurant & Cafe Point of Sale" oninput="updateLivePreview()">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom">Business Category</label>
+              <select class="form-select-custom" id="cfgBusinessType" onchange="updateLivePreview()">
+                <option value="Restaurant & Dine-in">Restaurant & Dine-in</option>
+                <option value="Quick Service / Fast Food">Quick Service / Fast Food</option>
+                <option value="Bakery & Confectionery">Bakery & Confectionery</option>
+                <option value="Supermarket & Grocery">Supermarket & Grocery</option>
+                <option value="Retail & Fashion Apparel">Retail & Fashion Apparel</option>
+                <option value="Electronics & Tech Store">Electronics & Tech Store</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label-custom">Contact Phone Number</label>
+              <input type="text" class="form-control-custom" id="cfgPhone" value="+91 98400 00001" oninput="updateLivePreview()">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom">WhatsApp Bill Number</label>
+              <input type="text" class="form-control-custom" id="cfgWhatsapp" value="+91 98400 00001">
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label-custom">Store Physical Address (Printed on Receipts)</label>
+              <textarea class="form-control-custom" id="cfgAddress" rows="2" oninput="updateLivePreview()">23, Anna Salai, Chennai - 600002, Tamil Nadu</textarea>
+            </div>
           </div>
-
-          <h3 class="fw-bold mt-2" style="background: linear-gradient(135deg, #22d3ee, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 24px;">VIGNESH GROWTH LAB POS</h3>
-          <p class="text-muted text-sm mb-4">
-            <span class="lang-en">Vignesh Growth Lab · GST Point of Sale</span>
-            <span class="lang-ta">விக்னேஷ் குரோத் லேப் · விற்பனை முனையம்</span>
-          </p>
-
-          <div class="w-100 p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
-            <div class="d-flex justify-content-between mb-2 text-sm">
-              <span class="text-muted"><span class="lang-en">Version</span><span class="lang-ta">பதிப்பு</span></span>
-              <strong class="text-white">v1.2.0-TN</strong>
-            </div>
-            <div class="d-flex justify-content-between mb-2 text-sm">
-              <span class="text-muted">GSTIN</span>
-              <strong class="text-success">33AABCU9603R1ZX</strong>
-            </div>
-            <div class="d-flex justify-content-between text-sm">
-              <span class="text-muted"><span class="lang-en">Status</span><span class="lang-ta">நிலை</span></span>
-              <span class="badge bg-success py-1 px-2 text-white">Active / இயங்குகிறது</span>
-            </div>
-          </div>
-
         </div>
-      </div>
-    </div>
 
-    <!-- Core Preferences Column -->
-    <div class="col-md-8">
-      <div class="card h-100">
-        <div class="card-header">
-          <h3 class="card-title">
-            <span class="lang-en">System Preferences / கணினி விருப்பங்கள்</span>
-            <span class="lang-ta">கணினி விருப்பங்கள் / System Preferences</span>
-          </h3>
-        </div>
-        <div class="card-body d-flex flex-column gap-4">
-
-          <!-- 1. Language Toggle Segment -->
-          <div class="pref-segment p-3 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border);">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-              <div>
-                <h4 class="h6 text-warning mb-1 fw-bold">
-                  <span class="lang-en">Language / மொழி</span>
-                  <span class="lang-ta">மொழி அமைப்புகள் (Language)</span>
-                </h4>
-                <p class="text-muted text-xs mb-0">
-                  <span class="lang-en">Choose your interface language. Works instantly.</span>
-                  <span class="lang-ta">விற்பனை திரையின் மொழியை உடனடியாக மாற்றியமைக்கலாம்.</span>
-                </p>
-              </div>
-              <div class="btn-group" role="group" aria-label="Language Selector">
-                <button type="button" class="btn btn-ghost px-3 py-2" id="btn-lang-en" onclick="setAppLanguage('en')">English</button>
-                <button type="button" class="btn btn-ghost px-3 py-2" id="btn-lang-ta" onclick="setAppLanguage('ta')">தமிழ் (Tamil)</button>
-              </div>
-            </div>
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <span class="icon">🎨</span> Brand Appearance & Theme
           </div>
-
-          <!-- 2. Theme Toggle Segment -->
-          <div class="pref-segment p-3 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border);">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-              <div>
-                <h4 class="h6 text-warning mb-1 fw-bold">
-                  <span class="lang-en">Interface Mode / தீம் விருப்பங்கள்</span>
-                  <span class="lang-ta">தீம் அமைப்புகள் (Interface Mode)</span>
-                </h4>
-                <p class="text-muted text-xs mb-0">
-                  <span class="lang-en">Switch between dark mode and clean eye-comfort light mode.</span>
-                  <span class="lang-ta">இருண்ட மற்றும் வெளிச்சமான வண்ண அமைப்பை தேர்வு செய்யவும்.</span>
-                </p>
-              </div>
-              <div class="btn-group" role="group" aria-label="Theme Selector">
-                <button type="button" class="btn btn-ghost px-3 py-2" id="btn-theme-dark" onclick="setAppTheme('dark')">
-                  <span>🌙</span> <span class="lang-en">Dark Theme</span><span class="lang-ta">டார்க் தீம்</span>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label-custom">Accent Color Scheme</label>
+              <select class="form-select-custom" id="cfgAccentColor" onchange="applyAccentColor(this.value)">
+                <option value="amber">Warm Amber / Restaurant & Food (Default)</option>
+                <option value="purple">Royal Violet / Premium Boutique</option>
+                <option value="emerald">Emerald Green / Organic & Grocery</option>
+                <option value="cyan">Cyber Cyan / Modern & Electronics</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom">Interface Lighting Mode</label>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-ghost flex-fill border" id="btnModeDark" onclick="setAppTheme('dark')">
+                  🌙 Dark Mode
                 </button>
-                <button type="button" class="btn btn-ghost px-3 py-2" id="btn-theme-light" onclick="setAppTheme('light')">
-                  <span>☀️</span> <span class="lang-en">Light Theme</span><span class="lang-ta">லைட் தீம்</span>
+                <button type="button" class="btn btn-ghost flex-fill border" id="btnModeLight" onclick="setAppTheme('light')">
+                  ☀️ Light Mode
                 </button>
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          <!-- 3. Terminal Config Info Segment -->
-          <div class="pref-segment p-3 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border);">
-            <h4 class="h6 text-warning mb-2 fw-bold">
-              <span class="lang-en">Billing Diagnostics / விற்பனைத் தகவல்</span>
-              <span class="lang-ta">விற்பனைத் தகவல் விவரங்கள்</span>
-            </h4>
-            <div class="row g-3 mt-1">
-              <div class="col-sm-6">
-                <div class="p-2 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10 text-xs">
-                  <span class="text-muted d-block"><span class="lang-en">State Code</span><span class="lang-ta">மாநில குறியீடு</span></span>
-                  <span class="fw-bold text-white">33 (Tamil Nadu)</span>
+      <!-- TAB 2: Bill & Receipt Setup -->
+      <div class="settings-tab-pane d-none" id="receiptTab">
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <span class="icon">🧾</span> Receipt Layout & Customization
+          </div>
+          
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label-custom">Receipt Header Title</label>
+              <input type="text" class="form-control-custom" id="cfgReceiptHeader" value="GST INVOICE & BILL">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom">Thermal Paper Width</label>
+              <select class="form-select-custom" id="cfgPaperWidth">
+                <option value="80mm">80mm Thermal Paper (Standard POS)</option>
+                <option value="58mm">58mm Thermal Paper (Compact Handheld)</option>
+                <option value="A4">A4 Full Page Invoice</option>
+              </select>
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label-custom">Receipt Footer Message</label>
+              <input type="text" class="form-control-custom" id="cfgReceiptFooter" value="Thank you for your visit! Please come again! 🙏">
+            </div>
+
+            <div class="col-md-12 mt-3">
+              <div class="toggle-switch-group">
+                <div>
+                  <div class="toggle-switch-label">Auto-open Print Dialog</div>
+                  <div class="toggle-switch-sub">Automatically launch browser print window right after placing order</div>
+                </div>
+                <div class="form-check form-switch m-0">
+                  <input class="form-check-input" type="checkbox" id="cfgAutoPrint" checked>
                 </div>
               </div>
-              <div class="col-sm-6">
-                <div class="p-2 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10 text-xs">
-                  <span class="text-muted d-block"><span class="lang-en">Default Sales Tax</span><span class="lang-ta">வழக்கமான விற்பனை வரி</span></span>
-                  <span class="fw-bold text-white">Bilingual GST split (CGST 50% / SGST 50%)</span>
+
+              <div class="toggle-switch-group">
+                <div>
+                  <div class="toggle-switch-label">Show Detailed GST Breakdown</div>
+                  <div class="toggle-switch-sub">Print separate rows for CGST and SGST on customer receipt</div>
+                </div>
+                <div class="form-check form-switch m-0">
+                  <input class="form-check-input" type="checkbox" id="cfgShowGstBreakdown" checked>
+                </div>
+              </div>
+
+              <div class="toggle-switch-group">
+                <div>
+                  <div class="toggle-switch-label">Print HSN / SAC Codes</div>
+                  <div class="toggle-switch-sub">Display product HSN classification on invoice items</div>
+                </div>
+                <div class="form-check form-switch m-0">
+                  <input class="form-check-input" type="checkbox" id="cfgShowHsn" checked>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
       </div>
-    </div>
 
+      <!-- TAB 3: GST & Legal Compliance -->
+      <div class="settings-tab-pane d-none" id="taxTab">
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <span class="icon">⚖️</span> GSTIN & Tax Configuration
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label-custom">Business GSTIN (15 Digits) *</label>
+              <input type="text" class="form-control-custom font-monospace fw-bold" id="cfgGstin" value="33AABCU9603R1ZX" maxlength="15" oninput="updateLivePreview()">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom">State & State Code *</label>
+              <select class="form-select-custom" id="cfgStateCode" onchange="updateLivePreview()">
+                <option value="33 (Tamil Nadu)" selected>33 - Tamil Nadu</option>
+                <option value="29 (Karnataka)">29 - Karnataka</option>
+                <option value="32 (Kerala)">32 - Kerala</option>
+                <option value="37 (Andhra Pradesh)">37 - Andhra Pradesh</option>
+                <option value="36 (Telangana)">36 - Telangana</option>
+                <option value="27 (Maharashtra)">27 - Maharashtra</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label-custom">Tax Apportionment Formula</label>
+              <input type="text" class="form-control-custom" value="Intra-State: 50% CGST + 50% SGST" readonly disabled>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom">Invoice Number Prefix</label>
+              <input type="text" class="form-control-custom" id="cfgInvoicePrefix" value="ORD-">
+            </div>
+
+            <div class="col-md-12">
+              <div class="p-3 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10 text-xs">
+                <div class="fw-bold text-warning mb-1">💡 Indian GST Compliance Notice</div>
+                <div class="text-muted">All product sales compute exact Decimal-based CGST and SGST with largest-remainder apportionment. Financial transactions in the database are fully immutable and tamper-evident.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: Terminal & Hardware -->
+      <div class="settings-tab-pane d-none" id="terminalTab">
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <span class="icon">💻</span> POS Checkout & Cash Drawer
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label-custom">Default Payment Method</label>
+              <select class="form-select-custom" id="cfgDefaultPayment">
+                <option value="cash" selected>💵 Cash (Auto-tender active)</option>
+                <option value="upi">📱 UPI QR Code</option>
+                <option value="card">💳 Credit / Debit Card</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom">Currency Code</label>
+              <input type="text" class="form-control-custom" id="cfgCurrency" value="₹ (INR)" readonly disabled>
+            </div>
+
+            <div class="col-md-12 mt-2">
+              <div class="toggle-switch-group">
+                <div>
+                  <div class="toggle-switch-label">Audio Beep Feedback</div>
+                  <div class="toggle-switch-sub">Play audio chime when barcode is scanned or product added</div>
+                </div>
+                <div class="form-check form-switch m-0">
+                  <input class="form-check-input" type="checkbox" id="cfgAudioBeep" checked>
+                </div>
+              </div>
+
+              <div class="toggle-switch-group">
+                <div>
+                  <div class="toggle-switch-label">Keyboard Shortcuts Enabled</div>
+                  <div class="toggle-switch-sub">F2 (Place Order), F3 (Print Bill), F4 (WhatsApp), Ctrl+K (Search)</div>
+                </div>
+                <div class="form-check form-switch m-0">
+                  <input class="form-check-input" type="checkbox" id="cfgShortcuts" checked>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: System & Diagnostics -->
+      <div class="settings-tab-pane d-none" id="systemTab">
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <span class="icon">⚙️</span> Server & Storage Diagnostics
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="p-3 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10">
+                <span class="text-muted d-block text-xs">App Version</span>
+                <span class="fw-bold text-white">v2.4.0-Enterprise (TN-GST)</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10">
+                <span class="text-muted d-block text-xs">Runtime Engine</span>
+                <span class="fw-bold text-white">Python 3.12 / Flask 3.0.3</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10">
+                <span class="text-muted d-block text-xs">Rate Limiting</span>
+                <span class="fw-bold text-success">Active (100 req/min memory)</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10">
+                <span class="text-muted d-block text-xs">HTTP Cache Headers</span>
+                <span class="fw-bold text-warning">Cache-Control: no-cache</span>
+              </div>
+            </div>
+
+            <div class="col-md-12 mt-3">
+              <h5 class="h6 text-danger fw-bold mb-2">Maintenance & Cache</h5>
+              <div class="d-flex gap-3 flex-wrap">
+                <button type="button" class="btn btn-outline-warning btn-sm" onclick="clearBrowserCache()">
+                  🧹 Clear Browser Local Cache
+                </button>
+                <button type="button" class="btn btn-outline-info btn-sm" onclick="openModal('demoConsoleModal')">
+                  ⚙️ Open Demo Data Console
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Sticky Bottom Action Bar -->
+  <div class="settings-action-bar">
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-25 px-2 py-1">
+        💾 Auto-Synced to Client Storage
+      </span>
+      <span class="text-muted text-xs d-none d-md-inline">Changes reflect immediately on POS terminal & receipts</span>
+    </div>
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-ghost border btn-sm px-3" onclick="resetSettingsToDefaults()">
+        ↺ Reset to Defaults
+      </button>
+      <button type="button" class="btn btn-warning btn-sm px-4 fw-bold shadow-sm" onclick="saveAllSettings()">
+        ✓ Save Settings
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast Container -->
+<div id="settingsToast" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050; display: none;">
+  <div class="toast show align-items-center text-white bg-success border-0 shadow-lg" role="alert">
+    <div class="d-flex">
+      <div class="toast-body fw-bold" id="settingsToastMsg">
+        ✓ Settings saved successfully!
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="document.getElementById('settingsToast').style.display='none'"></button>
+    </div>
   </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  function setAppLanguage(lang) {
-    if (localStorage.getItem('vgl_lang') !== lang) {
-      toggleLanguage(); // executes switch in pos.js
-    }
-    syncButtons();
+// ── Settings State Management & Persistence ──────────────────
+const DEFAULT_SETTINGS = {
+  storeName: "Vignesh Growth Lab POS",
+  storeIcon: "🍽️",
+  tagline: "Premium Restaurant & Cafe Point of Sale",
+  businessType: "Restaurant & Dine-in",
+  phone: "+91 98400 00001",
+  whatsapp: "+91 98400 00001",
+  address: "23, Anna Salai, Chennai - 600002, Tamil Nadu",
+  accentColor: "amber",
+  receiptHeader: "GST INVOICE & BILL",
+  paperWidth: "80mm",
+  receiptFooter: "Thank you for your visit! Please come again! 🙏",
+  autoPrint: true,
+  showGstBreakdown: true,
+  showHsn: true,
+  gstin: "33AABCU9603R1ZX",
+  stateCode: "33 (Tamil Nadu)",
+  invoicePrefix: "ORD-",
+  defaultPayment: "cash",
+  audioBeep: true,
+  shortcuts: true
+};
+
+function getSettings() {
+  try {
+    const raw = localStorage.getItem('vgl_store_settings');
+    if (raw) return Object.assign({}, DEFAULT_SETTINGS, JSON.parse(raw));
+  } catch(e) {}
+  return Object.assign({}, DEFAULT_SETTINGS);
+}
+
+function switchSettingsTab(tabId, btn) {
+  document.querySelectorAll('.settings-tab-pane').forEach(el => el.classList.add('d-none'));
+  document.querySelectorAll('.settings-tab-btn').forEach(el => el.classList.remove('active'));
+  
+  const target = document.getElementById(tabId);
+  if (target) target.classList.remove('d-none');
+  if (btn) btn.classList.add('active');
+}
+
+function updateLivePreview() {
+  const storeName = document.getElementById('cfgStoreName').value || 'Store POS';
+  const icon = document.getElementById('cfgStoreIcon').value || '🍽️';
+  const tagline = document.getElementById('cfgTagline').value || '';
+  const businessType = document.getElementById('cfgBusinessType').value;
+  const phone = document.getElementById('cfgPhone').value || '';
+  const address = document.getElementById('cfgAddress').value || '';
+  const gstin = document.getElementById('cfgGstin').value || '';
+  const stateCode = document.getElementById('cfgStateCode').value || '';
+
+  document.getElementById('previewStoreName').textContent = storeName;
+  document.getElementById('previewLogo').textContent = icon;
+  document.getElementById('previewTagline').textContent = tagline;
+  document.getElementById('previewBusinessTypeChip').textContent = icon + ' ' + businessType;
+  document.getElementById('previewStateChip').textContent = '📍 ' + stateCode;
+  document.getElementById('previewPhone').textContent = phone;
+  document.getElementById('previewAddress').textContent = address;
+  document.getElementById('previewGstin').textContent = gstin;
+}
+
+function populateInputs() {
+  const s = getSettings();
+  document.getElementById('cfgStoreName').value = s.storeName;
+  document.getElementById('cfgStoreIcon').value = s.storeIcon;
+  document.getElementById('cfgTagline').value = s.tagline;
+  document.getElementById('cfgBusinessType').value = s.businessType;
+  document.getElementById('cfgPhone').value = s.phone;
+  document.getElementById('cfgWhatsapp').value = s.whatsapp;
+  document.getElementById('cfgAddress').value = s.address;
+  document.getElementById('cfgAccentColor').value = s.accentColor;
+  document.getElementById('cfgReceiptHeader').value = s.receiptHeader;
+  document.getElementById('cfgPaperWidth').value = s.paperWidth;
+  document.getElementById('cfgReceiptFooter').value = s.receiptFooter;
+  document.getElementById('cfgAutoPrint').checked = s.autoPrint;
+  document.getElementById('cfgShowGstBreakdown').checked = s.showGstBreakdown;
+  document.getElementById('cfgShowHsn').checked = s.showHsn;
+  document.getElementById('cfgGstin').value = s.gstin;
+  document.getElementById('cfgStateCode').value = s.stateCode;
+  document.getElementById('cfgInvoicePrefix').value = s.invoicePrefix;
+  document.getElementById('cfgDefaultPayment').value = s.defaultPayment;
+  document.getElementById('cfgAudioBeep').checked = s.audioBeep;
+  document.getElementById('cfgShortcuts').checked = s.shortcuts;
+
+  updateLivePreview();
+  syncThemeButtons();
+}
+
+function saveAllSettings() {
+  const s = {
+    storeName: document.getElementById('cfgStoreName').value.trim(),
+    storeIcon: document.getElementById('cfgStoreIcon').value,
+    tagline: document.getElementById('cfgTagline').value.trim(),
+    businessType: document.getElementById('cfgBusinessType').value,
+    phone: document.getElementById('cfgPhone').value.trim(),
+    whatsapp: document.getElementById('cfgWhatsapp').value.trim(),
+    address: document.getElementById('cfgAddress').value.trim(),
+    accentColor: document.getElementById('cfgAccentColor').value,
+    receiptHeader: document.getElementById('cfgReceiptHeader').value.trim(),
+    paperWidth: document.getElementById('cfgPaperWidth').value,
+    receiptFooter: document.getElementById('cfgReceiptFooter').value.trim(),
+    autoPrint: document.getElementById('cfgAutoPrint').checked,
+    showGstBreakdown: document.getElementById('cfgShowGstBreakdown').checked,
+    showHsn: document.getElementById('cfgShowHsn').checked,
+    gstin: document.getElementById('cfgGstin').value.trim().toUpperCase(),
+    stateCode: document.getElementById('cfgStateCode').value,
+    invoicePrefix: document.getElementById('cfgInvoicePrefix').value.trim(),
+    defaultPayment: document.getElementById('cfgDefaultPayment').value,
+    audioBeep: document.getElementById('cfgAudioBeep').checked,
+    shortcuts: document.getElementById('cfgShortcuts').checked
+  };
+
+  localStorage.setItem('vgl_store_settings', JSON.stringify(s));
+  updateLivePreview();
+  showToast('✓ Settings & branding saved successfully!');
+}
+
+function resetSettingsToDefaults() {
+  if (confirm('Reset all settings to default configuration?')) {
+    localStorage.removeItem('vgl_store_settings');
+    populateInputs();
+    showToast('↺ Settings reset to factory defaults.');
   }
+}
 
-  function setAppTheme(theme) {
-    const isLight = document.documentElement.classList.contains('theme-light');
-    if (theme === 'light' && !isLight) {
-      toggleTheme();
-    } else if (theme === 'dark' && isLight) {
-      toggleTheme();
-    }
-    syncButtons();
+function showToast(msg) {
+  const t = document.getElementById('settingsToast');
+  document.getElementById('settingsToastMsg').textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 3000);
+}
+
+function setAppTheme(theme) {
+  const isLight = document.documentElement.classList.contains('theme-light');
+  if (theme === 'light' && !isLight) {
+    toggleTheme();
+  } else if (theme === 'dark' && isLight) {
+    toggleTheme();
   }
+  syncThemeButtons();
+}
 
-  function syncButtons() {
-    const activeLang = localStorage.getItem('vgl_lang') || 'ta';
-    const activeTheme = localStorage.getItem('vgl_theme') || 'dark';
-
-    // Sync Lang Buttons
-    const btnEn = document.getElementById('btn-lang-en');
-    const btnTa = document.getElementById('btn-lang-ta');
-    if (activeLang === 'en') {
-      btnEn.classList.add('btn-primary');
-      btnEn.classList.remove('btn-ghost');
-      btnTa.classList.add('btn-ghost');
-      btnTa.classList.remove('btn-primary');
-    } else {
-      btnTa.classList.add('btn-primary');
-      btnTa.classList.remove('btn-ghost');
-      btnEn.classList.add('btn-ghost');
-      btnEn.classList.remove('btn-primary');
-    }
-
-    // Sync Theme Buttons
-    const btnDark = document.getElementById('btn-theme-dark');
-    const btnLight = document.getElementById('btn-theme-light');
-    if (activeTheme === 'light') {
-      btnLight.classList.add('btn-primary');
-      btnLight.classList.remove('btn-ghost');
-      btnDark.classList.add('btn-ghost');
-      btnDark.classList.remove('btn-primary');
-    } else {
-      btnDark.classList.add('btn-primary');
-      btnDark.classList.remove('btn-ghost');
-      btnLight.classList.add('btn-ghost');
-      btnLight.classList.remove('btn-primary');
-    }
+function syncThemeButtons() {
+  const isLight = document.documentElement.classList.contains('theme-light');
+  const btnDark = document.getElementById('btnModeDark');
+  const btnLight = document.getElementById('btnModeLight');
+  if (isLight) {
+    btnLight.classList.add('btn-warning');
+    btnLight.classList.remove('btn-ghost');
+    btnDark.classList.add('btn-ghost');
+    btnDark.classList.remove('btn-warning');
+  } else {
+    btnDark.classList.add('btn-warning');
+    btnDark.classList.remove('btn-ghost');
+    btnLight.classList.add('btn-ghost');
+    btnLight.classList.remove('btn-warning');
   }
+}
 
-  // Initial Sync
-  syncButtons();
+function clearBrowserCache() {
+  localStorage.removeItem('vgl_store_settings');
+  showToast('🧹 Local storage cache cleared.');
+}
 
-  // Override language toggle callback to sync settings buttons in real-time
-  const baseToggleLanguage = window.toggleLanguage;
-  window.toggleLanguage = function() {
-    if (typeof baseToggleLanguage === 'function') {
-      baseToggleLanguage();
-    }
-    syncButtons();
-  }
+// Initial Run
+document.addEventListener('DOMContentLoaded', populateInputs);
+populateInputs();
 </script>
 {% endblock %}
