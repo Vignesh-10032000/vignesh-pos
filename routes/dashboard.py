@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify
+from flask import Blueprint, render_template, jsonify, redirect
 from models import Sale, Product, Customer, SaleItem
 from extensions import db, cache
 from datetime import datetime, timedelta
@@ -9,6 +9,14 @@ dashboard_bp = Blueprint('dashboard', __name__)
 @dashboard_bp.route('/')
 def index():
     return render_template('dashboard.html', page='dashboard')
+
+@dashboard_bp.route('/login')
+def login():
+    return render_template('login.html', page='login')
+
+@dashboard_bp.route('/logout')
+def logout():
+    return redirect('/login')
 
 @dashboard_bp.route('/settings')
 def settings():

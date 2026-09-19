@@ -142,15 +142,35 @@
       </a>
     </nav>
 
-    <div class="sidebar-footer">
+    <div class="sidebar-footer" style="display: flex; align-items: center; justify-content: space-between;">
       <div class="user-info">
-        <div class="user-avatar">V</div>
+        <div class="user-avatar" id="sidebarAvatar">V</div>
         <div class="user-details">
-          <div class="user-name">Store Admin</div>
-          <div class="user-role">Vignesh Growth Lab · TN ✓</div>
+          <div class="user-name" id="sidebarUserName">Store Admin</div>
+          <div class="user-role" id="sidebarUserRole">Vignesh Growth Lab · TN ✓</div>
         </div>
       </div>
+      <a href="/logout" onclick="localStorage.removeItem('vgl_session')" class="btn btn-ghost btn-sm text-secondary" title="Sign Out" style="padding: 6px 8px; border-radius: 8px; line-height: 1;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </a>
     </div>
+    <script>
+      try {
+        const sess = JSON.parse(localStorage.getItem('vgl_session'));
+        if (sess && sess.username) {
+          const nameEl = document.getElementById('sidebarUserName');
+          const roleEl = document.getElementById('sidebarUserRole');
+          const avEl = document.getElementById('sidebarAvatar');
+          if (nameEl) nameEl.textContent = sess.username.charAt(0).toUpperCase() + sess.username.slice(1);
+          if (roleEl) roleEl.textContent = sess.role + ' · TN ✓';
+          if (avEl) avEl.textContent = sess.username.charAt(0).toUpperCase();
+        }
+      } catch(e) {}
+    </script>
   </aside>
 
   <!-- Main Content -->
