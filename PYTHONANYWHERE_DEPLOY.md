@@ -72,13 +72,28 @@ os.environ['RECEIPT_BASE_URL'] = f'https://{username}.pythonanywhere.com'
 from wsgi import application
 ```
 
-3. Save the file.
+3. Click **Save** in the top-right corner.
 
 ---
 
-### Step 6: Reload the Web App
-1. Go back to the **Web** tab.
-2. Click the big green **Reload <your-username>.pythonanywhere.com** button.
-3. Open `https://<your-username>.pythonanywhere.com` in your browser.
+### Step 6: Configure Static Files Mapping (Crucial for Fast CSS/JS)
+Under the **Static files** section on the Web tab:
+1. Click **Enter URL**: `/static/`
+2. Click **Enter path**: `/home/<your-username>/vignesh-pos/static/`
+3. Click the checkmark icon to save.
 
-Your live demo of **Vignesh Growth Lab POS** is now ready! 🎉
+---
+
+### Step 7: Reload the Web App
+1. Go back to the top of the **Web** tab.
+2. Click the big green **Reload <your-username>.pythonanywhere.com** button.
+3. Open `https://<your-username>.pythonanywhere.com` in your browser!
+
+Your full-stack live demo of **Vignesh Growth Lab POS** is now online! 🎉
+
+---
+
+### Quick Troubleshooting
+- **Missing Module / Error 500**: Check the **Error log** link at the bottom of the Web tab. Usually means `pip install -r requirements.txt` was not run inside the virtual environment.
+- **Database Location**: The SQLite database is automatically created at `/home/<your-username>/vignesh-pos/instance/pos.db`.
+- **Reset Demo Data**: You can click the **⚙️ Demo Console** button on the live website anytime to simulate random live sales or do a full data reset.
