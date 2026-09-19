@@ -1,6 +1,9 @@
 [build]
 builder = "NIXPACKS"
 
+[build.env]
+MISE_PYTHON_GITHUB_ATTESTATIONS = "false"
+
 [deploy]
 startCommand = "gunicorn app:app --bind 0.0.0.0:$PORT"
 restartPolicyType = "ON_FAILURE"
