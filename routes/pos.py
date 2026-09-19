@@ -103,7 +103,7 @@ def checkout():
     # ── [P0-3] Validate EVERYTHING before any mutation ──────────────────────
     items = data.get('items')
     if not items:
-        return jsonify({'error': 'Cart is empty / கார்ட் காலியாக உள்ளது'}), 400
+        return jsonify({'error': 'Cart is empty'}), 400
     if not isinstance(items, list):
         return jsonify({'error': 'items must be a list'}), 400
     if len(items) > MAX_LINES_PER_SALE:

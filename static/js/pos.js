@@ -1,5 +1,5 @@
 // ============================================================
-// மாணிக்கம் ஸ்டோர்ஸ் POS — Shared JS Utilities
+// Vignesh Growth Lab POS — Shared JS Utilities
 // Tamil Nadu · GST Ready · ₹ Indian Rupee
 // ============================================================
 
@@ -155,18 +155,19 @@ function showToast(message, type = 'info', duration = 3000) {
 }
 
 // Language and Theme Toggle Implementation
-let currentLanguage = localStorage.getItem('vgl_lang') || 'ta';
+let currentLanguage = 'en';
+localStorage.setItem('vgl_lang', 'en');
 
 function getLangTxt(en, ta) {
-  return currentLanguage === 'en' ? en : ta;
+  return en;
 }
 
 function payLabel(method) {
   const labels = {
-    cash: getLangTxt('💵 Cash', '💵 ரொக்கம்'),
-    upi: getLangTxt('📱 UPI', '📱 UPI'),
-    card: getLangTxt('💳 Card', '💳 அட்டை'),
-    mobile: getLangTxt('📱 UPI', '📱 UPI')
+    cash: '💵 Cash',
+    upi: '📱 UPI',
+    card: '💳 Card',
+    mobile: '📱 UPI'
   };
   return labels[method] || method;
 }
@@ -198,28 +199,12 @@ function showThemeIcon(theme) {
 }
 
 function toggleLanguage() {
-  const isTa = document.documentElement.classList.contains('lang-ta');
-  if (isTa) {
-    document.documentElement.classList.remove('lang-ta');
-    document.documentElement.classList.add('lang-en');
-    document.documentElement.setAttribute('lang', 'en');
-    localStorage.setItem('vgl_lang', 'en');
-    currentLanguage = 'en';
-  } else {
-    document.documentElement.classList.remove('lang-en');
-    document.documentElement.classList.add('lang-ta');
-    document.documentElement.setAttribute('lang', 'ta');
-    localStorage.setItem('vgl_lang', 'ta');
-    currentLanguage = 'ta';
-  }
-  
-  // Re-trigger dynamic render functions if present on the active page
-  if (typeof loadDashboard === 'function') loadDashboard();
-  if (typeof loadProducts === 'function') loadProducts();
-  if (typeof loadSales === 'function') loadSales();
-  if (typeof loadCustomers === 'function') loadCustomers();
-  if (typeof renderCart === 'function') renderCart();
-  if (typeof loadReports === 'function') loadReports();
+  // English only — Tamil disabled as per requirements
+  document.documentElement.classList.remove('lang-ta');
+  document.documentElement.classList.add('lang-en');
+  document.documentElement.setAttribute('lang', 'en');
+  localStorage.setItem('vgl_lang', 'en');
+  currentLanguage = 'en';
 }
 
 // Sync UI on DOM Load

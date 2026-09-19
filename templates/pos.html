@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}POS Terminal{% endblock %}
-{% block page_title %}<span class="lang-en">🍽️ Restaurant POS</span><span class="lang-ta">🍽️ உணவக POS</span>{% endblock %}
+{% block page_title %}🍽️ Restaurant POS{% endblock %}
 
 {% block content %}
 <style>
@@ -483,10 +483,10 @@ html.theme-light #receiptModal .modal-dialog {
 <!-- Mobile Segmented Navigation (Menu / Order Ticket) -->
 <div class="pos-mobile-nav" id="posMobileNav">
   <button type="button" class="pos-mobile-tab-btn active" id="mobileTabMenuBtn" onclick="switchMobilePosTab('menu')">
-    <span>📋</span> <span class="lang-en">Menu Board</span><span class="lang-ta">மெனு பலகை</span>
+    <span>📋</span> Menu Board
   </button>
   <button type="button" class="pos-mobile-tab-btn" id="mobileTabCartBtn" onclick="switchMobilePosTab('cart')">
-    <span>🛒</span> <span class="lang-en">Order Ticket</span><span class="lang-ta">நடப்பு ஆர்டர்</span>
+    <span>🛒</span> Order Ticket
     <span class="pos-mobile-cart-badge" id="mobileCartBadge">0</span>
   </button>
 </div>
@@ -505,11 +505,11 @@ html.theme-light #receiptModal .modal-dialog {
     </div>
 
     <div class="category-filters" id="categoryFilters">
-      <button class="cat-btn active" data-cat=""><span class="lang-en">🍽️ All</span><span class="lang-ta">🍽️ அனைத்தும்</span></button>
+      <button class="cat-btn active" data-cat="">🍽️ All</button>
     </div>
 
     <div class="products-grid" id="productsGrid">
-      <div class="loading-state"><div class="spinner"></div><p><span class="lang-en">Loading menu...</span><span class="lang-ta">மெனு ஏற்றுகிறது...</span></p></div>
+      <div class="loading-state"><div class="spinner"></div><p>Loading menu...</p></div>
     </div>
   </div>
 
@@ -517,29 +517,29 @@ html.theme-light #receiptModal .modal-dialog {
   <div class="pos-cart-panel">
     <div class="cart-header">
       <button type="button" class="btn btn-ghost btn-sm mobile-back-to-menu-btn" onclick="switchMobilePosTab('menu')" title="Back to menu">
-        <span>←</span> <span class="lang-en">Menu</span><span class="lang-ta">மெனு</span>
+        <span>←</span> Menu
       </button>
       <h2 class="cart-title">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18">
           <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
           <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
         </svg>
-        <span class="lang-en">Current Order</span><span class="lang-ta">நடப்பு ஆர்டர்</span>
+        Current Order
         <span class="cart-count" id="cartCount">0</span>
       </h2>
-      <button class="btn btn-ghost btn-sm text-danger" id="clearCartBtn" style="padding: 2px 8px; font-size: 11px;"><span class="lang-en">Clear</span><span class="lang-ta">அழி</span></button>
+      <button class="btn btn-ghost btn-sm text-danger" id="clearCartBtn" style="padding: 2px 8px; font-size: 11px;">Clear</button>
     </div>
 
     <!-- Customer & WhatsApp Phone -->
     <div class="cart-customer">
       <div class="cart-customer-grid">
         <div class="customer-field">
-          <label class="form-label mb-1 text-xs text-muted" style="font-size:10px; font-weight:600;"><span class="lang-en">Customer</span><span class="lang-ta">வாடிக்கையாளர்</span></label>
+          <label class="form-label mb-1 text-xs text-muted" style="font-size:10px; font-weight:600;">Customer</label>
           <select id="customerSelect" class="form-select form-select-sm" style="padding: 2px 20px 2px 6px; font-size: 11px; height: 26px;"></select>
         </div>
         <div class="phone-field">
           <label class="form-label mb-1 text-xs" style="font-size:10px; font-weight:600; color:#10b981; display:flex; align-items:center; gap:2px;">
-            <span>📱</span><span class="lang-en">WhatsApp</span><span class="lang-ta">வாட்ஸ்அப்</span>
+            <span>📱</span>WhatsApp
           </label>
           <input type="tel" id="customerPhoneInput" class="form-control" placeholder="10-digit mobile" maxlength="10" style="padding: 2px 6px; font-size: 11px; height: 26px; background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary); border-radius:6px; width:100%;">
         </div>
@@ -550,8 +550,8 @@ html.theme-light #receiptModal .modal-dialog {
     <div class="cart-items" id="cartItems">
       <div class="cart-empty">
         <div class="cart-empty-icon">🍽️</div>
-        <p class="mb-0 fw-500"><span class="lang-en">No items in order</span><span class="lang-ta">ஆர்டரில் பொருட்கள் இல்லை</span></p>
-        <p class="text-xs text-muted mb-0"><span class="lang-en">Tap menu items to add</span><span class="lang-ta">மெனு பொருட்களைத் தட்டவும்</span></p>
+        <p class="mb-0 fw-500">No items in order</p>
+        <p class="text-xs text-muted mb-0">Tap menu items to add</p>
       </div>
     </div>
 
@@ -560,22 +560,22 @@ html.theme-light #receiptModal .modal-dialog {
       <!-- Order Summary -->
       <div class="cart-summary">
         <div class="summary-row">
-          <span><span class="lang-en">Subtotal</span><span class="lang-ta">துணை மொத்தம்</span></span>
+          <span>Subtotal</span>
           <span id="cartSubtotal">₹0.00</span>
         </div>
         <div class="summary-row" id="gstSummaryRow" style="display:none; color:var(--cyan); font-size:11px;">
-          <span><span class="lang-en">GST Tax</span><span class="lang-ta">ஜிஎஸ்டி வரி</span></span>
+          <span>GST Tax</span>
           <span id="gstTotalAmt">₹0.00</span>
         </div>
         <div class="summary-row">
-          <span><span class="lang-en">Discount</span><span class="lang-ta">தள்ளுபடி</span></span>
+          <span>Discount</span>
           <div class="discount-input-wrap">
             <span>₹</span>
             <input type="number" id="discountInput" class="discount-input" value="0" min="0" step="1">
           </div>
         </div>
         <div class="summary-row summary-total">
-          <span><span class="lang-en">Total</span><span class="lang-ta">மொத்தம்</span></span>
+          <span>Total</span>
           <span id="cartTotal">₹0.00</span>
         </div>
         <!-- Hidden elements for JS compatibility -->
@@ -588,20 +588,20 @@ html.theme-light #receiptModal .modal-dialog {
       <!-- Payment Section -->
       <div class="payment-section">
         <div class="payment-methods">
-          <button class="pay-btn active" data-method="cash" id="payCash"><span class="lang-en">💵 Cash</span><span class="lang-ta">💵 ரொக்கம்</span></button>
-          <button class="pay-btn" data-method="upi" id="payUpi"><span class="lang-en">📱 UPI</span><span class="lang-ta">📱 UPI</span></button>
-          <button class="pay-btn" data-method="card" id="payCard"><span class="lang-en">💳 Card</span><span class="lang-ta">💳 அட்டை</span></button>
+          <button class="pay-btn active" data-method="cash" id="payCash">💵 Cash</button>
+          <button class="pay-btn" data-method="upi" id="payUpi">📱 UPI</button>
+          <button class="pay-btn" data-method="card" id="payCard">💳 Card</button>
         </div>
 
         <!-- UPI QR hint -->
         <div id="upiSection" style="display:none" class="upi-section">
           <div class="upi-id">📲 UPI: vgl@upi</div>
-          <div class="text-muted text-sm"><span class="lang-en">We accept PhonePe / GPay / Paytm</span><span class="lang-ta">PhonePe / GPay / Paytm ஏற்கிறோம்</span></div>
+          <div class="text-muted text-sm">We accept PhonePe / GPay / Paytm</div>
         </div>
 
         <div class="amount-paid-section" id="amountPaidSection">
           <div class="d-flex justify-content-between align-items-center mb-1">
-            <label class="form-label mb-0 text-xs"><span class="lang-en">Amount Received (₹)</span><span class="lang-ta">பெற்ற தொகை (₹)</span></label>
+            <label class="form-label mb-0 text-xs">Amount Received (₹)</label>
             <div class="quick-amounts" id="quickAmounts"></div>
           </div>
           <div class="amount-input-wrap">
@@ -609,7 +609,7 @@ html.theme-light #receiptModal .modal-dialog {
             <input type="number" id="amountPaid" class="amount-input" placeholder="0.00" step="1">
           </div>
           <div class="change-display" id="changeDisplay" style="display:none">
-            <span><span class="lang-en">Change to Return:</span><span class="lang-ta">திரும்ப கொடுக்க:</span></span>
+            <span>Change to Return:</span>
             <span class="change-amount" id="changeAmount">₹0.00</span>
           </div>
         </div>
@@ -618,16 +618,16 @@ html.theme-light #receiptModal .modal-dialog {
         <div class="checkout-actions-wrapper">
           <button class="btn btn-primary btn-checkout w-100" id="checkoutBtn" disabled>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><polyline points="20 6 9 17 4 12"/></svg>
-            <span class="lang-en">🍽️ Place Order (F2)</span><span class="lang-ta">🍽️ ஆர்டர் செய் (F2)</span>
+            🍽️ Place Order (F2)
           </button>
           <div class="checkout-sub-actions">
             <button class="btn btn-print-action" id="billAndPrintBtn" disabled>
               <span>🖨️</span>
-              <span class="lang-en">Print Bill (F3)</span><span class="lang-ta">பிரிண்ட் பில் (F3)</span>
+              Print Bill (F3)
             </button>
             <button class="btn btn-whatsapp-action" id="billAndWhatsAppBtn" disabled>
               <span>📱</span>
-              <span class="lang-en">WhatsApp Bill (F4)</span><span class="lang-ta">வாட்ஸ்அப் (F4)</span>
+              WhatsApp Bill (F4)
             </button>
           </div>
         </div>
@@ -643,7 +643,7 @@ html.theme-light #receiptModal .modal-dialog {
     <span class="floating-bar-total" id="floatingCartTotal">₹0.00</span>
   </div>
   <div class="floating-bar-action">
-    <span class="lang-en">Review & Pay ➔</span><span class="lang-ta">பணம் செலுத்து ➔</span>
+    Review & Pay ➔
   </div>
 </div>
 
@@ -654,25 +654,25 @@ html.theme-light #receiptModal .modal-dialog {
 <div class="modal" id="receiptModal">
   <div class="modal-dialog modal-md" style="max-width: 440px;">
     <div class="modal-header">
-      <h3><span class="lang-en">🧾 GST Bill & Receipt</span><span class="lang-ta">🧾 GST பில் & ரசீது</span></h3>
+      <h3>🧾 GST Bill & Receipt</h3>
       <button class="modal-close" id="closeReceipt">✕</button>
     </div>
     <div class="modal-body" id="receiptContent" style="max-height: 52vh; overflow-y: auto; padding: 14px;"></div>
     <div class="modal-footer" style="display:flex; flex-direction:column; gap:8px; padding: 12px 16px;">
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; width:100%;">
         <button class="btn" id="printReceipt" style="background:#2563eb; color:white; font-weight:600; justify-content:center; padding: 9px 12px; border-radius:10px;">
-          <span>🖨️</span> <span class="lang-en">Print Receipt</span><span class="lang-ta">அச்சிடு</span>
+          <span>🖨️</span> Print Receipt
         </button>
         <button class="btn" id="shareWhatsAppBtn" style="background:#25D366; color:white; font-weight:600; border:none; justify-content:center; padding: 9px 12px; border-radius:10px;">
-          <span>📱</span> <span class="lang-en">WhatsApp Bill</span><span class="lang-ta">WhatsApp பில்</span>
+          <span>📱</span> WhatsApp Bill
         </button>
       </div>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; width:100%;">
         <button class="btn btn-ghost" id="openPdfBtn" style="border:1px solid var(--border); justify-content:center; font-size:12px; padding: 7px 10px; border-radius:10px;">
-          <span>📄</span> <span class="lang-en">View PDF Receipt</span><span class="lang-ta">ரசீது PDF</span>
+          <span>📄</span> View PDF Receipt
         </button>
         <button class="btn btn-primary" id="newSaleBtn" style="background:var(--warm-amber, #e67e22); border:none; justify-content:center; font-size:12px; font-weight:700; padding: 7px 10px; border-radius:10px;">
-          <span>➕</span> <span class="lang-en">New Order (Esc)</span><span class="lang-ta">புதிய ஆர்டர்</span>
+          <span>➕</span> New Order (Esc)
         </button>
       </div>
     </div>
@@ -738,22 +738,11 @@ async function loadCategories() {
   cf.innerHTML = '';
   if (allBtn) cf.appendChild(allBtn);
   
-  const catTranslations = {
-    'உணவு & பானம்': 'Food & Drinks',
-    'மளிகை': 'Grocery',
-    'மின்னணுவியல்': 'Electronics',
-    'ஆடை & துணி': 'Clothing & Textiles',
-    'சுகாதார பொருட்கள்': 'Health & Care',
-    'எழுதுபொருட்கள்': 'Stationery'
-  };
-
-  cats.forEach(c => {
+    cats.forEach(c => {
     const btn = document.createElement('button');
     btn.className = 'cat-btn';
     btn.dataset.cat = c.id;
-    const nameEn = catTranslations[c.name] || c.name;
-    const nameTa = c.name;
-    btn.innerHTML = `${escapeHtml(c.icon)} <span class="lang-en">${escapeHtml(nameEn)}</span><span class="lang-ta">${escapeHtml(nameTa)}</span>`;
+    btn.innerHTML = `${escapeHtml(c.icon)} ${escapeHtml(c.name)}`;
     cf.appendChild(btn);
   });
   cf.querySelectorAll('.cat-btn').forEach(btn => {
@@ -806,11 +795,11 @@ async function loadProducts(q = '', cat = selCat) {
   // Translate search input placeholder
   const searchInput = document.getElementById('productSearch');
   if (searchInput) {
-    searchInput.placeholder = getLangTxt('🔍 Search menu / Barcode / HSN...', '🔍 மெனு தேடுக / Barcode / HSN...');
+    searchInput.placeholder = '🔍 Search menu / Barcode / HSN...';
   }
   
   if (!products.length) {
-    grid.innerHTML = `<div class="loading-state"><p class="text-muted">${getLangTxt('No items found', 'பொருட்கள் இல்லை')}</p></div>`;
+    grid.innerHTML = `<div class="loading-state"><p class="text-muted">${'No items found'}</p></div>`;
     return;
   }
   // The onclick builds a JS string literal inside an HTML attribute, so the
@@ -824,27 +813,27 @@ async function loadProducts(q = '', cat = selCat) {
       <div class="product-gst-badge">GST ${p.gst_rate}%</div>
       <div class="product-meta">
         <span class="product-price">${fmt(p.price)}</span>
-        <span class="product-stock ${p.stock <= 10 ? 'low' : ''}">${p.stock === 0 ? getLangTxt('🚫 Out of stock', '🚫 இல்லை') : p.stock + ' ' + getLangTxt('in stock', 'உள்ளது')}</span>
+        <span class="product-stock ${p.stock <= 10 ? 'low' : ''}">${p.stock === 0 ? '🚫 Out of stock' : p.stock + ' ' + 'in stock'}</span>
       </div>
     </div>
   `).join('');
 }
 
 function addToCart(id, name, price, stock, gstRate) {
-  if (stock === 0) { showToast(getLangTxt('Out of stock!', 'இருப்பு இல்லை!'), 'error'); return; }
+  if (stock === 0) { showToast('Out of stock!', 'error'); return; }
   
   // Prompt for quantity
-  const input = prompt(name + '\n' + getLangTxt('Enter quantity:', 'எத்தனை? / Quantity:'), '1');
+  const input = prompt(name + '\n' + 'Enter quantity:', '1');
   if (input === null) return; // User cancelled
   const qty = parseInt(input);
-  if (isNaN(qty) || qty <= 0) { showToast(getLangTxt('Invalid quantity', 'தவறான அளவு'), 'error'); return; }
+  if (isNaN(qty) || qty <= 0) { showToast('Invalid quantity', 'error'); return; }
   
   const existing = cart.find(i => i.id === id);
   if (existing) {
-    if (existing.qty + qty > stock) { showToast(getLangTxt('Insufficient stock available!', 'அதிகபட்ச இருப்பு இல்லை!'), 'warning'); return; }
+    if (existing.qty + qty > stock) { showToast('Insufficient stock available!', 'warning'); return; }
     existing.qty += qty;
   } else {
-    if (qty > stock) { showToast(getLangTxt('Insufficient stock available!', 'அதிகபட்ச இருப்பு இல்லை!'), 'warning'); return; }
+    if (qty > stock) { showToast('Insufficient stock available!', 'warning'); return; }
     cart.push({ id, name, price, qty: qty, stock, gstRate });
   }
 
@@ -858,7 +847,7 @@ function addToCart(id, name, price, stock, gstRate) {
   });
 
   renderCart();
-  showToast(name + ' (' + qty + ' ' + getLangTxt('pcs) added', 'pcs) சேர்க்கப்பட்டது'), 'success');
+  showToast(name + ' (' + qty + ' ' + 'pcs) added', 'success');
 }
 
 function handleCartItemKey(e, idx) {
@@ -869,9 +858,9 @@ function handleCartItemKey(e, idx) {
     if (qty <= item.stock) {
       item.qty = qty;
       renderCart();
-      showToast(item.name + ' ' + getLangTxt('quantity updated to ' + qty, 'அளவு ' + qty + ' ஆக மாற்றப்பட்டது'), 'success');
+      showToast(item.name + ' quantity updated to ' + qty, 'success');
     } else {
-      showToast(getLangTxt('Insufficient stock available', 'இருப்பு போதுமானதாக இல்லை'), 'warning');
+      showToast('Insufficient stock available', 'warning');
     }
   }
 }
@@ -889,7 +878,7 @@ function renderCart() {
 
   const cartItems = document.getElementById('cartItems');
   if (!cart.length) {
-    cartItems.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🍽️</div><p>${getLangTxt('No items in order', 'ஆர்டரில் பொருட்கள் இல்லை')}</p></div>`;
+    cartItems.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🍽️</div><p>${'No items in order'}</p></div>`;
     document.getElementById('gstBreakdown').style.display = 'none';
   } else {
     cartItems.innerHTML = cart.map((item, idx) => `
@@ -1018,7 +1007,7 @@ document.getElementById('amountPaid').addEventListener('input', () => {
 });
 
 document.getElementById('clearCartBtn').addEventListener('click', () => {
-  if (cart.length && confirm(getLangTxt('Are you sure you want to clear the order?', 'ஆர்டர் அழிக்கவா?'))) { cart = []; renderCart(); }
+  if (cart.length && confirm('Are you sure you want to clear the order?')) { cart = []; renderCart(); }
 });
 
 async function performCheckout(mode = 'standard') {
@@ -1028,7 +1017,7 @@ async function performCheckout(mode = 'standard') {
   if (selectedPayment === 'cash' && paid === 0) {
     paid = total;
   } else if (selectedPayment === 'cash' && paid < total) {
-    showToast(getLangTxt('Received amount is less than total', 'பெற்ற தொகை குறைவாக உள்ளது'), 'error');
+    showToast('Received amount is less than total', 'error');
     return;
   }
   
@@ -1049,7 +1038,7 @@ async function performCheckout(mode = 'standard') {
     checkoutBtn.disabled = true;
     if (printBtn) printBtn.disabled = true;
     if (waBtn) waBtn.disabled = true;
-    checkoutBtn.textContent = getLangTxt('Processing...', 'செயலாக்குகிறது...');
+    checkoutBtn.textContent = 'Processing...';
 
     const res = await fetch('/api/checkout', {
       method: 'POST',
@@ -1063,24 +1052,24 @@ async function performCheckout(mode = 'standard') {
       renderCart();
 
       if (mode === 'print') {
-        showToast(getLangTxt('Order placed! Opening Print...', 'ஆர்டர் வைக்கப்பட்டது! அச்சிடப்படுகிறது...'), 'success');
+        showToast('Order placed! Opening Print...', 'success');
         setTimeout(() => window.print(), 500);
       } else if (mode === 'whatsapp') {
-        showToast(getLangTxt('Order placed! Triggering WhatsApp...', 'ஆர்டர் வைக்கப்பட்டது! வாட்ஸ்அப் திறக்கிறது...'), 'success');
+        showToast('Order placed! Triggering WhatsApp...', 'success');
         triggerWhatsApp(data.sale.id, phoneVal);
       } else {
-        showToast(getLangTxt('Order placed successfully! 🍽️', 'ஆர்டர் வெற்றிகரமாக வைக்கப்பட்டது! 🍽️'), 'success');
+        showToast('Order placed successfully! 🍽️', 'success');
       }
     } else {
-      showToast(data.error || getLangTxt('An error occurred', 'பிழை ஏற்பட்டது'), 'error');
+      showToast(data.error || 'An error occurred', 'error');
     }
   } catch (err) {
-    showToast(getLangTxt('Network error during checkout', 'ஆர்டர் செயலாக்கத்தில் பிழை'), 'error');
+    showToast('Network error during checkout', 'error');
   } finally {
     checkoutBtn.disabled = cart.length === 0;
     if (printBtn) printBtn.disabled = cart.length === 0;
     if (waBtn) waBtn.disabled = cart.length === 0;
-    checkoutBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><polyline points="20 6 9 17 4 12"/></svg> ' + getLangTxt('🍽️ Place Order (F2)', '🍽️ ஆர்டர் செய் (F2)');
+    checkoutBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><polyline points="20 6 9 17 4 12"/></svg> ' + '🍽️ Place Order (F2)';
   }
 }
 
@@ -1093,12 +1082,12 @@ async function triggerWhatsApp(saleId, customPhone = null) {
     const data = await res.json();
     if (data.success && data.whatsapp_url) {
       window.open(data.whatsapp_url, '_blank');
-      showToast(getLangTxt('📱 WhatsApp Bill opened!', '📱 வாட்ஸ்அப் ரசீது திறக்கப்பட்டது!'), 'success');
+      showToast('📱 WhatsApp Bill opened!', 'success');
     } else {
-      showToast(getLangTxt('Could not generate WhatsApp link', 'வாட்ஸ்அப் இணைப்பு உருவாக்க முடியவில்லை'), 'error');
+      showToast('Could not generate WhatsApp link', 'error');
     }
   } catch (e) {
-    showToast(getLangTxt('Connection error for WhatsApp', 'வாட்ஸ்அப் இணைப்பு பிழை'), 'error');
+    showToast('Connection error for WhatsApp', 'error');
   }
 }
 
@@ -1112,14 +1101,14 @@ function showReceipt(sale) {
   content.innerHTML = `
     <div class="receipt">
       <div class="receipt-header">
-        <div class="receipt-logo">🍽️ ${getLangTxt('Vignesh Growth Lab POS', 'விக்னேஷ் குரோத் லேப்')}</div>
+        <div class="receipt-logo">🍽️ Vignesh Growth Lab POS</div>
         <div style="font-size:11px;color:#94a3b8">23, Anna Salai, Chennai - 600002</div>
         <div style="font-size:11px;color:#94a3b8">GSTIN: 33AABCU9603R1ZX</div>
-        <div style="font-size:11px;color:#94a3b8">${getLangTxt('Tamil Nadu State · CGST + SGST', 'தமிழ்நாடு மாநிலம் · CGST + SGST')}</div>
-        <div class="receipt-id">${getLangTxt('Order', 'ஆர்டர்')} #${sale.id}</div>
+        <div style="font-size:11px;color:#94a3b8">Tamil Nadu State · Intra-State CGST + SGST</div>
+        <div class="receipt-id">Order #${sale.id}</div>
         <div class="receipt-date">${escapeHtml(sale.created_at)}</div>
-        <div class="receipt-customer">${getLangTxt('Customer', 'வாடிக்கையாளர்')}: ${escapeHtml(sale.customer)}</div>
-        <div class="receipt-payment">${getLangTxt('Payment Method', 'கட்டண முறை')}: ${escapeHtml(payLabel(sale.payment_method))}</div>
+        <div class="receipt-customer">Customer: ${escapeHtml(sale.customer)}</div>
+        <div class="receipt-payment">Payment Method: ${escapeHtml(payLabel(sale.payment_method))}</div>
       </div>
       <div class="receipt-divider"></div>
       <div class="receipt-items">
@@ -1135,15 +1124,15 @@ function showReceipt(sale) {
       </div>
       <div class="receipt-divider"></div>
       <div class="receipt-totals">
-        <div class="receipt-row"><span>${getLangTxt('Taxable Amount', 'வரிக்குரிய தொகை')}</span><span>${fmt(sale.subtotal)}</span></div>
+        <div class="receipt-row"><span>Taxable Amount</span><span>${fmt(sale.subtotal)}</span></div>
         <div class="receipt-row"><span>CGST</span><span>${fmt(sale.total_cgst)}</span></div>
         <div class="receipt-row"><span>SGST</span><span>${fmt(sale.total_sgst)}</span></div>
-        ${sale.discount > 0 ? `<div class="receipt-row"><span>${getLangTxt('Discount', 'தள்ளுபடி')}</span><span>-${fmt(sale.discount)}</span></div>` : ''}
-        <div class="receipt-row receipt-row--total"><span>${getLangTxt('Total', 'மொத்தம்')}</span><span>${fmt(sale.total)}</span></div>
-        <div class="receipt-row"><span>${getLangTxt('Amount Paid', 'பெற்ற தொகை')}</span><span>${fmt(sale.amount_paid)}</span></div>
-        ${sale.change_given > 0 ? `<div class="receipt-row"><span>${getLangTxt('Change Given', 'திரும்ப')}</span><span>${fmt(sale.change_given)}</span></div>` : ''}
+        ${sale.discount > 0 ? `<div class="receipt-row"><span>Discount</span><span>-${fmt(sale.discount)}</span></div>` : ''}
+        <div class="receipt-row receipt-row--total"><span>Total</span><span>${fmt(sale.total)}</span></div>
+        <div class="receipt-row"><span>Amount Paid</span><span>${fmt(sale.amount_paid)}</span></div>
+        ${sale.change_given > 0 ? `<div class="receipt-row"><span>Change Given</span><span>${fmt(sale.change_given)}</span></div>` : ''}
       </div>
-      <div class="receipt-footer">${getLangTxt('Thank you for your order! 🍽️🙏', 'ஆர்டருக்கு நன்றி! 🍽️🙏')}<br><small>This is a computer-generated receipt</small></div>
+      <div class="receipt-footer">Thank you for your order! 🍽️🙏<br><small>This is a computer-generated tax invoice</small></div>
     </div>
   `;
   openModal('receiptModal');
@@ -1162,7 +1151,7 @@ document.getElementById('clearCartBtn')?.addEventListener('click', () => {
   renderCart();
   const floatingBar = document.getElementById('posMobileFloatingBar');
   if (floatingBar) floatingBar.style.display = 'none';
-  showToast(getLangTxt('Cart cleared', 'கார்ட் அழிக்கப்பட்டது'), 'info');
+  showToast('Cart cleared', 'info');
 });
 document.getElementById('printReceipt').addEventListener('click', () => window.print());
 

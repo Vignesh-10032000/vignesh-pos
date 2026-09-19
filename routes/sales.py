@@ -52,7 +52,7 @@ def delete_sale(sid):
     s = Sale.query.get_or_404(sid)
     if s.cancelled_at is not None:
         return jsonify({'success': False,
-                        'error': 'Sale is already cancelled / விற்பனை ஏற்கனவே ரத்து செய்யப்பட்டது'}), 400
+                        'error': 'Sale is already cancelled'}), 400
     for item in s.items:
         item.product.stock += item.quantity
     s.cancelled_at = datetime.utcnow()
@@ -71,15 +71,14 @@ def whatsapp_receipt(sale_id):
         or request.url_root.rstrip('/')
 
     lines = []
-    lines.append(f"🧾 *விக்னேஷ் குரோத் லேப் - ரசீது #{sale.id:05d}*")
-    lines.append(f"   (Vignesh Growth Lab POS)")
+    lines.append(f"🧾 *Vignesh Growth Lab POS - Invoice #{sale.id:05d}*")
     lines.append(f"📅 {sale.created_at.strftime('%d-%m-%Y %I:%M %p')}")
-    lines.append(f"💰 மொத்தம்: ₹{sale.total:.2f} ({sale.payment_method.upper()})")
+    lines.append(f"💰 Total: ₹{sale.total:.2f} ({sale.payment_method.upper()})")
     lines.append(f"")
-    lines.append(f"📄 உங்கள் ரசீதை இங்கே காணலாம்:")
+    lines.append(f"📄 View your tax invoice here:")
     lines.append(f"{BASE_URL}/receipt/{sale.id}")
     lines.append(f"")
-    lines.append(f"விற்பனைக்கு நன்றி! 🙏")
+    lines.append(f"Thank you for your business! 🙏")
     
     message = "\n".join(lines)
     phone = request.args.get('phone') or (customer.phone if customer else '')
@@ -106,7 +105,7 @@ def create_return(sale_id):
     reason = data.get('reason', '')
     
     if not returned_items_req:
-        return jsonify({'success': False, 'error': 'No items selected for return / திரும்பப் பெற எந்தப் பொருட்களும் தேர்ந்தெடுக்கப்படவில்லை'}), 400
+        return jsonify({'success': False, 'error': 'No items selected for return'}), 400
         
     # Calculate already returned quantities for this sale
     already_returned = {}
@@ -128,7 +127,7 @@ def create_return(sale_id):
             continue
             
         if pid not in sale_items_map:
-            return jsonify({'success': False, 'error': f'Product {pid} was not part of this sale / இந்த விற்பனையில் இந்த பொருள் இல்லை'}), 400
+            return jsonify({'success': False, 'error': f'Product {pid} was not part of this sale'}), 400
             
         sale_item = sale_items_map[pid]
         max_allowed = sale_item.quantity - already_returned.get(pid, 0)
@@ -136,7 +135,7 @@ def create_return(sale_id):
         if qty_to_return > max_allowed:
             return jsonify({
                 'success': False,
-                'error': f'Cannot return {qty_to_return} of {sale_item.product.name}. Max returnable is {max_allowed}. / {sale_item.product.name}-ஐ {qty_to_return} திரும்பப் பெற முடியாது. அதிகபட்சம் {max_allowed} மட்டுமே திரும்பப் பெற முடியும்.'
+                'error': f'Cannot return {qty_to_return} of {sale_item.product.name}. Max returnable is {max_allowed}.'
             }), 400
             
         unit_price = sale_item.price
@@ -152,7 +151,7 @@ def create_return(sale_id):
         })
         
     if not return_items_to_save:
-        return jsonify({'success': False, 'error': 'Invalid return quantities / தவறான திரும்பும் அளவு'}), 400
+        return jsonify({'success': False, 'error': 'Invalid return quantities'}), 400
         
     # Create SaleReturn
     sale_return = SaleReturn(
@@ -182,7 +181,7 @@ def create_return(sale_id):
     
     return jsonify({
         'success': True,
-        'message': 'Return processed successfully / பொருட்கள் வெற்றிகரமாக திரும்பப் பெறப்பட்டன!',
+        'message': 'Return processed successfully!',
         'refund_amount': round(total_refund, 2)
     })
 

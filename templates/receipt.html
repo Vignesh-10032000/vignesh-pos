@@ -1,21 +1,27 @@
 <!DOCTYPE html>
-<html lang="ta">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>விக்னேஷ் குரோத் லேப் — ரசீது #{{ "%05d"|format(sale.id) }}</title>
+  <title>Tax Invoice #{{ "%05d"|format(sale.id) }} — Vignesh Growth Lab POS</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
   <style>
     :root {
-      --font-primary: 'Inter', 'Noto Sans Tamil', sans-serif;
-      --color-bg: #f8fafc;
+      --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --color-bg: #0f172a;
       --color-card: #ffffff;
-      --color-text: #1e293b;
-      --color-text-light: #64748b;
+      --color-text: #0f172a;
+      --color-text-light: #475569;
       --color-border: #e2e8f0;
-      --color-success: #10b981;
+      --color-success: #059669;
+      --color-primary: #2563eb;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     body {
@@ -23,136 +29,173 @@
       background-color: var(--color-bg);
       color: var(--color-text);
       margin: 0;
-      padding: 40px 20px;
+      padding: 30px 16px;
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
     }
 
     /* Action Toolbar */
     .toolbar {
       display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
+      gap: 10px;
+      margin-bottom: 20px;
       width: 100%;
       max-width: 480px;
       justify-content: center;
+      flex-wrap: wrap;
     }
 
     .btn {
       font-family: var(--font-primary);
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
-      padding: 10px 20px;
+      padding: 9px 18px;
       border-radius: 8px;
       border: none;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 8px;
       transition: all 0.2s ease;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      text-decoration: none;
     }
 
     .btn-print {
-      background-color: #3b82f6;
+      background-color: #2563eb;
       color: white;
     }
-
     .btn-print:hover {
-      background-color: #2563eb;
+      background-color: #1d4ed8;
+      transform: translateY(-1px);
     }
 
     .btn-pdf {
-      background-color: #10b981;
+      background-color: #059669;
       color: white;
     }
-
     .btn-pdf:hover {
-      background-color: #059669;
+      background-color: #047857;
+      transform: translateY(-1px);
+    }
+
+    .btn-back {
+      background-color: #334155;
+      color: #f8fafc;
+    }
+    .btn-back:hover {
+      background-color: #1e293b;
     }
 
     /* Receipt Card */
     .receipt-container {
       background-color: var(--color-card);
-      border: 1px solid var(--color-border);
-      border-radius: 16px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-      padding: 36px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      padding: 28px 30px;
       width: 100%;
-      max-width: 480px;
-      box-sizing: border-box;
+      max-width: 460px;
       position: relative;
+      color: #0f172a;
     }
 
     /* Header styling */
     .header {
       text-align: center;
-      margin-bottom: 28px;
+      margin-bottom: 16px;
     }
 
     .brand-name {
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 800;
       color: #0f172a;
+      letter-spacing: -0.02em;
       margin: 0 0 4px 0;
+      text-transform: uppercase;
     }
 
     .brand-sub {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--color-text-light);
       margin: 0;
+      line-height: 1.4;
     }
 
-    .gstin {
+    .gstin-badge {
       display: inline-block;
       background-color: #f1f5f9;
-      color: #334155;
+      color: #1e293b;
       font-size: 11px;
       font-weight: 700;
-      padding: 4px 8px;
+      padding: 3px 10px;
       border-radius: 6px;
       margin-top: 8px;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.05em;
+      border: 1px solid #cbd5e1;
+      font-family: monospace;
     }
 
     .divider {
-      border-top: 1px dashed var(--color-border);
-      margin: 20px 0;
+      border-top: 1px dashed #cbd5e1;
+      margin: 14px 0;
+    }
+
+    .invoice-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #334155;
+      text-align: center;
+      margin: 4px 0;
     }
 
     /* Details Grid */
     .details-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      font-size: 13px;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 12px;
       color: var(--color-text-light);
-      margin-bottom: 20px;
+      margin-bottom: 12px;
     }
 
-    .detail-item strong {
-      color: var(--color-text);
+    .detail-item {
+      line-height: 1.35;
+    }
+
+    .detail-item .label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #64748b;
       display: block;
-      margin-top: 2px;
+    }
+
+    .detail-item .value {
+      color: #0f172a;
+      font-weight: 700;
     }
 
     /* Items Table */
     .items-table {
       width: 100%;
       border-collapse: collapse;
-      margin: 16px 0;
+      margin: 10px 0;
     }
 
     .items-table th {
-      border-bottom: 1px solid var(--color-border);
-      color: var(--color-text-light);
-      font-size: 11px;
-      font-weight: 700;
+      border-bottom: 1.5px solid #0f172a;
+      color: #0f172a;
+      font-size: 10px;
+      font-weight: 800;
       text-transform: uppercase;
-      padding: 8px 0;
+      letter-spacing: 0.05em;
+      padding: 6px 0;
       text-align: left;
     }
 
@@ -161,175 +204,238 @@
       text-align: right;
     }
 
+    .items-table th.text-center,
+    .items-table td.text-center {
+      text-align: center;
+    }
+
     .items-table td {
-      padding: 10px 0;
-      border-bottom: 1px dashed #f1f5f9;
+      padding: 7px 0;
+      border-bottom: 1px dashed #e2e8f0;
       vertical-align: top;
-      font-size: 13px;
+      font-size: 12px;
     }
 
     .item-name {
-      font-weight: 600;
-      color: var(--color-text);
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.25;
     }
 
     .item-meta {
-      font-size: 11px;
-      color: var(--color-text-light);
+      font-size: 10px;
+      color: #64748b;
       margin-top: 2px;
+      line-height: 1.25;
     }
 
     /* Totals block */
     .totals-box {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-top: 16px;
+      gap: 5px;
+      margin-top: 10px;
     }
 
     .total-row {
       display: flex;
       justify-content: space-between;
-      font-size: 13px;
-      color: var(--color-text-light);
-    }
-
-    .total-row.grand-total {
-      font-size: 18px;
-      font-weight: 800;
-      color: #0f172a;
-      border-top: 1px solid var(--color-border);
-      padding-top: 12px;
-      margin-top: 4px;
+      font-size: 12px;
+      color: #475569;
     }
 
     .total-row strong {
-      color: var(--color-text);
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .total-row.grand-total {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+      border-top: 1.5px solid #0f172a;
+      border-bottom: 1.5px solid #0f172a;
+      padding: 8px 0;
+      margin-top: 4px;
+    }
+
+    .total-row.grand-total strong {
+      color: #0f172a;
+      font-weight: 900;
+      font-size: 17px;
     }
 
     /* Footer message */
     .footer-msg {
       text-align: center;
-      font-size: 12px;
-      color: var(--color-text-light);
-      margin-top: 32px;
-      line-height: 1.5;
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 16px;
+      line-height: 1.4;
     }
 
     .thank-you {
       font-weight: 700;
-      color: var(--color-success);
-      font-size: 13px;
-      margin-bottom: 4px;
+      color: #059669;
+      font-size: 12px;
+      margin-bottom: 2px;
     }
 
-    /* Formatting helper */
-    .tamil-label {
-      font-size: 11px;
-      color: var(--color-text-light);
-      display: block;
-      margin-bottom: 1px;
+    /* ── STRICT SINGLE-PAGE PRINT STYLING ── */
+    @page {
+      size: A4 portrait;
+      margin: 8mm 12mm;
     }
 
-    /* Print Styles overrides */
     @media print {
-      body {
-        background-color: white;
-        padding: 0;
-        margin: 0;
-        display: block;
+      html, body {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: block !important;
+        font-size: 11px !important;
+        width: 100% !important;
       }
       .toolbar {
         display: none !important;
       }
       .receipt-container {
-        border: none;
-        box-shadow: none;
-        padding: 0;
-        width: 100%;
-        max-width: 100%;
+        background: #ffffff !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 auto !important;
+        width: 100% !important;
+        max-width: 440px !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
       }
-      @page {
-        margin: 1.5cm;
+      .brand-name {
+        font-size: 18px !important;
+        margin-bottom: 2px !important;
+      }
+      .header {
+        margin-bottom: 10px !important;
+      }
+      .divider {
+        margin: 8px 0 !important;
+        border-top: 1px dashed #64748b !important;
+      }
+      .details-grid {
+        gap: 6px !important;
+        margin-bottom: 10px !important;
+        font-size: 11px !important;
+      }
+      .items-table {
+        margin: 6px 0 !important;
+      }
+      .items-table th {
+        padding: 4px 0 !important;
+        font-size: 10px !important;
+        border-bottom: 1.5px solid #000 !important;
+      }
+      .items-table td {
+        padding: 4px 0 !important;
+        font-size: 11px !important;
+        border-bottom: 1px dashed #cbd5e1 !important;
+      }
+      .item-meta {
+        font-size: 9px !important;
+      }
+      .totals-box {
+        gap: 3px !important;
+        margin-top: 6px !important;
+      }
+      .total-row {
+        font-size: 11px !important;
+      }
+      .total-row.grand-total {
+        font-size: 14px !important;
+        padding: 5px 0 !important;
+        margin-top: 4px !important;
+        border-top: 1.5px solid #000 !important;
+        border-bottom: 1.5px solid #000 !important;
+      }
+      .total-row.grand-total strong {
+        font-size: 15px !important;
+      }
+      .footer-msg {
+        margin-top: 12px !important;
+        font-size: 10px !important;
       }
     }
 
     @media (max-width: 480px) {
       body {
-        padding: 16px 8px;
+        padding: 12px 6px;
       }
       .receipt-container {
-        padding: 20px;
-        border-radius: 12px;
+        padding: 18px 14px;
+        border-radius: 8px;
       }
       .brand-name {
-        font-size: 20px;
+        font-size: 17px;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Print Action Buttons -->
+  <!-- Print & Download Action Toolbar -->
   <div class="toolbar">
     <button class="btn btn-print" onclick="window.print()">
-      <span>🖨️</span> Print / அச்சிடுக
+      <span>🖨️</span> Print Invoice
     </button>
-    <button class="btn btn-pdf" onclick="window.print()">
-      <span>💾</span> Save PDF / பிடிஎஃப் ஆக சேமி
+    <button class="btn btn-pdf" id="btnDownloadPdf" onclick="downloadPdf()">
+      <span>📥</span> Download PDF
     </button>
+    <a href="/pos" class="btn btn-back">
+      <span>←</span> Back to POS
+    </a>
   </div>
 
-  <!-- Main Thermal Receipt Card -->
-  <div class="receipt-container">
+  <!-- Main Thermal Receipt Card (Rendered as single-page PDF target) -->
+  <div class="receipt-container" id="receiptCard">
     <div class="header">
-      <h1 class="brand-name">விக்னேஷ் குரோத் லேப்</h1>
-      <p class="brand-sub">VIGNESH GROWTH LAB POS</p>
-      <p class="brand-sub" style="font-size:11px; margin-top:2px;">23, Anna Salai, Chennai - 600002</p>
-      <div class="gstin">GSTIN: 33AABCU9603R1ZX</div>
+      <h1 class="brand-name">VIGNESH GROWTH LAB POS</h1>
+      <p class="brand-sub">Premium Retail & Restaurant Point of Sale</p>
+      <p class="brand-sub" style="font-size:11px; margin-top:2px;">23, Anna Salai, Chennai - 600002, Tamil Nadu</p>
+      <div class="gstin-badge">GSTIN: 33AABCU9603R1ZX</div>
     </div>
 
+    <div class="divider"></div>
+    <div class="invoice-title">Tax Invoice / Cash Memo</div>
     <div class="divider"></div>
 
     <!-- Metadata Details -->
     <div class="details-grid">
       <div class="detail-item">
-        <span class="tamil-label">ரசீது எண்</span>
-        Invoice No: <strong>#{{ "%05d"|format(sale.id) }}</strong>
+        <span class="label">Invoice No</span>
+        <span class="value">#{{ "%05d"|format(sale.id) }}</span>
       </div>
       <div class="detail-item" style="text-align: right;">
-        <span class="tamil-label">தேதி / நேரம்</span>
-        Date/Time: <strong>{{ sale.created_at.strftime('%d-%m-%Y %I:%M %p') }}</strong>
+        <span class="label">Date & Time</span>
+        <span class="value">{{ sale.created_at.strftime('%d-%m-%Y %I:%M %p') }}</span>
       </div>
       <div class="detail-item">
-        <span class="tamil-label">வாடிக்கையாளர்</span>
-        Customer: <strong>{{ sale.customer.name if sale.customer else 'Walk-in' }}</strong>
+        <span class="label">Customer</span>
+        <span class="value">{{ sale.customer.name if sale.customer else 'Walk-in Customer' }}</span>
       </div>
       <div class="detail-item" style="text-align: right;">
-        <span class="tamil-label">கட்டண முறை</span>
-        Payment Mode: <strong>{{ sale.payment_method.upper() }}</strong>
+        <span class="label">Payment Mode</span>
+        <span class="value">{{ sale.payment_method.upper() }}</span>
       </div>
     </div>
 
     <table class="items-table">
       <thead>
         <tr>
-          <th>
-            <span class="tamil-label" style="font-size: 9px;">பொருள் (HSN)</span>
-            Product
-          </th>
-          <th style="text-align: center; width: 60px;">
-            <span class="tamil-label" style="font-size: 9px;">அளவு</span>
-            Qty
-          </th>
-          <th class="text-right" style="width: 80px;">
-            <span class="tamil-label" style="font-size: 9px;">விலை</span>
-            Price
-          </th>
-          <th class="text-right" style="width: 80px;">
-            <span class="tamil-label" style="font-size: 9px;">மொத்தம்</span>
-            Total
-          </th>
+          <th>Item / HSN / Tax</th>
+          <th class="text-center" style="width: 50px;">Qty</th>
+          <th class="text-right" style="width: 75px;">Rate</th>
+          <th class="text-right" style="width: 75px;">Amount</th>
         </tr>
       </thead>
       <tbody>
@@ -340,14 +446,14 @@
             <td>
               <div class="item-name">{{ item.product.name }}</div>
               <div class="item-meta">
-                HSN: {{ item.product.hsn_code or '—' }} | GST: {{ item.gst_rate }}%
+                HSN: {{ item.product.hsn_code or '—' }} · GST: {{ item.gst_rate }}%
                 <br>
-                CGST: ₹{{ (gst_amt/2)|round(2) }} | SGST: ₹{{ (gst_amt/2)|round(2) }}
+                Taxable: ₹{{ "%.2f"|format(taxable) }} (CGST ₹{{ "%.2f"|format(gst_amt/2) }} + SGST ₹{{ "%.2f"|format(gst_amt/2) }})
               </div>
             </td>
-            <td style="text-align: center;">{{ item.quantity }}</td>
+            <td class="text-center" style="font-weight:600;">{{ item.quantity }}</td>
             <td class="text-right">₹{{ "%.2f"|format(item.price) }}</td>
-            <td class="text-right">₹{{ "%.2f"|format(item.subtotal) }}</td>
+            <td class="text-right" style="font-weight:700;">₹{{ "%.2f"|format(item.subtotal) }}</td>
           </tr>
         {% endfor %}
       </tbody>
@@ -358,54 +464,33 @@
     <!-- Pricing Summary -->
     <div class="totals-box">
       <div class="total-row">
-        <span>
-          <span class="tamil-label">வரிக்குரிய தொகை</span>
-          Taxable Amount
-        </span>
+        <span>Taxable Value:</span>
         <strong>₹{{ "%.2f"|format(sale.subtotal) }}</strong>
       </div>
       <div class="total-row">
-        <span>
-          <span class="tamil-label">மத்திய ஜிஎஸ்டி (CGST)</span>
-          CGST Total
-        </span>
+        <span>CGST (Central Tax):</span>
         <strong>₹{{ "%.2f"|format(sale.total_cgst) }}</strong>
       </div>
       <div class="total-row">
-        <span>
-          <span class="tamil-label">மாநில ஜிஎஸ்டி (SGST)</span>
-          SGST Total
-        </span>
+        <span>SGST (State Tax):</span>
         <strong>₹{{ "%.2f"|format(sale.total_sgst) }}</strong>
       </div>
       {% if sale.discount > 0 %}
         <div class="total-row">
-          <span>
-            <span class="tamil-label">தள்ளுபடி</span>
-            Discount
-          </span>
-          <strong style="color: #ef4444;">-₹{{ "%.2f"|format(sale.discount) }}</strong>
+          <span>Discount:</span>
+          <strong style="color: #dc2626;">-₹{{ "%.2f"|format(sale.discount) }}</strong>
         </div>
       {% endif %}
       <div class="total-row grand-total">
-        <span>
-          <span class="tamil-label" style="font-weight: 700;">மொத்த தொகை</span>
-          Grand Total
-        </span>
+        <span>NET AMOUNT PAYABLE:</span>
         <strong>₹{{ "%.2f"|format(sale.total) }}</strong>
       </div>
-      <div class="total-row" style="margin-top: 8px;">
-        <span>
-          <span class="tamil-label">பெற்ற தொகை</span>
-          Amount Paid
-        </span>
+      <div class="total-row" style="margin-top: 6px;">
+        <span>Amount Received:</span>
         <strong>₹{{ "%.2f"|format(sale.amount_paid) }}</strong>
       </div>
       <div class="total-row">
-        <span>
-          <span class="tamil-label">மீதித் தொகை</span>
-          Change Given
-        </span>
+        <span>Change Returned:</span>
         <strong>₹{{ "%.2f"|format(sale.change_given) }}</strong>
       </div>
     </div>
@@ -413,11 +498,48 @@
     <div class="divider"></div>
 
     <div class="footer-msg">
-      <div class="thank-you">விற்பனைக்கு நன்றி!</div>
-      <div>Bilingual GST invoice processed for Vignesh Growth Lab POS.</div>
-      <div style="font-size: 10px; margin-top: 8px; color: var(--color-text-light);">Have a nice day! 🙏</div>
+      <div class="thank-you">Thank you for your business! 🙏</div>
+      <div>Goods once sold cannot be returned without original receipt.</div>
+      <div style="font-size: 10px; margin-top: 6px; color: #94a3b8;">Computer-Generated Tax Invoice — Vignesh Growth Lab POS</div>
     </div>
   </div>
 
+  <script>
+    // Direct PDF download using html2pdf
+    function downloadPdf() {
+      const btn = document.getElementById('btnDownloadPdf');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span>⏳</span> Generating PDF...';
+      btn.disabled = true;
+
+      const element = document.getElementById('receiptCard');
+      const opt = {
+        margin:       [8, 10, 8, 10],
+        filename:     'Invoice-{{ "%05d"|format(sale.id) }}.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, letterRendering: true, logging: false },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }).catch(err => {
+        console.error('PDF Generation Error:', err);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        // Fallback to print
+        window.print();
+      });
+    }
+
+    // Auto-launch print if ?autoprint=1 in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('autoprint') === '1') {
+      window.addEventListener('load', () => {
+        setTimeout(() => window.print(), 350);
+      });
+    }
+  </script>
 </body>
 </html>

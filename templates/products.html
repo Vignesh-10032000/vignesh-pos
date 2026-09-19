@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
-{% block title %}Products / பொருட்கள்{% endblock %}
-{% block page_title %}<span class="lang-en">Products / Inventory Management</span><span class="lang-ta">பொருட்கள் / இருப்பு நிர்வாகம்</span>{% endblock %}
+{% block title %}Products / Inventory{% endblock %}
+{% block page_title %}Products / Inventory Management{% endblock %}
 
 {% block content %}
 <style>
@@ -135,14 +135,14 @@ html.theme-light .btn-action-delete { background: #fef2f2 !important; color: #b9
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
-      <input type="text" id="productSearch" placeholder="பொருள் / SKU / HSN தேடுக..." class="search-input">
+      <input type="text" id="productSearch" placeholder="Search product / SKU / HSN..." class="search-input">
     </div>
     <select id="categoryFilter" class="form-select" style="width:auto">
-      <option value=""><span class="lang-en">All Categories</span><span class="lang-ta">அனைத்து வகைகளும்</span></option>
+      <option value="">All Categories</option>
     </select>
   </div>
   <div class="toolbar-right">
-    <button class="btn btn-primary" id="addProductBtn">+ <span class="lang-en">Add Product</span><span class="lang-ta">பொருள் சேர்</span></button>
+    <button class="btn btn-primary" id="addProductBtn">+ Add Product</button>
   </div>
 </div>
 
@@ -153,19 +153,19 @@ html.theme-light .btn-action-delete { background: #fef2f2 !important; color: #b9
     <table class="table products-inventory-table">
       <thead>
         <tr>
-          <th class="th-product"><span class="lang-en">Product</span><span class="lang-ta">பொருள்</span></th>
+          <th class="th-product">Product</th>
           <th class="th-sku">SKU</th>
           <th class="th-hsn">HSN</th>
           <th class="th-gst">GST%</th>
-          <th class="th-price"><span class="lang-en">Price (₹)</span><span class="lang-ta">விலை (₹)</span></th>
-          <th class="th-margin"><span class="lang-en">Margin</span><span class="lang-ta">இலாபம்</span></th>
-          <th class="th-stock"><span class="lang-en">Stock</span><span class="lang-ta">இருப்பு</span></th>
-          <th class="th-status"><span class="lang-en">Status</span><span class="lang-ta">நிலை</span></th>
-          <th class="th-actions text-end"><span class="lang-en">Actions</span><span class="lang-ta">செயல்கள்</span></th>
+          <th class="th-price">Price (₹)</th>
+          <th class="th-margin">Margin</th>
+          <th class="th-stock">Stock</th>
+          <th class="th-status">Status</th>
+          <th class="th-actions text-end">Actions</th>
         </tr>
       </thead>
       <tbody id="productsTbody">
-        <tr><td colspan="9" class="text-center text-muted"><span class="lang-en">Loading...</span><span class="lang-ta">ஏற்றுகிறது...</span></td></tr>
+        <tr><td colspan="9" class="text-center text-muted">Loading...</td></tr>
       </tbody>
     </table>
   </div>
@@ -178,14 +178,14 @@ html.theme-light .btn-action-delete { background: #fef2f2 !important; color: #b9
 <div class="modal" id="productModal">
   <div class="modal-dialog">
     <div class="modal-header">
-      <h3 id="productModalTitle"><span class="lang-en">Add Product</span><span class="lang-ta">பொருள் சேர்</span></h3>
+      <h3 id="productModalTitle">Add Product</h3>
       <button class="modal-close" onclick="closeModal('productModal')">✕</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="productId">
       <div class="form-grid">
         <div class="form-group form-group--wide">
-          <label class="form-label"><span class="lang-en">Product Name *</span><span class="lang-ta">பொருளின் பெயர் *</span></label>
+          <label class="form-label">Product Name *</label>
           <input type="text" id="productName" class="form-input" placeholder="e.g. Filter Coffee">
         </div>
         <div class="form-group">
@@ -197,13 +197,13 @@ html.theme-light .btn-action-delete { background: #fef2f2 !important; color: #b9
           <input type="text" id="productBarcode" class="form-input" placeholder="8901234560001">
         </div>
         <div class="form-group">
-          <label class="form-label"><span class="lang-en">HSN / SAC Code</span><span class="lang-ta">HSN / SAC குறியீடு</span></label>
+          <label class="form-label">HSN / SAC Code</label>
           <input type="text" id="productHsn" class="form-input" placeholder="e.g. 0901">
         </div>
         <div class="form-group">
-          <label class="form-label"><span class="lang-en">GST Rate (%)</span><span class="lang-ta">GST விகிதம் (%)</span></label>
+          <label class="form-label">GST Rate (%)</label>
           <select id="productGstRate" class="form-select">
-            <option value="0">0% — Exempted / விலக்கு</option>
+            <option value="0">0% — Exempted</option>
             <option value="5">5% (CGST 2.5% + SGST 2.5%)</option>
             <option value="12">12% (CGST 6% + SGST 6%)</option>
             <option value="18">18% (CGST 9% + SGST 9%)</option>
@@ -211,31 +211,31 @@ html.theme-light .btn-action-delete { background: #fef2f2 !important; color: #b9
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label"><span class="lang-en">Category</span><span class="lang-ta">வகை</span></label>
+          <label class="form-label">Category</label>
           <select id="productCategory" class="form-select"></select>
         </div>
         <div class="form-group">
-          <label class="form-label"><span class="lang-en">Sales Price MRP (₹) *</span><span class="lang-ta">விற்பனை விலை MRP (₹) *</span></label>
+          <label class="form-label">Sales Price MRP (₹) *</label>
           <input type="number" id="productPrice" class="form-input" placeholder="0.00" step="0.50" min="0">
         </div>
         <div class="form-group">
-          <label class="form-label"><span class="lang-en">Cost Price (₹)</span><span class="lang-ta">கொள்முதல் விலை (₹)</span></label>
+          <label class="form-label">Cost Price (₹)</label>
           <input type="number" id="productCost" class="form-input" placeholder="0.00" step="0.50" min="0">
         </div>
         <div class="form-group">
-          <label class="form-label"><span class="lang-en">Stock Quantity</span><span class="lang-ta">இருப்பு அளவு</span></label>
+          <label class="form-label">Stock Quantity</label>
           <input type="number" id="productStock" class="form-input" placeholder="0" min="0">
         </div>
         <div class="form-group">
-          <label class="form-label"><span class="lang-en">Low Stock Alert</span><span class="lang-ta">குறைந்த இருப்பு எச்சரிக்கை</span></label>
+          <label class="form-label">Low Stock Alert</label>
           <input type="number" id="productLowStock" class="form-input" value="10" min="0">
         </div>
       </div>
       <div class="gst-preview" id="gstPreview"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('productModal')"><span class="lang-en">Cancel</span><span class="lang-ta">ரத்து</span></button>
-      <button class="btn btn-primary" id="saveProductBtn"><span class="lang-en">Save</span><span class="lang-ta">சேமி</span></button>
+      <button class="btn btn-ghost" onclick="closeModal('productModal')">Cancel</button>
+      <button class="btn btn-primary" id="saveProductBtn">Save</button>
     </div>
   </div>
 </div>
@@ -244,27 +244,26 @@ html.theme-light .btn-action-delete { background: #fef2f2 !important; color: #b9
 <div class="modal" id="stockModal">
   <div class="modal-dialog modal-sm">
     <div class="modal-header">
-      <h3>📦 <span class="lang-en">Stock Adjustment</span><span class="lang-ta">இருப்பு திருத்தம் (Stock Adjust)</span></h3>
+      <h3>📦 Stock Adjustment</h3>
       <button class="modal-close" onclick="closeModal('stockModal')">✕</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="stockProductId">
       <div class="form-group">
-        <label class="form-label"><span class="lang-en">Current Stock</span><span class="lang-ta">தற்போதைய இருப்பு</span></label>
+        <label class="form-label">Current Stock</label>
         <div class="fw-bold fs-4" id="stockCurrent">0</div>
       </div>
       <div class="form-group">
-        <label class="form-label"><span class="lang-en">Adjustment (+/-)</span><span class="lang-ta">திருத்த அளவு</span></label>
+        <label class="form-label">Adjustment (+/-)</label>
         <input type="number" id="stockAdjustment" class="form-input" placeholder="e.g. 5 or -3">
         <div class="text-muted text-sm" style="margin-top:4px">
-          <span class="lang-en">Enter positive number to add, negative to reduce stock.</span>
-          <span class="lang-ta">இருப்பை கூட்ட நேர்மறை எண்ணும் (+), குறைக்க எதிர்மறை எண்ணும் (-) உள்ளிடவும்.</span>
+          Enter positive number to add, negative to reduce stock.
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('stockModal')"><span class="lang-en">Cancel</span><span class="lang-ta">ரத்து</span></button>
-      <button class="btn btn-primary" id="saveStockBtn"><span class="lang-en">Save</span><span class="lang-ta">சேமி</span></button>
+      <button class="btn btn-ghost" onclick="closeModal('stockModal')">Cancel</button>
+      <button class="btn btn-primary" id="saveStockBtn">Save</button>
     </div>
   </div>
 </div>
@@ -288,22 +287,12 @@ function renderCategoryOptions() {
   const val1 = sel1.value;
   const val2 = sel2.value;
   
-  sel1.innerHTML = `<option value="">${getLangTxt('All Categories', 'அனைத்து வகைகளும்')}</option>`;
+  sel1.innerHTML = `<option value="">All Categories</option>`;
   sel2.innerHTML = '';
   
-  const catTranslations = {
-    'உணவு & பானம்': 'Food & Drinks',
-    'மளிகை': 'Grocery',
-    'மின்னணுவியல்': 'Electronics',
-    'ஆடை & துணி': 'Clothing & Textiles',
-    'சுகாதார பொருட்கள்': 'Health & Care',
-    'எழுதுபொருட்கள்': 'Stationery'
-  };
-  
   categories.forEach(c => {
-    const name = getLangTxt(catTranslations[c.name] || c.name, c.name);
-    sel1.innerHTML += `<option value="${c.id}">${escapeHtml(c.icon)} ${escapeHtml(name)}</option>`;
-    sel2.innerHTML += `<option value="${c.id}">${escapeHtml(c.icon)} ${escapeHtml(name)}</option>`;
+    sel1.innerHTML += `<option value="${c.id}">${escapeHtml(c.icon)} ${escapeHtml(c.name)}</option>`;
+    sel2.innerHTML += `<option value="${c.id}">${escapeHtml(c.icon)} ${escapeHtml(c.name)}</option>`;
   });
   
   sel1.value = val1;
@@ -312,9 +301,6 @@ function renderCategoryOptions() {
 
 async function loadProducts() {
   const searchInput = document.getElementById('productSearch');
-  if (searchInput) {
-    searchInput.placeholder = getLangTxt('Search product / SKU / HSN...', 'பொருள் / SKU / HSN தேடுக...');
-  }
   const q = searchInput ? searchInput.value : '';
   const cat = document.getElementById('categoryFilter').value;
   const params = new URLSearchParams();
@@ -328,15 +314,15 @@ async function loadProducts() {
   const lowStock = products.filter(p => p.stock <= p.low_stock_threshold && p.stock > 0).length;
   const outOfStock = products.filter(p => p.stock === 0).length;
   document.getElementById('productsStats').innerHTML = `
-    <div class="stat-strip-item">${total} ${getLangTxt('total products', 'மொத்த பொருட்கள்')}</div>
-    <div class="stat-strip-item text-warning">${lowStock} ${getLangTxt('low stock', 'குறைந்த இருப்பு')}</div>
-    <div class="stat-strip-item text-danger">${outOfStock} ${getLangTxt('out of stock', 'இல்லாதவை')}</div>
+    <div class="stat-strip-item">${total} total products</div>
+    <div class="stat-strip-item text-warning">${lowStock} low stock</div>
+    <div class="stat-strip-item text-danger">${outOfStock} out of stock</div>
   `;
 }
 
 function renderProducts(products) {
   const tbody = document.getElementById('productsTbody');
-  if (!products.length) { tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">${getLangTxt('No products found', 'பொருட்கள் இல்லை')}</td></tr>`; return; }
+  if (!products.length) { tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">No products found</td></tr>`; return; }
   tbody.innerHTML = products.map(p => {
     const sC = p.stock === 0 ? 'stock-out' : p.stock <= p.low_stock_threshold ? 'stock-low' : 'stock-ok';
     const profit = p.price > 0 && p.cost > 0 ? Math.round((p.price - p.cost) / p.price * 100) : '—';
@@ -358,12 +344,12 @@ function renderProducts(products) {
       <td><span class="product-price-cell">${fmt(p.price)}</span></td>
       <td><span class="${profitCls}">${profit !== '—' ? profit + '%' : '—'}</span></td>
       <td><span class="stock-pill ${sC}">${p.stock}</span></td>
-      <td><span class="status-pill ${p.active ? 'status-active' : 'status-inactive'}">${p.active ? getLangTxt('Active', 'செயலில்') : getLangTxt('Discontinued', 'நிறுத்தப்பட்டது')}</span></td>
+      <td><span class="status-pill ${p.active ? 'status-active' : 'status-inactive'}">${p.active ? 'Active' : 'Discontinued'}</span></td>
       <td class="text-end">
         <div class="action-btns">
-          <button class="btn btn-action-edit btn-sm" onclick="editProduct(${p.id})">✏️ <span class="btn-lbl">${getLangTxt('Edit', 'திருத்து')}</span></button>
-          <button class="btn btn-action-stock btn-sm" onclick="openStockModal(${p.id}, ${p.stock})" title="${getLangTxt('Adjust Stock', 'இருப்பு திருத்து')}">📦 <span class="btn-lbl">${getLangTxt('Stock', 'இருப்பு')}</span></button>
-          <button class="btn btn-action-delete btn-sm" onclick="deleteProduct(${p.id}, '${escapeHtml(escJsString(p.name))}')" title="${getLangTxt('Delete', 'அழி')}">🗑️</button>
+          <button class="btn btn-action-edit btn-sm" onclick="editProduct(${p.id})">✏️ <span class="btn-lbl">Edit</span></button>
+          <button class="btn btn-action-stock btn-sm" onclick="openStockModal(${p.id}, ${p.stock})" title="Adjust Stock">📦 <span class="btn-lbl">Stock</span></button>
+          <button class="btn btn-action-delete btn-sm" onclick="deleteProduct(${p.id}, '${escapeHtml(escJsString(p.name))}')" title="Discontinue">🗑️</button>
         </div>
       </td>
     </tr>`;
@@ -379,7 +365,7 @@ function updateGstPreview() {
     const gst = price - taxable;
     document.getElementById('gstPreview').innerHTML = `
       <div class="gst-calc-preview">
-        <span>${getLangTxt('Taxable:', 'வரிக்குரிய:')} ${fmt(taxable)}</span>
+        <span>Taxable: ${fmt(taxable)}</span>
         <span>CGST (${rate/2}%): ${fmt(gst/2)}</span>
         <span>SGST (${rate/2}%): ${fmt(gst/2)}</span>
       </div>`;
@@ -391,7 +377,7 @@ document.getElementById('productPrice').addEventListener('input', updateGstPrevi
 document.getElementById('productGstRate').addEventListener('change', updateGstPreview);
 
 document.getElementById('addProductBtn').addEventListener('click', () => {
-  document.getElementById('productModalTitle').innerHTML = `<span class="lang-en">Add New Product</span><span class="lang-ta">புதிய பொருள் சேர்</span>`;
+  document.getElementById('productModalTitle').textContent = 'Add New Product';
   document.getElementById('productId').value = '';
   ['productName','productSku','productBarcode','productHsn','productPrice','productCost','productStock'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('productLowStock').value = 10;
@@ -403,7 +389,7 @@ document.getElementById('addProductBtn').addEventListener('click', () => {
 async function editProduct(id) {
   const res = await fetch(`/api/products/${id}`);
   const p = await res.json();
-  document.getElementById('productModalTitle').innerHTML = `<span class="lang-en">Edit Product</span><span class="lang-ta">பொருள் திருத்து</span>`;
+  document.getElementById('productModalTitle').textContent = 'Edit Product';
   document.getElementById('productId').value = p.id;
   document.getElementById('productName').value = p.name;
   document.getElementById('productSku').value = p.sku;
@@ -434,19 +420,19 @@ document.getElementById('saveProductBtn').addEventListener('click', async () => 
     gst_rate: document.getElementById('productGstRate').value,
     active: true,
   };
-  if (!payload.name || !payload.sku || !payload.price) { showToast(getLangTxt('Please fill all required fields', 'தேவையான தகவல்கள் நிரப்பவும்'), 'error'); return; }
+  if (!payload.name || !payload.sku || !payload.price) { showToast('Please fill all required fields', 'error'); return; }
   const url = id ? `/api/products/${id}` : '/api/products';
   const method = id ? 'PUT' : 'POST';
   const res = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
   const data = await res.json();
-  if (res.ok) { showToast(id ? getLangTxt('Updated successfully!', 'திருத்தப்பட்டது!') : getLangTxt('Added successfully!', 'சேர்க்கப்பட்டது!'), 'success'); closeModal('productModal'); loadProducts(); }
-  else showToast(data.error || getLangTxt('An error occurred', 'பிழை ஏற்பட்டது'), 'error');
+  if (res.ok) { showToast(id ? 'Updated successfully!' : 'Added successfully!', 'success'); closeModal('productModal'); loadProducts(); }
+  else showToast(data.error || 'An error occurred', 'error');
 });
 
 async function deleteProduct(id, name) {
-  if (!confirm(getLangTxt(`Discontinue "${name}"?`, `"${name}" பொருளை நிறுத்தவா?`))) return;
+  if (!confirm(`Discontinue "${name}"?`)) return;
   const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
-  if (res.ok) { showToast(getLangTxt('Discontinued', 'நிறுத்தப்பட்டது'), 'success'); loadProducts(); }
+  if (res.ok) { showToast('Discontinued', 'success'); loadProducts(); }
 }
 
 function openStockModal(id, currentStock) {
@@ -459,7 +445,7 @@ function openStockModal(id, currentStock) {
 document.getElementById('saveStockBtn').addEventListener('click', async () => {
   const id = document.getElementById('stockProductId').value;
   const adjustment = parseInt(document.getElementById('stockAdjustment').value) || 0;
-  if (adjustment === 0) { showToast(getLangTxt('Stock adjustment amount is required', 'இருப்பு மாற்றம் தேவை'), 'error'); return; }
+  if (adjustment === 0) { showToast('Stock adjustment amount is required', 'error'); return; }
   
   try {
     const res = await fetch(`/api/products/${id}/stock`, {
@@ -469,28 +455,20 @@ document.getElementById('saveStockBtn').addEventListener('click', async () => {
     });
     const data = await res.json();
     if (res.ok && data.success) {
-      showToast(getLangTxt('Stock adjusted successfully!', 'இருப்பு திருத்தப்பட்டது!'), 'success');
+      showToast('Stock adjusted successfully!', 'success');
       closeModal('stockModal');
       loadProducts();
     } else {
-      showToast(data.error || getLangTxt('Stock adjustment failed', 'இருப்பு மாற்றத்தில் பிழை'), 'error');
+      showToast(data.error || 'Stock adjustment failed', 'error');
     }
   } catch (e) {
-    showToast(getLangTxt('Connection error', 'இணைப்பு பிழை'), 'error');
+    showToast('Connection error', 'error');
   }
 });
 
 let st;
 document.getElementById('productSearch').addEventListener('input', () => { clearTimeout(st); st = setTimeout(loadProducts, 300); });
 document.getElementById('categoryFilter').addEventListener('change', loadProducts);
-
-// Override the global toggle callback if present to re-trigger lists
-const originalToggleLanguage = window.toggleLanguage;
-window.toggleLanguage = function() {
-  if (typeof originalToggleLanguage === 'function') originalToggleLanguage();
-  renderCategoryOptions();
-  loadProducts();
-};
 
 loadCategories(); loadProducts();
 </script>

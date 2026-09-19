@@ -1,21 +1,17 @@
 {% extends 'base.html' %}
 {% block title %}Dashboard{% endblock %}
-{% block page_title %}<span class="lang-en">Dashboard</span><span class="lang-ta">டேஷ்போர்டு</span>{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
 <div class="dashboard">
   <!-- Day Close Quick Action -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h2 class="h4 mb-0 text-white">
-        <span class="lang-ta">வணிக மேலாண்மை</span>
-        <span class="lang-en">Business Overview</span>
-      </h2>
+      <h2 class="h4 mb-0 text-white">Business Overview</h2>
     </div>
     <button class="btn btn-danger d-flex align-items-center gap-2 px-3 py-2 fw-bold" onclick="openDayCloseModal()">
       <span>🔒</span> 
-      <span class="lang-ta">கணக்கு முடிப்பு (Day Close)</span>
-      <span class="lang-en">Day Close Summary</span>
+      <span>Day Close Summary</span>
     </button>
   </div>
 
@@ -23,10 +19,7 @@
     <div class="stat-card stat-card--primary">
       <div class="stat-icon">💰</div>
       <div class="stat-info">
-        <div class="stat-label">
-          <span class="lang-ta">இன்றைய வருவாய்</span>
-          <span class="lang-en">Today's Revenue</span>
-        </div>
+        <div class="stat-label">Today's Revenue</div>
         <div class="stat-value" id="todaySales">—</div>
         <div class="stat-sub" id="todayCount">—</div>
       </div>
@@ -34,24 +27,15 @@
     <div class="stat-card stat-card--cyan">
       <div class="stat-icon">📅</div>
       <div class="stat-info">
-        <div class="stat-label">
-          <span class="lang-ta">இந்த வாரம்</span>
-          <span class="lang-en">This Week</span>
-        </div>
+        <div class="stat-label">This Week</div>
         <div class="stat-value" id="weekSales">—</div>
-        <div class="stat-sub">
-          <span class="lang-ta">கடந்த 7 நாட்கள்</span>
-          <span class="lang-en">Last 7 Days</span>
-        </div>
+        <div class="stat-sub">Last 7 Days</div>
       </div>
     </div>
     <div class="stat-card stat-card--purple">
       <div class="stat-icon">📦</div>
       <div class="stat-info">
-        <div class="stat-label">
-          <span class="lang-ta">மொத்த பொருட்கள்</span>
-          <span class="lang-en">Total Products</span>
-        </div>
+        <div class="stat-label">Total Products</div>
         <div class="stat-value" id="totalProducts">—</div>
         <div class="stat-sub" id="lowStockStat">—</div>
       </div>
@@ -59,15 +43,9 @@
     <div class="stat-card stat-card--green">
       <div class="stat-icon">👥</div>
       <div class="stat-info">
-        <div class="stat-label">
-          <span class="lang-ta">வாடிக்கையாளர்கள்</span>
-          <span class="lang-en">Customers</span>
-        </div>
+        <div class="stat-label">Customers</div>
         <div class="stat-value" id="totalCustomers">—</div>
-        <div class="stat-sub">
-          <span class="lang-ta">பதிவு செய்யப்பட்டவர்கள்</span>
-          <span class="lang-en">Registered</span>
-        </div>
+        <div class="stat-sub">Registered</div>
       </div>
     </div>
   </div>
@@ -75,26 +53,17 @@
   <!-- GST summary strip -->
   <div class="gst-summary-strip" id="gstStrip" style="display:none">
     <div class="gst-strip-item">
-      <span class="gst-strip-label">
-        <span class="lang-ta">இன்று வரி (CGST)</span>
-        <span class="lang-en">Today CGST</span>
-      </span>
+      <span class="gst-strip-label">Today CGST</span>
       <span class="gst-strip-val" id="todayCgst">—</span>
     </div>
     <div class="gst-strip-divider"></div>
     <div class="gst-strip-item">
-      <span class="gst-strip-label">
-        <span class="lang-ta">இன்று வரி (SGST)</span>
-        <span class="lang-en">Today SGST</span>
-      </span>
+      <span class="gst-strip-label">Today SGST</span>
       <span class="gst-strip-val" id="todaySgst">—</span>
     </div>
     <div class="gst-strip-divider"></div>
     <div class="gst-strip-item">
-      <span class="gst-strip-label">
-        <span class="lang-ta">மொத்த வரி</span>
-        <span class="lang-en">Total GST Today</span>
-      </span>
+      <span class="gst-strip-label">Total GST Today</span>
       <span class="gst-strip-val" id="todayGst">—</span>
     </div>
   </div>
@@ -102,10 +71,7 @@
   <div class="charts-row">
     <div class="card chart-card chart-card--wide">
       <div class="card-header">
-        <h3 class="card-title">
-          <span class="lang-ta">கடந்த 7 நாட்கள் வருவாய் (₹)</span>
-          <span class="lang-en">Weekly Revenue Trend (₹)</span>
-        </h3>
+        <h3 class="card-title">Weekly Revenue Trend (₹)</h3>
       </div>
       <div class="card-body">
         <canvas id="revenueChart" height="120"></canvas>
@@ -113,10 +79,7 @@
     </div>
     <div class="card chart-card">
       <div class="card-header">
-        <h3 class="card-title">
-          <span class="lang-ta">சிறந்த பொருட்கள்</span>
-          <span class="lang-en">Top Selling Products</span>
-        </h3>
+        <h3 class="card-title">Top Selling Products</h3>
       </div>
       <div class="card-body">
         <div id="topProductsList" class="top-products-list"></div>
@@ -127,65 +90,35 @@
   <div class="tables-row">
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title">
-          <span class="lang-ta">சமீபத்திய விற்பனைகள்</span>
-          <span class="lang-en">Recent Transactions</span>
-        </h3>
-        <a href="/sales" class="btn btn-ghost btn-sm">
-          <span class="lang-ta">அனைத்தும் காண</span>
-          <span class="lang-en">View All</span>
-        </a>
+        <h3 class="card-title">Recent Transactions</h3>
+        <a href="/sales" class="btn btn-ghost btn-sm">View All</a>
       </div>
       <div class="card-body p0">
         <table class="table">
           <thead>
             <tr>
-              <th>
-                <span class="lang-ta">ரசீது #</span>
-                <span class="lang-en">Invoice #</span>
-              </th>
-              <th>
-                <span class="lang-ta">வாடிக்கையாளர்</span>
-                <span class="lang-en">Customer</span>
-              </th>
-              <th>
-                <span class="lang-ta">பொருட்கள்</span>
-                <span class="lang-en">Items</span>
-              </th>
-              <th>
-                <span class="lang-ta">கட்டணம்</span>
-                <span class="lang-en">Payment</span>
-              </th>
-              <th>
-                <span class="lang-ta">மொத்தம்</span>
-                <span class="lang-en">Total</span>
-              </th>
-              <th>
-                <span class="lang-ta">நேரம்</span>
-                <span class="lang-en">Time</span>
-              </th>
+              <th>Invoice #</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Payment</th>
+              <th>Total</th>
+              <th>Time</th>
             </tr>
           </thead>
           <tbody id="recentSalesTbody">
-            <tr><td colspan="6" class="text-center text-muted">Loading / ஏற்றுகிறது...</td></tr>
+            <tr><td colspan="6" class="text-center text-muted">Loading...</td></tr>
           </tbody>
         </table>
       </div>
     </div>
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title">
-          <span class="lang-ta">⚠️ குறைந்த இருப்பு</span>
-          <span class="lang-en">⚠️ Low Stock Alerts</span>
-        </h3>
-        <a href="/products" class="btn btn-ghost btn-sm">
-          <span class="lang-ta">நிர்வகிக்க</span>
-          <span class="lang-en">Manage</span>
-        </a>
+        <h3 class="card-title">⚠️ Low Stock Alerts</h3>
+        <a href="/products" class="btn btn-ghost btn-sm">Manage</a>
       </div>
       <div class="card-body p0">
         <div id="lowStockList" class="low-stock-list">
-          <div class="text-center text-muted p-4">Loading / ஏற்றுகிறது...</div>
+          <div class="text-center text-muted p-4">Loading...</div>
         </div>
       </div>
     </div>
@@ -202,10 +135,10 @@ async function loadDashboard() {
   const data = await res.json();
 
   document.getElementById('todaySales').textContent = fmt(data.today_sales);
-  document.getElementById('todayCount').textContent = data.today_count + ' ' + getLangTxt('transactions', 'பரிவர்த்தனைகள்');
+  document.getElementById('todayCount').textContent = data.today_count + ' transactions';
   document.getElementById('weekSales').textContent = fmt(data.week_sales);
   document.getElementById('totalProducts').textContent = data.total_products;
-  document.getElementById('lowStockStat').textContent = data.low_stock + ' ' + getLangTxt('low stock', 'குறைந்த இருப்பு');
+  document.getElementById('lowStockStat').textContent = data.low_stock + ' low stock';
   document.getElementById('totalCustomers').textContent = data.total_customers;
 
   // GST strip
@@ -224,7 +157,7 @@ async function loadDashboard() {
     data: {
       labels: data.daily_data.map(d => d.date),
       datasets: [{
-        label: getLangTxt('Revenue (₹)', 'வருவாய் (₹)'),
+        label: 'Revenue (₹)',
         data: data.daily_data.map(d => d.revenue),
         backgroundColor: 'rgba(139,92,246,0.5)',
         borderColor: '#8b5cf6',
@@ -255,7 +188,7 @@ async function loadDashboard() {
       </div>
       <div class="top-product-revenue">${fmt(p.revenue)}</div>
     </div>`;
-  }).join('') || `<div class="text-center text-muted">${getLangTxt('No sales', 'விற்பனை இல்லை')}</div>`;
+  }).join('') || `<div class="text-center text-muted">No sales</div>`;
 
   // Recent sales
   const tbody = document.getElementById('recentSalesTbody');
@@ -263,12 +196,12 @@ async function loadDashboard() {
     <tr>
       <td><span class="sale-id">#${s.id}</span></td>
       <td>${escapeHtml(s.customer)}</td>
-      <td>${s.item_count} ${getLangTxt('items', 'பொருட்கள்')}</td>
+      <td>${s.item_count} items</td>
       <td><span class="badge badge--${escapeHtml(s.payment_method)}">${escapeHtml(payLabel(s.payment_method))}</span></td>
       <td class="fw-600">${fmt(s.total)}</td>
       <td class="text-muted text-sm">${escapeHtml(s.created_at)}</td>
     </tr>
-  `).join('') || `<tr><td colspan="6" class="text-center text-muted">${getLangTxt('No sales', 'விற்பனை இல்லை')}</td></tr>`;
+  `).join('') || `<tr><td colspan="6" class="text-center text-muted">No sales</td></tr>`;
 
   // Low stock
   const lsl = document.getElementById('lowStockList');
@@ -279,10 +212,10 @@ async function loadDashboard() {
         <div class="low-stock-sku">${escapeHtml(p.sku)}</div>
       </div>
       <div class="low-stock-count ${p.stock === 0 ? 'text-danger' : 'text-warning'}">
-        ${p.stock === 0 ? getLangTxt('Out of stock', 'தீர்ந்தது') : p.stock + ' ' + getLangTxt('in stock', 'உள்ளது')}
+        ${p.stock === 0 ? 'Out of stock' : p.stock + ' in stock'}
       </div>
     </div>
-  `).join('') || `<div class="text-center text-muted p-4">✅ ${getLangTxt('All products are in sufficient stock', 'அனைத்து பொருட்களும் சரியான அளவில் உள்ளன')}</div>`;
+  `).join('') || `<div class="text-center text-muted p-4">✅ All products are in sufficient stock</div>`;
 }
 
 async function openDayCloseModal() {
@@ -290,7 +223,7 @@ async function openDayCloseModal() {
     const res = await fetch('/api/reports/day-close');
     const data = await res.json();
     if (data.success) {
-      document.getElementById('dcDate').innerHTML = `<span class="lang-en">Date: ${escapeHtml(data.date)}</span><span class="lang-ta">தேதி: ${escapeHtml(data.date)}</span>`;
+      document.getElementById('dcDate').textContent = `Date: ${escapeHtml(data.date)}`;
       document.getElementById('dcCount').textContent = data.total_transactions;
       document.getElementById('dcCash').textContent = '₹' + data.cash.toFixed(2);
       document.getElementById('dcUpi').textContent = '₹' + data.upi.toFixed(2);
@@ -311,12 +244,9 @@ async function openDayCloseModal() {
 function printDayClose() {
   const content = document.getElementById('dayCloseModalBody').innerHTML;
   const printWindow = window.open('', '_blank', 'width=600,height=600');
-  const currentLangClass = document.documentElement.classList.contains('lang-ta') ? 'lang-ta' : 'lang-en';
-  printWindow.document.write('<html class="' + currentLangClass + '"><head><title>Day Close Slip</title>');
+  printWindow.document.write('<html><head><title>Day Close Slip</title>');
   printWindow.document.write('<style>');
   printWindow.document.write('body { font-family: monospace; padding: 20px; background: #fff; color: #000; }');
-  printWindow.document.write('html.lang-en .lang-ta { display: none !important; }');
-  printWindow.document.write('html.lang-ta .lang-en { display: none !important; }');
   printWindow.document.write('.receipt-print-wrapper { background: #fff !important; color: #000 !important; border: none !important; padding: 0 !important; }');
   printWindow.document.write('.text-warning { color: #000 !important; }');
   printWindow.document.write('.text-muted { color: #555 !important; }');
@@ -353,97 +283,64 @@ setInterval(loadDashboard, 30000);
   <div class="modal" id="dayCloseModal">
     <div class="modal-dialog modal-md" style="pointer-events: auto !important;">
       <div class="modal-header">
-        <h3>🔒 <span class="lang-en">Day Close Summary</span><span class="lang-ta">கணக்கு முடிப்பு</span></h3>
+        <h3>🔒 Day Close Summary</h3>
         <button class="modal-close" onclick="closeModal('dayCloseModal')">✕</button>
       </div>
       <div class="modal-body" id="dayCloseModalBody">
         <div class="receipt-print-wrapper p-4" style="font-family: monospace; border: 1px dashed var(--text-muted); border-radius: 8px; background-color: var(--bg-input); color: var(--text-primary);">
           <div class="text-center mb-3">
-            <h4 class="mb-1 text-warning fw-bold">விக்னேஷ் குரோத் லேப்</h4>
-            <div class="text-xs text-muted">Vignesh Growth Lab POS</div>
+            <h4 class="mb-1 text-warning fw-bold">VIGNESH GROWTH LAB POS</h4>
+            <div class="text-xs text-muted">23, Anna Salai, Chennai - 600002</div>
             <div class="text-xs text-muted">GSTIN: 33AABCU9603R1ZX</div>
             <div class="my-2" style="border-top: 1px dashed var(--text-muted);"></div>
-            <h5 class="fw-bold uppercase" style="color: var(--text-primary);">
-              <span class="lang-en">DAY CLOSE SLIP</span>
-              <span class="lang-ta">கணக்கு முடிப்பு</span>
-            </h5>
-            <div class="text-xs text-muted" id="dcDate">
-              <span class="lang-en">Date: --</span>
-              <span class="lang-ta">தேதி: --</span>
-            </div>
+            <h5 class="fw-bold uppercase" style="color: var(--text-primary);">DAY CLOSE SLIP</h5>
+            <div class="text-xs text-muted" id="dcDate">Date: --</div>
           </div>
           
           <div class="d-flex justify-content-between mb-1 text-sm">
-            <span>
-              <span class="lang-en">Total Transactions:</span>
-              <span class="lang-ta">மொத்த பரிவர்த்தனைகள்:</span>
-            </span>
+            <span>Total Transactions:</span>
             <span id="dcCount" class="fw-bold">0</span>
           </div>
           
           <div class="my-2" style="border-top: 1px dashed var(--text-muted);"></div>
           
-          <div class="text-xs text-warning fw-bold mb-2 uppercase">
-            <span class="lang-en">PAYMENT BREAKDOWN</span>
-            <span class="lang-ta">பணம் பெறும் முறைகள்</span>
-          </div>
+          <div class="text-xs text-warning fw-bold mb-2 uppercase">PAYMENT BREAKDOWN</div>
           <div class="d-flex justify-content-between mb-1 text-sm">
-            <span>
-              <span class="lang-en">Cash:</span>
-              <span class="lang-ta">பணம் (Cash):</span>
-            </span>
+            <span>Cash:</span>
             <span id="dcCash" class="fw-bold">₹0.00</span>
           </div>
           <div class="d-flex justify-content-between mb-1 text-sm">
-            <span>
-              <span class="lang-en">UPI:</span>
-              <span class="lang-ta">யுபிஐ (UPI):</span>
-            </span>
+            <span>UPI:</span>
             <span id="dcUpi" class="fw-bold">₹0.00</span>
           </div>
           <div class="d-flex justify-content-between mb-1 text-sm">
-            <span>
-              <span class="lang-en">Card:</span>
-              <span class="lang-ta">அட்டை (Card):</span>
-            </span>
+            <span>Card:</span>
             <span id="dcCard" class="fw-bold">₹0.00</span>
           </div>
           
           <div class="my-2" style="border-top: 1px dashed var(--text-muted);"></div>
           
-          <div class="text-xs text-warning fw-bold mb-2 uppercase">
-            <span class="lang-en">GST TAX SUMMARY</span>
-            <span class="lang-ta">வரி விவரம்</span>
-          </div>
+          <div class="text-xs text-warning fw-bold mb-2 uppercase">GST TAX SUMMARY</div>
           <div class="d-flex justify-content-between mb-1 text-sm">
-            <span>
-              <span class="lang-en">CGST:</span>
-              <span class="lang-ta">மத்திய ஜிஎஸ்டி (CGST):</span>
-            </span>
+            <span>CGST:</span>
             <span id="dcCgst" class="fw-bold">₹0.00</span>
           </div>
           <div class="d-flex justify-content-between mb-1 text-sm">
-            <span>
-              <span class="lang-en">SGST:</span>
-              <span class="lang-ta">மாநில ஜிஎஸ்டி (SGST):</span>
-            </span>
+            <span>SGST:</span>
             <span id="dcSgst" class="fw-bold">₹0.00</span>
           </div>
           
           <div class="my-2" style="border-top: 1px dashed var(--text-muted);"></div>
           
           <div class="d-flex justify-content-between text-base fw-bold" style="color: var(--text-primary);">
-            <span>
-              <span class="lang-en">Grand Total:</span>
-              <span class="lang-ta">மொத்தம் (Grand Total):</span>
-            </span>
+            <span>Grand Total:</span>
             <span id="dcGrandTotal">₹0.00</span>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-warning text-dark fw-bold" onclick="printDayClose()">🖨️ <span class="lang-en">Print</span><span class="lang-ta">அச்சிடுக</span></button>
-        <button class="btn btn-ghost text-white" onclick="closeModal('dayCloseModal')"><span class="lang-en">Close</span><span class="lang-ta">மூடு</span></button>
+        <button class="btn btn-warning text-dark fw-bold" onclick="printDayClose()">🖨️ Print</button>
+        <button class="btn btn-ghost text-white" onclick="closeModal('dayCloseModal')">Close</button>
       </div>
     </div>
   </div>

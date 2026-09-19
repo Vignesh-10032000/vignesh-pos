@@ -7,21 +7,18 @@
   <meta name="description" content="Tamil Nadu Point of Sale System with GST">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/vgl_theme.css') }}?v=3.0.0">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script>
-    // Initialize Theme and Language from LocalStorage immediately to prevent flickering
+    // Initialize Theme from LocalStorage immediately to prevent flickering
     const currentTheme = localStorage.getItem('vgl_theme') || 'dark';
-    const currentLang = localStorage.getItem('vgl_lang') || 'en';
-    
     if (currentTheme === 'light') {
       document.documentElement.classList.add('theme-light');
     }
-    
-    document.documentElement.classList.add('lang-' + currentLang);
-    document.documentElement.setAttribute('lang', currentLang);
+    document.documentElement.classList.add('lang-en');
+    document.documentElement.setAttribute('lang', 'en');
   </script>
 </head>
 <body>
@@ -61,10 +58,7 @@
 
     <nav class="sidebar-nav">
       <!-- Section 1: Main Operations -->
-      <div class="nav-section-label">
-        <span class="lang-en">Operations</span>
-        <span class="lang-ta">செயல்பாடுகள்</span>
-      </div>
+      <div class="nav-section-label">Operations</div>
 
       <a href="/" class="nav-item {% if page=='dashboard' %}active{% endif %}">
         <span class="nav-icon">
@@ -73,10 +67,7 @@
             <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
           </svg>
         </span>
-        <span class="nav-label">
-          <span class="lang-en">Dashboard</span>
-          <span class="lang-ta">டேஷ்போர்டு</span>
-        </span>
+        <span class="nav-label">Dashboard</span>
       </a>
 
       <a href="/pos" class="nav-item {% if page=='pos' %}active{% endif %}">
@@ -85,10 +76,7 @@
             <rect x="2" y="3" width="20" height="14" rx="2.5"/><path d="M8 21h8M12 17v4"/>
           </svg>
         </span>
-        <span class="nav-label">
-          <span class="lang-en">POS Terminal</span>
-          <span class="lang-ta">விற்பனை முனையம்</span>
-        </span>
+        <span class="nav-label">POS Terminal</span>
         <span class="pos-live-pill">
           <span class="live-dot"></span>
           LIVE
@@ -96,10 +84,7 @@
       </a>
 
       <!-- Section 2: Commerce & Catalog -->
-      <div class="nav-section-label">
-        <span class="lang-en">Commerce</span>
-        <span class="lang-ta">சரக்கு & விற்பனை</span>
-      </div>
+      <div class="nav-section-label">Commerce</div>
 
       <a href="/products" class="nav-item {% if page=='products' %}active{% endif %}">
         <span class="nav-icon">
@@ -109,10 +94,7 @@
             <line x1="12" y1="22.08" x2="12" y2="12"></line>
           </svg>
         </span>
-        <span class="nav-label">
-          <span class="lang-en">Products</span>
-          <span class="lang-ta">பொருட்கள்</span>
-        </span>
+        <span class="nav-label">Products</span>
       </a>
 
       <a href="/sales" class="nav-item {% if page=='sales' %}active{% endif %}">
@@ -125,10 +107,7 @@
             <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
         </span>
-        <span class="nav-label">
-          <span class="lang-en">Sales History</span>
-          <span class="lang-ta">விற்பனை வரலாறு</span>
-        </span>
+        <span class="nav-label">Sales History</span>
       </a>
 
       <a href="/customers" class="nav-item {% if page=='customers' %}active{% endif %}">
@@ -139,17 +118,11 @@
             <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
         </span>
-        <span class="nav-label">
-          <span class="lang-en">Customers</span>
-          <span class="lang-ta">வாடிக்கையாளர்கள்</span>
-        </span>
+        <span class="nav-label">Customers</span>
       </a>
 
       <!-- Section 3: Intelligence & Management -->
-      <div class="nav-section-label">
-        <span class="lang-en">Management</span>
-        <span class="lang-ta">அறிக்கைகள் & அமைப்புகள்</span>
-      </div>
+      <div class="nav-section-label">Management</div>
 
       <a href="/reports" class="nav-item {% if page=='reports' %}active{% endif %}">
         <span class="nav-icon">
@@ -158,10 +131,7 @@
             <line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/>
           </svg>
         </span>
-        <span class="nav-label">
-          <span class="lang-en">Reports & Analytics</span>
-          <span class="lang-ta">அறிக்கைகள்</span>
-        </span>
+        <span class="nav-label">Reports & Analytics</span>
       </a>
 
       <a href="/settings" class="nav-item {% if page=='settings' %}active{% endif %}">
@@ -170,10 +140,7 @@
             <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
           </svg>
         </span>
-        <span class="nav-label">
-          <span class="lang-en">Settings & Rebrand</span>
-          <span class="lang-ta">அமைப்புகள்</span>
-        </span>
+        <span class="nav-label">Settings & Rebrand</span>
       </a>
     </nav>
 
@@ -191,14 +158,14 @@
       <div class="user-info">
         <div class="avatar-wrapper">
           <div class="user-avatar" id="sidebarAvatar">V</div>
-          <span class="avatar-online-dot" title="Online / செயலில்"></span>
+          <span class="avatar-online-dot" title="Online"></span>
         </div>
         <div class="user-details">
           <div class="user-name" id="sidebarUserName">Store Admin</div>
           <div class="user-role" id="sidebarUserRole">Vignesh Growth Lab · TN ✓</div>
         </div>
       </div>
-      <a href="/logout" onclick="localStorage.removeItem('vgl_session')" class="sidebar-logout-btn" title="Sign Out / விடுபடுக">
+      <a href="/logout" onclick="localStorage.removeItem('vgl_session')" class="sidebar-logout-btn" title="Sign Out">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
           <polyline points="16 17 21 12 16 7"></polyline>
@@ -230,18 +197,13 @@
             <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
           </svg>
         </button>
-        <h1 class="page-title">{% block page_title %}<span class="lang-en">Dashboard</span><span class="lang-ta">டேஷ்போர்டு</span>{% endblock %}</h1>
+        <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
       </div>
       <div class="top-bar-right d-flex align-items-center gap-2">
         <!-- Theme Switcher -->
-        <button class="btn btn-ghost btn-sm" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Theme / தீம் மாற்றுக" style="padding: 6px 10px;">
+        <button class="btn btn-ghost btn-sm" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Theme" style="padding: 6px 10px;">
           <span class="theme-icon-dark">🌙</span>
           <span class="theme-icon-light d-none">☀️</span>
-        </button>
-        <!-- Language Switcher (HIDDEN FOR DEMO — Tamil UI needs fixes) -->
-        <button class="btn btn-ghost btn-sm fw-600" id="langToggleBtn" onclick="toggleLanguage()" style="display:none; padding: 6px 10px; font-size:12px; font-family:'Inter', sans-serif;">
-          <span class="lang-en">தமிழ்</span>
-          <span class="lang-ta">EN</span>
         </button>
         <button class="btn btn-outline-warning btn-sm" id="demoConsoleBtn" onclick="openModal('demoConsoleModal')"><span class="demo-icon">⚙️</span> <span class="demo-btn-text">Demo Console</span></button>
         <div class="gst-badge">GST Registered · TN</div>
@@ -273,8 +235,8 @@
       <div class="modal-body text-center p-4">
         <p class="text-muted text-sm mb-4">Use these controls for real-time client sales and analytics demonstrations.</p>
         <div class="d-grid gap-3">
-          <button class="btn btn-warning py-2 text-dark fw-bold" id="demoSimulateBtn">⚡ Simulate Random Sale (லைவ் விற்பனை)</button>
-          <button class="btn btn-danger py-2 fw-bold" id="demoResetBtn">🚨 Full Reset Demo Data (தரவு மீட்டமை)</button>
+          <button class="btn btn-warning py-2 text-dark fw-bold" id="demoSimulateBtn">⚡ Simulate Random Sale</button>
+          <button class="btn btn-danger py-2 fw-bold" id="demoResetBtn">🚨 Full Reset Demo Data</button>
         </div>
       </div>
       <div class="modal-footer">
@@ -293,12 +255,12 @@
     if (demoSimulateBtn) {
       demoSimulateBtn.addEventListener('click', async () => {
         demoSimulateBtn.disabled = true;
-        demoSimulateBtn.textContent = 'Simulating / செயலாக்குகிறது...';
+        demoSimulateBtn.textContent = 'Simulating...';
         try {
           const res = await fetch('/api/demo/simulate_sale', { method: 'POST' });
           const data = await res.json();
           if (data.success) {
-            showToast('Simulated sale successfully / விற்பனை உருவகப்படுத்தப்பட்டது!', 'success');
+            showToast('Simulated sale successfully!', 'success');
             closeModal('demoConsoleModal');
             if (window.location.pathname === '/' || window.location.pathname === '/reports' || window.location.pathname === '/sales') {
               setTimeout(() => window.location.reload(), 1000);
@@ -310,18 +272,18 @@
           showToast('Network error', 'error');
         } finally {
           demoSimulateBtn.disabled = false;
-          demoSimulateBtn.textContent = '⚡ Simulate Random Sale (லைவ் விற்பனை)';
+          demoSimulateBtn.textContent = '⚡ Simulate Random Sale';
         }
       });
     }
     
     if (demoResetBtn) {
       demoResetBtn.addEventListener('click', async () => {
-        if (!confirm('⚠️ WARNING: This will delete ALL sales, products and customers. Are you sure?\n\nஉறுதிப்படுத்தவும்: அனைத்து தரவும் நீக்கப்படும்!')) {
+        if (!confirm('⚠️ WARNING: This will delete ALL sales, products and customers. Are you sure?')) {
           return;
         }
         demoResetBtn.disabled = true;
-        demoResetBtn.textContent = 'Resetting / மீட்டமைக்கிறது...';
+        demoResetBtn.textContent = 'Resetting...';
         try {
           const res = await fetch('/api/demo/reset', { method: 'POST' });
           const data = await res.json();
@@ -336,7 +298,7 @@
           showToast('Network error', 'error');
         } finally {
           demoResetBtn.disabled = false;
-          demoResetBtn.textContent = '🚨 Full Reset Demo Data (தரவு மீட்டமை)';
+          demoResetBtn.textContent = '🚨 Full Reset Demo Data';
         }
       });
     }

@@ -1590,12 +1590,82 @@ body {
 .p0 { padding: 0; }
 
 /* ============================================================
-   Print Styles
-   ============================================================ */
+@page {
+  size: portrait;
+  margin: 6mm 10mm;
+}
+
 @media print {
-  .sidebar, .top-bar, .modal-header, .modal-footer { display: none !important; }
-  .modal-dialog { box-shadow: none; border: none; }
-  body { background: white; color: black; }
+  .sidebar,
+  .top-bar,
+  .pos-mobile-nav,
+  .pos-mobile-floating-bar,
+  .page-toolbar,
+  .toast-container,
+  .modal-backdrop,
+  .modal-header,
+  .modal-footer,
+  .pos-layout,
+  .dashboard,
+  .reports-toolbar,
+  .stats-grid,
+  .charts-row,
+  .tables-row,
+  .settings-container,
+  .settings-action-bar,
+  .card:not(#receiptModal .card):not(.receipt) {
+    display: none !important;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 11px !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  .modal.open {
+    position: static !important;
+    display: block !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 380px !important;
+    box-shadow: none !important;
+    border: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .modal.open .modal-dialog {
+    position: static !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    background: transparent !important;
+    max-width: 100% !important;
+  }
+
+  .modal.open .modal-body {
+    padding: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .receipt {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
 }
 
 /* ============================================================

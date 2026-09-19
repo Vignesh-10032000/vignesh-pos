@@ -57,7 +57,7 @@ limiter = Limiter(
     storage_uri="memory://"
 )
 
-STORE_NAME = "விக்னேஷ் குரோத் லேப்"      # Tamil store name
+STORE_NAME = "Vignesh Growth Lab POS"
 STORE_NAME_EN = "Vignesh Growth Lab POS"
 STORE_GSTIN = "33AABCU9603R1ZX"          # Tamil Nadu GSTIN (33 = TN)
 STORE_ADDRESS = "23, Anna Salai, Chennai - 600002, Tamil Nadu"
@@ -161,7 +161,7 @@ def create_app(config=None):
             response.headers['X-Frame-Options'] = 'SAMEORIGIN'
             response.headers['X-XSS-Protection'] = '1; mode=block'
             response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-            response.headers['Content-Security-Policy'] = "default-src 'self' https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' *;"
+            response.headers['Content-Security-Policy'] = "default-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' *;"
             
             # Custom Morgan logging
             log_message = f"{request.method} {request.path} {response.status_code} {response.content_length or 0} - {duration * 1000:.2f} ms"
@@ -257,7 +257,7 @@ def create_app(config=None):
             db.drop_all()
             db.create_all()
             seed_data()
-            return jsonify({'success': True, 'message': 'Demo data reset successfully / டெமோ தரவு மீட்டமைக்கப்பட்டது'})
+            return jsonify({'success': True, 'message': 'Demo data reset successfully'})
 
         @app.route('/api/demo/simulate_sale', methods=['POST'])
         def simulate_sale():
@@ -330,12 +330,12 @@ def seed_data():
     if Category.query.count() == 0:
         # Tamil Nadu relevant categories
         categories = [
-            Category(name='உணவு & பானம்',   icon='🍛'),   # Food & Beverages
-            Category(name='மளிகை',            icon='🧺'),   # Grocery
-            Category(name='மின்னணுவியல்',    icon='📱'),   # Electronics
-            Category(name='ஆடை & துணி',      icon='👗'),   # Clothing & Textiles
-            Category(name='சுகாதார பொருட்கள்', icon='💊'), # Health & Medicine
-            Category(name='எழுதுபொருட்கள்',  icon='📝'),   # Stationery
+            Category(name='Food & Beverages',   icon='🍛'),   # Food & Beverages
+            Category(name='Grocery',            icon='🧺'),   # Grocery
+            Category(name='Electronics',        icon='📱'),   # Electronics
+            Category(name='Clothing & Textiles',icon='👗'),   # Clothing & Textiles
+            Category(name='Health & Medicine',  icon='💊'),   # Health & Medicine
+            Category(name='Stationery',         icon='📝'),   # Stationery
         ]
         db.session.add_all(categories)
         db.session.commit()
