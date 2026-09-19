@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ta">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,7 +14,7 @@
   <script>
     // Initialize Theme and Language from LocalStorage immediately to prevent flickering
     const currentTheme = localStorage.getItem('vgl_theme') || 'dark';
-    const currentLang = localStorage.getItem('vgl_lang') || 'ta';
+    const currentLang = localStorage.getItem('vgl_lang') || 'en';
     
     if (currentTheme === 'light') {
       document.documentElement.classList.add('theme-light');
@@ -165,8 +165,8 @@
           <span class="theme-icon-dark">🌙</span>
           <span class="theme-icon-light d-none">☀️</span>
         </button>
-        <!-- Language Switcher -->
-        <button class="btn btn-ghost btn-sm fw-600" id="langToggleBtn" onclick="toggleLanguage()" style="padding: 6px 10px; font-size:12px; font-family:'Inter', sans-serif;">
+        <!-- Language Switcher (HIDDEN FOR DEMO — Tamil UI needs fixes) -->
+        <button class="btn btn-ghost btn-sm fw-600" id="langToggleBtn" onclick="toggleLanguage()" style="display:none; padding: 6px 10px; font-size:12px; font-family:'Inter', sans-serif;">
           <span class="lang-en">தமிழ்</span>
           <span class="lang-ta">EN</span>
         </button>

@@ -1,31 +1,508 @@
 {% extends 'base.html' %}
 {% block title %}POS Terminal{% endblock %}
-{% block page_title %}<span class="lang-en">POS Terminal</span><span class="lang-ta">விற்பனை முனையம் (POS)</span>{% endblock %}
+{% block page_title %}<span class="lang-en">🍽️ Restaurant POS</span><span class="lang-ta">🍽️ உணவக POS</span>{% endblock %}
 
 {% block content %}
+<style>
+/* =============================================
+   Restaurant POS — Warm Theme Override
+   Inspired by Chipotle, ChickFilA patterns
+   (inspo-mcp food-beverage industry research)
+   ============================================= */
+
+/* Warm palette variables */
+.pos-layout {
+  --warm-amber: #e67e22;
+  --warm-amber-glow: rgba(230, 126, 34, 0.18);
+  --warm-amber-deep: #d35400;
+  --warm-terracotta: #6b2d19;
+  --warm-cream: #fef3e2;
+  --warm-gold: #f5b041;
+  --warm-green: #27ae60;
+  --warm-green-glow: rgba(39, 174, 96, 0.15);
+  --warm-red: #e74c3c;
+  --warm-bg-card: rgba(230, 126, 34, 0.04);
+  --warm-border: rgba(230, 126, 34, 0.15);
+}
+
+/* ── Search Bar ─────────────────────────── */
+.pos-search-bar .search-input-wrap {
+  background: var(--bg-input);
+  border: 2px solid var(--warm-border);
+  border-radius: 14px;
+  transition: all 0.25s ease;
+}
+.pos-search-bar .search-input-wrap:focus-within {
+  border-color: var(--warm-amber);
+  box-shadow: 0 0 0 4px var(--warm-amber-glow), 0 4px 20px rgba(230,126,34,0.12);
+}
+.pos-search-bar .search-icon { color: var(--warm-amber); }
+
+/* ── Category Tabs ──────────────────────── */
+.cat-btn {
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  transition: all 0.2s ease;
+}
+.cat-btn:hover {
+  background: var(--warm-amber-glow);
+  border-color: var(--warm-amber);
+  color: var(--warm-amber);
+  transform: translateY(-1px);
+}
+.cat-btn.active {
+  background: linear-gradient(135deg, var(--warm-amber), var(--warm-amber-deep)) !important;
+  border-color: var(--warm-amber-deep) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px var(--warm-amber-glow), 0 2px 6px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+/* ── Product Grid (Menu Board) ──────────── */
+.products-grid {
+  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  gap: 10px;
+}
+
+.product-card {
+  background: var(--bg-card);
+  border: 1.5px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 14px 10px 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+  user-select: none;
+  position: relative;
+  overflow: visible !important;
+}
+.product-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--warm-amber-glow), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+.product-card:hover:not(.out-of-stock) {
+  border-color: var(--warm-amber) !important;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 24px var(--warm-amber-glow), 0 4px 10px rgba(0,0,0,0.2) !important;
+  background: var(--bg-card-hover) !important;
+}
+.product-card:hover:not(.out-of-stock)::before {
+  opacity: 1;
+}
+.product-card:active:not(.out-of-stock) {
+  transform: translateY(0) scale(0.98);
+  transition-duration: 0.1s;
+}
+
+.product-emoji {
+  font-size: 36px;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+.product-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  line-height: 1.25;
+  position: relative;
+  z-index: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.product-gst-badge {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--cyan);
+  background: rgba(6,182,212,0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 1;
+}
+.product-meta {
+  position: relative;
+  z-index: 1;
+}
+.product-price {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--warm-amber);
+  letter-spacing: -0.02em;
+}
+.product-stock {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-weight: 500;
+}
+.product-stock.low {
+  color: var(--warm-red);
+  font-weight: 600;
+}
+
+/* ── Order Panel (Cart) ─────────────────── */
+.pos-cart-panel {
+  background: var(--bg-card);
+  border: 1.5px solid var(--warm-border);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(230,126,34,0.06);
+}
+.cart-header {
+  background: linear-gradient(135deg, rgba(230,126,34,0.08), rgba(230,126,34,0.03));
+  border-bottom: 1px solid var(--warm-border);
+  padding: 14px 16px;
+}
+.cart-title {
+  color: var(--warm-amber);
+}
+.cart-title svg { stroke: var(--warm-amber); }
+.cart-count {
+  background: linear-gradient(135deg, var(--warm-amber), var(--warm-amber-deep));
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 2px 8px var(--warm-amber-glow);
+}
+
+/* Customer strip */
+.cart-customer {
+  background: rgba(230,126,34,0.04);
+  border-bottom: 1px solid rgba(230,126,34,0.1);
+}
+
+/* Cart Items */
+.cart-item {
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 4px;
+  transition: all 0.2s ease;
+}
+.cart-item:hover {
+  background: var(--warm-amber-glow);
+}
+.cart-item-name {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+.item-gst-tag {
+  color: var(--cyan);
+  font-weight: 600;
+  font-size: 10px;
+  background: rgba(6,182,212,0.1);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.cart-item-total {
+  color: var(--warm-amber) !important;
+  font-weight: 800;
+}
+
+.qty-btn {
+  background: var(--warm-amber-glow);
+  border: 1px solid rgba(230,126,34,0.2);
+  color: var(--warm-amber);
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+.qty-btn:hover {
+  background: var(--warm-amber) !important;
+  color: #fff;
+  border-color: var(--warm-amber);
+}
+.cart-item-remove:hover {
+  color: var(--warm-red);
+  background: rgba(231, 76, 60, 0.12);
+}
+
+/* Cart Empty */
+.cart-empty-icon { font-size: 32px; }
+
+/* ── Summary Section ────────────────────── */
+.cart-summary {
+  background: rgba(230,126,34,0.03);
+  border-top: 2px solid var(--warm-border);
+  border-bottom: 1px solid var(--warm-border);
+}
+.summary-total {
+  color: var(--warm-amber) !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+}
+
+/* ── Payment Buttons ────────────────────── */
+.pay-btn {
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 9px 8px;
+  border: 1.5px solid var(--border);
+  transition: all 0.2s ease;
+}
+.pay-btn:hover {
+  border-color: var(--warm-amber);
+  background: var(--warm-amber-glow);
+  color: var(--warm-amber);
+}
+.pay-btn.active {
+  background: linear-gradient(135deg, var(--warm-amber), var(--warm-amber-deep)) !important;
+  border-color: var(--warm-amber-deep) !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 10px var(--warm-amber-glow);
+}
+
+/* Quick amounts */
+.quick-amount-btn {
+  border-radius: 8px;
+  font-weight: 600;
+}
+.quick-amount-btn:hover {
+  background: var(--warm-amber-glow) !important;
+  border-color: var(--warm-amber) !important;
+  color: var(--warm-amber) !important;
+}
+
+/* Change display */
+.change-display {
+  background: var(--warm-green-glow);
+  border: 1px solid rgba(39, 174, 96, 0.3);
+  border-radius: 10px;
+}
+
+/* ── Checkout CTA ───────────────────────── */
+.btn-checkout {
+  background: linear-gradient(135deg, var(--warm-amber), var(--warm-amber-deep)) !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  font-size: 15px !important;
+  padding: 12px 16px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 16px var(--warm-amber-glow), 0 2px 6px rgba(0,0,0,0.15) !important;
+  transition: all 0.25s ease !important;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+.btn-checkout:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--warm-amber-deep), #c0392b) !important;
+  box-shadow: 0 6px 24px rgba(230,126,34,0.4), 0 3px 10px rgba(0,0,0,0.2) !important;
+  transform: translateY(-1px);
+}
+.btn-checkout:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px var(--warm-amber-glow) !important;
+}
+.btn-checkout:disabled {
+  background: rgba(255,255,255,0.08) !important;
+  color: var(--text-muted) !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+}
+
+/* Print & WhatsApp buttons */
+.btn-print-action {
+  background: rgba(37, 99, 235, 0.12) !important;
+  color: #60a5fa !important;
+  border: 1.5px solid rgba(37, 99, 235, 0.25) !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+.btn-print-action:hover:not(:disabled) {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
+}
+
+.btn-whatsapp-action {
+  background: rgba(37, 211, 102, 0.12) !important;
+  color: #4ade80 !important;
+  border: 1.5px solid rgba(37, 211, 102, 0.25) !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+.btn-whatsapp-action:hover:not(:disabled) {
+  background: #25D366 !important;
+  color: #ffffff !important;
+  border-color: #25D366 !important;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3) !important;
+}
+
+/* ── Receipt Modal warm accents ─────────── */
+#receiptModal .modal-dialog {
+  border-color: rgba(230,126,34,0.3);
+  box-shadow: var(--shadow-lg), 0 0 40px rgba(230,126,34,0.1);
+}
+#receiptModal .modal-header {
+  background: linear-gradient(135deg, rgba(230,126,34,0.08), rgba(230,126,34,0.03));
+  border-bottom-color: var(--warm-border);
+}
+.receipt-logo {
+  color: var(--warm-amber);
+}
+.receipt-row--total {
+  color: var(--warm-amber) !important;
+}
+
+/* ── UPI Section ────────────────────────── */
+.upi-section {
+  background: rgba(99,102,241,0.08);
+  border: 1px solid rgba(99,102,241,0.2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.upi-id {
+  font-weight: 700;
+  color: #818cf8;
+  font-size: 14px;
+}
+
+/* ── Order ripple animation on add ──────── */
+@keyframes addRipple {
+  0% { box-shadow: 0 0 0 0 var(--warm-amber-glow); }
+  70% { box-shadow: 0 0 0 12px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.product-card.just-added {
+  animation: addRipple 0.5s ease-out;
+}
+
+/* ── Light Theme Restaurant Overrides ───── */
+html.theme-light .product-card {
+  border-color: rgba(230,126,34,0.12);
+  background: #ffffff;
+}
+html.theme-light .product-card:hover:not(.out-of-stock) {
+  background: #fef9f3 !important;
+  border-color: var(--warm-amber) !important;
+  box-shadow: 0 8px 24px rgba(230,126,34,0.12), 0 4px 10px rgba(0,0,0,0.06) !important;
+}
+html.theme-light .product-name { color: #1e293b; }
+html.theme-light .product-price { color: var(--warm-amber-deep); }
+html.theme-light .product-stock { color: #64748b; }
+
+html.theme-light .cat-btn {
+  background: #fff;
+  border-color: rgba(230,126,34,0.15);
+  color: #475569;
+}
+html.theme-light .cat-btn:hover {
+  background: #fef9f3;
+  color: var(--warm-amber-deep);
+}
+html.theme-light .cat-btn.active {
+  background: linear-gradient(135deg, var(--warm-amber), var(--warm-amber-deep)) !important;
+  color: #fff !important;
+}
+
+html.theme-light .pos-cart-panel {
+  background: #ffffff;
+  border-color: rgba(230,126,34,0.15);
+}
+html.theme-light .cart-header {
+  background: linear-gradient(135deg, #fef9f3, #fff7ed);
+  border-bottom-color: rgba(230,126,34,0.12);
+}
+html.theme-light .cart-item {
+  border-bottom-color: rgba(0,0,0,0.06);
+}
+html.theme-light .cart-item:hover {
+  background: rgba(230,126,34,0.06);
+}
+html.theme-light .cart-item-name { color: #1e293b; }
+html.theme-light .cart-summary {
+  background: #fef9f3;
+  border-top-color: rgba(230,126,34,0.12);
+  border-bottom-color: rgba(230,126,34,0.12);
+}
+html.theme-light .summary-row { color: #475569; }
+html.theme-light .summary-total { color: var(--warm-amber-deep) !important; }
+
+html.theme-light .pay-btn {
+  background: #fff;
+  border-color: rgba(0,0,0,0.1);
+  color: #475569;
+}
+html.theme-light .pay-btn.active {
+  color: #fff !important;
+}
+
+html.theme-light .qty-btn {
+  background: rgba(230,126,34,0.08);
+  border-color: rgba(230,126,34,0.15);
+  color: var(--warm-amber-deep);
+}
+
+html.theme-light .pos-search-bar .search-input-wrap {
+  background: #fff;
+  border-color: rgba(230,126,34,0.15);
+}
+html.theme-light .pos-search-bar .search-input-wrap:focus-within {
+  border-color: var(--warm-amber);
+  box-shadow: 0 0 0 4px rgba(230,126,34,0.1), 0 4px 20px rgba(230,126,34,0.06);
+}
+
+html.theme-light #receiptModal .modal-dialog {
+  border-color: rgba(230,126,34,0.2);
+}
+
+/* ── Responsive for laptop ──────────────── */
+@media (max-width: 1100px) {
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+    gap: 6px !important;
+  }
+  .product-emoji { font-size: 26px !important; margin-bottom: 4px !important; }
+  .product-name { font-size: 11px !important; }
+  .product-price { font-size: 13px !important; }
+}
+</style>
+
 <div class="pos-layout">
-  <!-- Product Panel -->
+  <!-- ═══════ LEFT: Menu Board ═══════ -->
   <div class="pos-products-panel">
     <div class="pos-search-bar">
       <div class="search-input-wrap">
         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        <input type="text" id="productSearch" placeholder="பொருள் தேடுக / Barcode / HSN..." class="search-input" autocomplete="off">
+        <input type="text" id="productSearch" placeholder="🔍 Search menu / Barcode / HSN..." class="search-input" autocomplete="off">
         <kbd class="search-kbd" id="searchShortcutBadge">⌘K</kbd>
       </div>
     </div>
 
     <div class="category-filters" id="categoryFilters">
-      <button class="cat-btn active" data-cat=""><span class="lang-en">All</span><span class="lang-ta">அனைத்தும்</span></button>
+      <button class="cat-btn active" data-cat=""><span class="lang-en">🍽️ All</span><span class="lang-ta">🍽️ அனைத்தும்</span></button>
     </div>
 
     <div class="products-grid" id="productsGrid">
-      <div class="loading-state"><div class="spinner"></div><p><span class="lang-en">Loading...</span><span class="lang-ta">ஏற்றுகிறது...</span></p></div>
+      <div class="loading-state"><div class="spinner"></div><p><span class="lang-en">Loading menu...</span><span class="lang-ta">மெனு ஏற்றுகிறது...</span></p></div>
     </div>
   </div>
 
-  <!-- Cart Panel -->
+  <!-- ═══════ RIGHT: Order Ticket ═══════ -->
   <div class="pos-cart-panel">
     <div class="cart-header">
       <h2 class="cart-title">
@@ -33,13 +510,13 @@
           <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
           <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
         </svg>
-        <span class="lang-en">Cart</span><span class="lang-ta">கார்ட்</span>
+        <span class="lang-en">Current Order</span><span class="lang-ta">நடப்பு ஆர்டர்</span>
         <span class="cart-count" id="cartCount">0</span>
       </h2>
       <button class="btn btn-ghost btn-sm text-danger" id="clearCartBtn" style="padding: 2px 8px; font-size: 11px;"><span class="lang-en">Clear</span><span class="lang-ta">அழி</span></button>
     </div>
 
-    <!-- Customer & Dedicated WhatsApp Phone (Compact 2-Column Grid) -->
+    <!-- Customer & WhatsApp Phone -->
     <div class="cart-customer">
       <div class="cart-customer-grid">
         <div class="customer-field">
@@ -55,18 +532,18 @@
       </div>
     </div>
 
-    <!-- Cart Items (Scrollable Middle Area) -->
+    <!-- Order Items (Scrollable) -->
     <div class="cart-items" id="cartItems">
       <div class="cart-empty">
-        <div class="cart-empty-icon">🛒</div>
-        <p class="mb-0 fw-500"><span class="lang-en">Cart is Empty</span><span class="lang-ta">கார்ட் காலியாக உள்ளது</span></p>
-        <p class="text-xs text-muted mb-0"><span class="lang-en">Click products to add</span><span class="lang-ta">பொருட்களை சேர்க்கவும்</span></p>
+        <div class="cart-empty-icon">🍽️</div>
+        <p class="mb-0 fw-500"><span class="lang-en">No items in order</span><span class="lang-ta">ஆர்டரில் பொருட்கள் இல்லை</span></p>
+        <p class="text-xs text-muted mb-0"><span class="lang-en">Tap menu items to add</span><span class="lang-ta">மெனு பொருட்களைத் தட்டவும்</span></p>
       </div>
     </div>
 
-    <!-- Pinned Cart Footer (Summary + Payment + Always Visible Actions) -->
+    <!-- Pinned Footer: Summary + Payment + Actions -->
     <div class="pos-cart-footer">
-      <!-- Cart Summary -->
+      <!-- Order Summary -->
       <div class="cart-summary">
         <div class="summary-row">
           <span><span class="lang-en">Subtotal</span><span class="lang-ta">துணை மொத்தம்</span></span>
@@ -123,11 +600,11 @@
           </div>
         </div>
 
-        <!-- Checkout Actions: 1 Main (F2) + 2 Side-by-Side Quick Actions (F3 Print, F4 WhatsApp) -->
+        <!-- Order Actions -->
         <div class="checkout-actions-wrapper">
           <button class="btn btn-primary btn-checkout w-100" id="checkoutBtn" disabled>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><polyline points="20 6 9 17 4 12"/></svg>
-            <span class="lang-en">⚡ Complete Sale (F2)</span><span class="lang-ta">⚡ விற்பனை முடி (F2)</span>
+            <span class="lang-en">🍽️ Place Order (F2)</span><span class="lang-ta">🍽️ ஆர்டர் செய் (F2)</span>
           </button>
           <div class="checkout-sub-actions">
             <button class="btn btn-print-action" id="billAndPrintBtn" disabled>
@@ -158,19 +635,19 @@
     <div class="modal-body" id="receiptContent" style="max-height: 52vh; overflow-y: auto; padding: 14px;"></div>
     <div class="modal-footer" style="display:flex; flex-direction:column; gap:8px; padding: 12px 16px;">
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; width:100%;">
-        <button class="btn" id="printReceipt" style="background:#2563eb; color:white; font-weight:600; justify-content:center; padding: 9px 12px;">
+        <button class="btn" id="printReceipt" style="background:#2563eb; color:white; font-weight:600; justify-content:center; padding: 9px 12px; border-radius:10px;">
           <span>🖨️</span> <span class="lang-en">Print Receipt</span><span class="lang-ta">அச்சிடு</span>
         </button>
-        <button class="btn" id="shareWhatsAppBtn" style="background:#25D366; color:white; font-weight:600; border:none; justify-content:center; padding: 9px 12px;">
+        <button class="btn" id="shareWhatsAppBtn" style="background:#25D366; color:white; font-weight:600; border:none; justify-content:center; padding: 9px 12px; border-radius:10px;">
           <span>📱</span> <span class="lang-en">WhatsApp Bill</span><span class="lang-ta">WhatsApp பில்</span>
         </button>
       </div>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; width:100%;">
-        <button class="btn btn-ghost" id="openPdfBtn" style="border:1px solid var(--border); justify-content:center; font-size:12px; padding: 7px 10px;">
+        <button class="btn btn-ghost" id="openPdfBtn" style="border:1px solid var(--border); justify-content:center; font-size:12px; padding: 7px 10px; border-radius:10px;">
           <span>📄</span> <span class="lang-en">View PDF Receipt</span><span class="lang-ta">ரசீது PDF</span>
         </button>
-        <button class="btn btn-primary" id="newSaleBtn" style="background:#10b981; border:none; justify-content:center; font-size:12px; font-weight:700; padding: 7px 10px;">
-          <span>➕</span> <span class="lang-en">New Sale (Esc)</span><span class="lang-ta">புதிய விற்பனை</span>
+        <button class="btn btn-primary" id="newSaleBtn" style="background:var(--warm-amber, #e67e22); border:none; justify-content:center; font-size:12px; font-weight:700; padding: 7px 10px; border-radius:10px;">
+          <span>➕</span> <span class="lang-en">New Order (Esc)</span><span class="lang-ta">புதிய ஆர்டர்</span>
         </button>
       </div>
     </div>
@@ -273,11 +750,11 @@ async function loadProducts(q = '', cat = selCat) {
   // Translate search input placeholder
   const searchInput = document.getElementById('productSearch');
   if (searchInput) {
-    searchInput.placeholder = getLangTxt('Search product / Barcode / HSN...', 'பொருள் தேடுக / Barcode / HSN...');
+    searchInput.placeholder = getLangTxt('🔍 Search menu / Barcode / HSN...', '🔍 மெனு தேடுக / Barcode / HSN...');
   }
   
   if (!products.length) {
-    grid.innerHTML = `<div class="loading-state"><p class="text-muted">${getLangTxt('No products found', 'பொருட்கள் இல்லை')}</p></div>`;
+    grid.innerHTML = `<div class="loading-state"><p class="text-muted">${getLangTxt('No items found', 'பொருட்கள் இல்லை')}</p></div>`;
     return;
   }
   // The onclick builds a JS string literal inside an HTML attribute, so the
@@ -314,6 +791,16 @@ function addToCart(id, name, price, stock, gstRate) {
     if (qty > stock) { showToast(getLangTxt('Insufficient stock available!', 'அதிகபட்ச இருப்பு இல்லை!'), 'warning'); return; }
     cart.push({ id, name, price, qty: qty, stock, gstRate });
   }
+
+  // Add ripple effect on the clicked card
+  const cards = document.querySelectorAll('.product-card');
+  cards.forEach(card => {
+    if (card.querySelector('.product-name')?.textContent === name) {
+      card.classList.add('just-added');
+      setTimeout(() => card.classList.remove('just-added'), 500);
+    }
+  });
+
   renderCart();
   showToast(name + ' (' + qty + ' ' + getLangTxt('pcs) added', 'pcs) சேர்க்கப்பட்டது'), 'success');
 }
@@ -338,7 +825,7 @@ function renderCart() {
   cartCount.textContent = cart.reduce((s, i) => s + i.qty, 0);
   const cartItems = document.getElementById('cartItems');
   if (!cart.length) {
-    cartItems.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p>${getLangTxt('Cart is empty', 'கார்ட் காலியாக உள்ளது')}</p></div>`;
+    cartItems.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🍽️</div><p>${getLangTxt('No items in order', 'ஆர்டரில் பொருட்கள் இல்லை')}</p></div>`;
     document.getElementById('gstBreakdown').style.display = 'none';
   } else {
     cartItems.innerHTML = cart.map((item, idx) => `
@@ -454,7 +941,7 @@ document.getElementById('amountPaid').addEventListener('input', () => {
 });
 
 document.getElementById('clearCartBtn').addEventListener('click', () => {
-  if (cart.length && confirm(getLangTxt('Are you sure you want to clear the cart?', 'கார்ட் அழிக்கவா?'))) { cart = []; renderCart(); }
+  if (cart.length && confirm(getLangTxt('Are you sure you want to clear the order?', 'ஆர்டர் அழிக்கவா?'))) { cart = []; renderCart(); }
 });
 
 async function performCheckout(mode = 'standard') {
@@ -499,24 +986,24 @@ async function performCheckout(mode = 'standard') {
       renderCart();
 
       if (mode === 'print') {
-        showToast(getLangTxt('Sale completed! Opening Print...', 'விற்பனை முடிந்தது! அச்சிடப்படுகிறது...'), 'success');
+        showToast(getLangTxt('Order placed! Opening Print...', 'ஆர்டர் வைக்கப்பட்டது! அச்சிடப்படுகிறது...'), 'success');
         setTimeout(() => window.print(), 500);
       } else if (mode === 'whatsapp') {
-        showToast(getLangTxt('Sale completed! Triggering WhatsApp...', 'விற்பனை முடிந்தது! வாட்ஸ்அப் திறக்கிறது...'), 'success');
+        showToast(getLangTxt('Order placed! Triggering WhatsApp...', 'ஆர்டர் வைக்கப்பட்டது! வாட்ஸ்அப் திறக்கிறது...'), 'success');
         triggerWhatsApp(data.sale.id, phoneVal);
       } else {
-        showToast(getLangTxt('Sale completed successfully!', 'விற்பனை வெற்றிகரமாக முடிந்தது!'), 'success');
+        showToast(getLangTxt('Order placed successfully! 🍽️', 'ஆர்டர் வெற்றிகரமாக வைக்கப்பட்டது! 🍽️'), 'success');
       }
     } else {
       showToast(data.error || getLangTxt('An error occurred', 'பிழை ஏற்பட்டது'), 'error');
     }
   } catch (err) {
-    showToast(getLangTxt('Network error during checkout', 'விற்பனை செயலாக்கத்தில் பிழை'), 'error');
+    showToast(getLangTxt('Network error during checkout', 'ஆர்டர் செயலாக்கத்தில் பிழை'), 'error');
   } finally {
     checkoutBtn.disabled = cart.length === 0;
     if (printBtn) printBtn.disabled = cart.length === 0;
     if (waBtn) waBtn.disabled = cart.length === 0;
-    checkoutBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><polyline points="20 6 9 17 4 12"/></svg> ' + getLangTxt('⚡ Complete Sale (F2)', '⚡ விற்பனை முடி (F2)');
+    checkoutBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><polyline points="20 6 9 17 4 12"/></svg> ' + getLangTxt('🍽️ Place Order (F2)', '🍽️ ஆர்டர் செய் (F2)');
   }
 }
 
@@ -548,11 +1035,11 @@ function showReceipt(sale) {
   content.innerHTML = `
     <div class="receipt">
       <div class="receipt-header">
-        <div class="receipt-logo">🏪 ${getLangTxt('Vignesh Growth Lab POS', 'விக்னேஷ் குரோத் லேப்')}</div>
+        <div class="receipt-logo">🍽️ ${getLangTxt('Vignesh Growth Lab POS', 'விக்னேஷ் குரோத் லேப்')}</div>
         <div style="font-size:11px;color:#94a3b8">23, Anna Salai, Chennai - 600002</div>
         <div style="font-size:11px;color:#94a3b8">GSTIN: 33AABCU9603R1ZX</div>
         <div style="font-size:11px;color:#94a3b8">${getLangTxt('Tamil Nadu State · CGST + SGST', 'தமிழ்நாடு மாநிலம் · CGST + SGST')}</div>
-        <div class="receipt-id">${getLangTxt('Receipt', 'ரசீது')} #${sale.id}</div>
+        <div class="receipt-id">${getLangTxt('Order', 'ஆர்டர்')} #${sale.id}</div>
         <div class="receipt-date">${escapeHtml(sale.created_at)}</div>
         <div class="receipt-customer">${getLangTxt('Customer', 'வாடிக்கையாளர்')}: ${escapeHtml(sale.customer)}</div>
         <div class="receipt-payment">${getLangTxt('Payment Method', 'கட்டண முறை')}: ${escapeHtml(payLabel(sale.payment_method))}</div>
@@ -579,7 +1066,7 @@ function showReceipt(sale) {
         <div class="receipt-row"><span>${getLangTxt('Amount Paid', 'பெற்ற தொகை')}</span><span>${fmt(sale.amount_paid)}</span></div>
         ${sale.change_given > 0 ? `<div class="receipt-row"><span>${getLangTxt('Change Given', 'திரும்ப')}</span><span>${fmt(sale.change_given)}</span></div>` : ''}
       </div>
-      <div class="receipt-footer">${getLangTxt('Thank you for shopping! 🙏', 'வாங்கியதற்கு நன்றி! 🙏')}<br><small>This is a computer-generated receipt</small></div>
+      <div class="receipt-footer">${getLangTxt('Thank you for your order! 🍽️🙏', 'ஆர்டருக்கு நன்றி! 🍽️🙏')}<br><small>This is a computer-generated receipt</small></div>
     </div>
   `;
   openModal('receiptModal');
