@@ -176,7 +176,12 @@
   <!-- Main Content -->
   <main class="main-content" id="mainContent">
     <header class="top-bar">
-      <div class="top-bar-left">
+      <div class="top-bar-left d-flex align-items-center">
+        <button class="sidebar-toggle me-2" id="topbarToggleBtn" aria-label="Toggle Navigation" title="Toggle Navigation Sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
         <h1 class="page-title">{% block page_title %}<span class="lang-en">Dashboard</span><span class="lang-ta">டேஷ்போர்டு</span>{% endblock %}</h1>
       </div>
       <div class="top-bar-right d-flex align-items-center gap-2">
@@ -231,7 +236,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-  <script src="{{ url_for('static', filename='js/pos.js') }}?v=1.1.5"></script>
+  <script src="{{ url_for('static', filename='js/pos.js') }}?v=3.1.0"></script>
   <script>
     // Demo Console Actions
     const demoSimulateBtn = document.getElementById('demoSimulateBtn');

@@ -47,12 +47,17 @@ setInterval(updateClock, 1000);
 // Sidebar Toggle
 const sidebar = document.getElementById('sidebar');
 const mainContent = document.getElementById('mainContent');
+function toggleSidebarState() {
+  if (sidebar) sidebar.classList.toggle('collapsed');
+  if (mainContent) mainContent.classList.toggle('sidebar-collapsed');
+}
 const sidebarToggle = document.getElementById('sidebarToggle');
 if (sidebarToggle) {
-  sidebarToggle.addEventListener('click', () => {
-    sidebar.classList.toggle('collapsed');
-    mainContent.classList.toggle('sidebar-collapsed');
-  });
+  sidebarToggle.addEventListener('click', toggleSidebarState);
+}
+const topbarToggleBtn = document.getElementById('topbarToggleBtn');
+if (topbarToggleBtn) {
+  topbarToggleBtn.addEventListener('click', toggleSidebarState);
 }
 
 // Modal helpers

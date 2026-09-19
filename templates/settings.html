@@ -85,7 +85,7 @@
 
 .form-control-custom {
   background: var(--bg-input);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   padding: 10px 14px;
@@ -102,9 +102,17 @@
   color: var(--text-primary);
 }
 
+.form-control-custom[readonly],
+.form-control-custom:disabled {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: var(--border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
 .form-select-custom {
   background: var(--bg-input);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   padding: 10px 14px;
@@ -171,6 +179,69 @@
   margin: 3px;
 }
 
+/* Detail Box inside Preview */
+.preview-detail-box {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  text-align: left;
+  font-size: 12px;
+}
+
+.preview-val {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Status Metric Row */
+.status-metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.status-val {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Diagnostic Box */
+.diag-card-box {
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+}
+
+.diag-title {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.diag-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Legal Compliance Notice Box */
+.compliance-notice-box {
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
 .toggle-switch-group {
   display: flex;
   align-items: center;
@@ -214,10 +285,10 @@
   backdrop-filter: blur(12px);
 }
 
-/* Light Theme Overrides */
+/* ── Light Theme Clean High-Contrast Overrides ──────────────── */
 html.theme-light .settings-tab-btn {
   background: #ffffff;
-  border-color: #e2e8f0;
+  border-color: #cbd5e1;
   color: #475569;
 }
 html.theme-light .settings-tab-btn:hover {
@@ -227,47 +298,98 @@ html.theme-light .settings-tab-btn:hover {
 html.theme-light .settings-tab-btn.active {
   background: linear-gradient(135deg, #f59e0b, #d97706) !important;
   color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
 }
 html.theme-light .settings-card {
   background: #ffffff;
   border-color: #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+html.theme-light .settings-card-title {
+  color: #0f172a;
+}
+html.theme-light .form-label-custom {
+  color: #334155;
+  font-weight: 700;
 }
 html.theme-light .form-control-custom,
 html.theme-light .form-select-custom {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #0f172a;
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
 }
 html.theme-light .form-control-custom:focus,
 html.theme-light .form-select-custom:focus {
-  background: #ffffff;
-  border-color: #f59e0b;
-  color: #0f172a;
+  background: #ffffff !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2) !important;
+}
+html.theme-light .form-control-custom[readonly],
+html.theme-light .form-control-custom:disabled {
+  background: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #64748b !important;
 }
 html.theme-light .brand-preview-card {
   background: linear-gradient(145deg, #fffbeb, #ffffff);
   border-color: #fde68a;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.08);
 }
 html.theme-light .preview-store-name {
   color: #0f172a;
 }
+html.theme-light .preview-tagline {
+  color: #d97706;
+}
 html.theme-light .preview-info-chip {
-  background: #f1f5f9;
-  border-color: #e2e8f0;
-  color: #475569;
-}
-html.theme-light .toggle-switch-group {
-  background: #f8fafc;
-  border-color: #e2e8f0;
-}
-html.theme-light .toggle-switch-label {
-  color: #0f172a;
-}
-html.theme-light .settings-action-bar {
   background: #ffffff;
   border-color: #e2e8f0;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  color: #334155;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+html.theme-light .preview-detail-box {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+html.theme-light .preview-val {
+  color: #0f172a !important;
+}
+html.theme-light .status-metric-row {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+html.theme-light .status-val {
+  color: #0f172a !important;
+}
+html.theme-light .diag-card-box {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+html.theme-light .diag-title {
+  color: #64748b !important;
+}
+html.theme-light .diag-val {
+  color: #0f172a !important;
+}
+html.theme-light .compliance-notice-box {
+  background: #fffbeb !important;
+  border-color: #fde68a !important;
+  color: #78350f !important;
+}
+html.theme-light .toggle-switch-group {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+html.theme-light .toggle-switch-label {
+  color: #0f172a !important;
+}
+html.theme-light .settings-action-bar {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
 }
 </style>
 
@@ -308,16 +430,16 @@ html.theme-light .settings-action-bar {
           <span class="preview-info-chip" id="previewStateChip">📍 33 - Tamil Nadu</span>
         </div>
 
-        <div class="p-3 rounded text-start" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border); font-size: 12px;">
-          <div class="d-flex justify-content-between mb-1">
+        <div class="preview-detail-box">
+          <div class="d-flex justify-content-between mb-2">
             <span class="text-muted">GSTIN:</span>
             <span class="fw-bold text-success font-monospace" id="previewGstin">33AABCU9603R1ZX</span>
           </div>
-          <div class="d-flex justify-content-between mb-1">
+          <div class="d-flex justify-content-between mb-2">
             <span class="text-muted">Contact:</span>
-            <span class="fw-semibold text-white" id="previewPhone">+91 98400 00001</span>
+            <span class="preview-val" id="previewPhone">+91 98400 00001</span>
           </div>
-          <div class="d-flex justify-content-between mb-1">
+          <div class="d-flex justify-content-between mb-2">
             <span class="text-muted">Currency:</span>
             <span class="fw-bold text-warning" id="previewCurrency">₹ INR</span>
           </div>
@@ -332,22 +454,22 @@ html.theme-light .settings-action-bar {
         <div class="settings-card-title">
           <span class="icon">⚡</span> System Health & Status
         </div>
-        <div class="d-flex flex-column gap-2 text-xs">
-          <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border);">
+        <div class="d-flex flex-column gap-2">
+          <div class="status-metric-row">
             <span class="text-muted">Terminal Status</span>
             <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25">● Online & Ready</span>
           </div>
-          <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border);">
+          <div class="status-metric-row">
             <span class="text-muted">Backend Framework</span>
-            <span class="fw-semibold text-white">Flask 3.0.3 / Waitress</span>
+            <span class="status-val">Flask 3.0.3 / Waitress</span>
           </div>
-          <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border);">
+          <div class="status-metric-row">
             <span class="text-muted">Database Storage</span>
-            <span class="fw-semibold text-white">SQLite (pos.db)</span>
+            <span class="status-val">SQLite (pos.db)</span>
           </div>
-          <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border);">
+          <div class="status-metric-row">
             <span class="text-muted">GST Tax Split</span>
-            <span class="fw-semibold text-cyan">CGST (50%) + SGST (50%)</span>
+            <span class="fw-bold text-cyan">CGST (50%) + SGST (50%)</span>
           </div>
         </div>
       </div>
@@ -421,7 +543,7 @@ html.theme-light .settings-action-bar {
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label-custom">Accent Color Scheme</label>
-              <select class="form-select-custom" id="cfgAccentColor" onchange="applyAccentColor(this.value)">
+              <select class="form-select-custom" id="cfgAccentColor">
                 <option value="amber">Warm Amber / Restaurant & Food (Default)</option>
                 <option value="purple">Royal Violet / Premium Boutique</option>
                 <option value="emerald">Emerald Green / Organic & Grocery</option>
@@ -538,9 +660,9 @@ html.theme-light .settings-action-bar {
             </div>
 
             <div class="col-md-12">
-              <div class="p-3 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10 text-xs">
+              <div class="compliance-notice-box">
                 <div class="fw-bold text-warning mb-1">💡 Indian GST Compliance Notice</div>
-                <div class="text-muted">All product sales compute exact Decimal-based CGST and SGST with largest-remainder apportionment. Financial transactions in the database are fully immutable and tamper-evident.</div>
+                <div>All product sales compute exact Decimal-based CGST and SGST with largest-remainder apportionment. Financial transactions in the database are fully immutable and tamper-evident.</div>
               </div>
             </div>
           </div>
@@ -602,27 +724,27 @@ html.theme-light .settings-action-bar {
 
           <div class="row g-3">
             <div class="col-md-6">
-              <div class="p-3 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10">
-                <span class="text-muted d-block text-xs">App Version</span>
-                <span class="fw-bold text-white">v2.4.0-Enterprise (TN-GST)</span>
+              <div class="diag-card-box">
+                <span class="diag-title">App Version</span>
+                <span class="diag-val">v2.4.0-Enterprise (TN-GST)</span>
               </div>
             </div>
             <div class="col-md-6">
-              <div class="p-3 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10">
-                <span class="text-muted d-block text-xs">Runtime Engine</span>
-                <span class="fw-bold text-white">Python 3.12 / Flask 3.0.3</span>
+              <div class="diag-card-box">
+                <span class="diag-title">Runtime Engine</span>
+                <span class="diag-val">Python 3.12 / Flask 3.0.3</span>
               </div>
             </div>
             <div class="col-md-6">
-              <div class="p-3 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10">
-                <span class="text-muted d-block text-xs">Rate Limiting</span>
-                <span class="fw-bold text-success">Active (100 req/min memory)</span>
+              <div class="diag-card-box">
+                <span class="diag-title">Rate Limiting</span>
+                <span class="diag-val text-success">Active (100 req/min memory)</span>
               </div>
             </div>
             <div class="col-md-6">
-              <div class="p-3 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10">
-                <span class="text-muted d-block text-xs">HTTP Cache Headers</span>
-                <span class="fw-bold text-warning">Cache-Control: no-cache</span>
+              <div class="diag-card-box">
+                <span class="diag-title">HTTP Cache Headers</span>
+                <span class="diag-val text-warning">Cache-Control: no-cache</span>
               </div>
             </div>
 
@@ -648,7 +770,7 @@ html.theme-light .settings-action-bar {
   <div class="settings-action-bar">
     <div class="d-flex align-items-center gap-2">
       <span class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-25 px-2 py-1">
-        💾 Auto-Synced to Client Storage
+        💾 Auto-Synced To Client Storage
       </span>
       <span class="text-muted text-xs d-none d-md-inline">Changes reflect immediately on POS terminal & receipts</span>
     </div>
