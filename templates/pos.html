@@ -682,6 +682,39 @@ html.theme-light #receiptModal .modal-dialog {
 
 {% block scripts %}
 <script>
+// Modal helpers
+function openModal(id) {
+  const modal = document.getElementById(id);
+  const backdrop = document.getElementById('modalBackdrop');
+  if (modal) {
+    modal.classList.add('open');
+    if (backdrop) backdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeModal(id) {
+  const modal = document.getElementById(id);
+  const backdrop = document.getElementById('modalBackdrop');
+  if (modal) {
+    modal.classList.remove('open');
+    if (backdrop && !document.querySelector('.modal.open')) {
+      backdrop.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  }
+}
+
+function payLabel(method) {
+  const labels = {
+    cash: '💵 Cash',
+    upi: '📱 UPI',
+    card: '💳 Card',
+    mobile: '📱 UPI'
+  };
+  return labels[method] || method;
+}
+
 let cart = [];
 let selectedPayment = 'cash';
 // [P3-1] The payable total lives here as a Number. It is NEVER parsed back
@@ -1013,7 +1046,8 @@ document.getElementById('clearCartBtn').addEventListener('click', () => {
 async function performCheckout(mode = 'standard') {
   if (!cart.length) return;
   const total = cartTotal;
-  let paid = parseFloat(document.getElementById('amountPaid').value) || 0;
+  const rawPaid = (document.getElementById('amountPaid')?.value || '').replace(/[^0-9.]/g, '');
+  let paid = parseFloat(rawPaid) || 0;
   if (selectedPayment === 'cash' && paid === 0) {
     paid = total;
   } else if (selectedPayment === 'cash' && paid < total) {
@@ -1022,9 +1056,10 @@ async function performCheckout(mode = 'standard') {
   }
   
   const phoneVal = (document.getElementById('customerPhoneInput')?.value || '').trim();
+  const customerIdVal = parseInt(document.getElementById('customerSelect')?.value) || 1;
   const payload = {
     items: cart.map(i => ({ product_id: i.id, quantity: i.qty })),
-    customer_id: parseInt(document.getElementById('customerSelect').value),
+    customer_id: customerIdVal,
     payment_method: selectedPayment,
     amount_paid: selectedPayment === 'cash' ? paid : total,
     discount: getDiscount(),
@@ -1064,7 +1099,8 @@ async function performCheckout(mode = 'standard') {
       showToast(data.error || 'An error occurred', 'error');
     }
   } catch (err) {
-    showToast('Network error during checkout', 'error');
+    console.error('Checkout error:', err);
+    showToast(err.message || 'Network error during checkout', 'error');
   } finally {
     checkoutBtn.disabled = cart.length === 0;
     if (printBtn) printBtn.disabled = cart.length === 0;

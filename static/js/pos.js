@@ -142,6 +142,29 @@ document.addEventListener('keydown', (e) => {
 window.addEventListener('resize', ensureDesktopSidebar);
 ensureDesktopSidebar();
 
+// Modal helpers
+function openModal(id) {
+  const modal = document.getElementById(id);
+  const backdrop = document.getElementById('modalBackdrop');
+  if (modal) {
+    modal.classList.add('open');
+    if (backdrop) backdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeModal(id) {
+  const modal = document.getElementById(id);
+  const backdrop = document.getElementById('modalBackdrop');
+  if (modal) {
+    modal.classList.remove('open');
+    if (backdrop && !document.querySelector('.modal.open')) {
+      backdrop.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  }
+}
+
 // Toast notification
 function showToast(message, type = 'info', duration = 3000) {
   const container = document.getElementById('toastContainer');
