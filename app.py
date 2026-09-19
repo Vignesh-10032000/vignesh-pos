@@ -321,6 +321,26 @@ def create_app(config=None):
         if not app.config.get('TESTING'):
             db.create_all()
             seed_data()
+            try:
+                from models import Category
+                cat_updates = {
+                    'உணவு': 'Food & Beverages',
+                    'மளிகை': 'Grocery',
+                    'மின்னணு': 'Electronics',
+                    'ஆடை': 'Clothing & Textiles',
+                    'உடல்நலம்': 'Health & Medicine',
+                    'ஸ்டேஷனரி': 'Stationery'
+                }
+                updated = False
+                for c in Category.query.all():
+                    for k, v in cat_updates.items():
+                        if k in c.name:
+                            c.name = v
+                            updated = True
+                if updated:
+                    db.session.commit()
+            except Exception as e:
+                morgan_logger.warning(f"Category migration check: {e}")
 
     return app
 
