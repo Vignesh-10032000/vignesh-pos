@@ -44,13 +44,39 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 
-// Sidebar Toggle
+// Sidebar State Handler
 const sidebar = document.getElementById('sidebar');
 const mainContent = document.getElementById('mainContent');
-function toggleSidebarState() {
-  if (sidebar) sidebar.classList.toggle('collapsed');
-  if (mainContent) mainContent.classList.toggle('sidebar-collapsed');
+
+function ensureDesktopSidebar() {
+  if (window.innerWidth > 768) {
+    if (sidebar) {
+      sidebar.classList.remove('collapsed');
+      sidebar.classList.remove('open');
+    }
+    if (mainContent) mainContent.classList.remove('sidebar-collapsed');
+    const backdrop = document.getElementById('modalBackdrop');
+    if (backdrop && !document.querySelector('.modal.open')) {
+      backdrop.classList.remove('open');
+    }
+  }
 }
+
+function toggleSidebarState() {
+  if (window.innerWidth <= 768) {
+    if (sidebar) {
+      const isOpen = sidebar.classList.toggle('open');
+      const backdrop = document.getElementById('modalBackdrop');
+      if (backdrop) {
+        if (isOpen) backdrop.classList.add('open');
+        else if (!document.querySelector('.modal.open')) backdrop.classList.remove('open');
+      }
+    }
+  } else {
+    ensureDesktopSidebar();
+  }
+}
+
 const sidebarToggle = document.getElementById('sidebarToggle');
 if (sidebarToggle) {
   sidebarToggle.addEventListener('click', toggleSidebarState);
@@ -59,6 +85,20 @@ const topbarToggleBtn = document.getElementById('topbarToggleBtn');
 if (topbarToggleBtn) {
   topbarToggleBtn.addEventListener('click', toggleSidebarState);
 }
+
+// Close mobile sidebar on nav-item click or backdrop click
+document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
+      sidebar.classList.remove('open');
+      const backdrop = document.getElementById('modalBackdrop');
+      if (backdrop && !document.querySelector('.modal.open')) backdrop.classList.remove('open');
+    }
+  });
+});
+
+window.addEventListener('resize', ensureDesktopSidebar);
+ensureDesktopSidebar();
 
 // Modal helpers
 function openModal(id) {

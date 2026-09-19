@@ -28,8 +28,8 @@
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <div class="logo">
-        <svg width="34" height="34" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+      <a href="/" class="logo" title="Vignesh Growth Lab POS">
+        <svg width="36" height="36" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
           <defs>
             <linearGradient id="vglGradient" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stop-color="#22d3ee" />
@@ -37,7 +37,7 @@
             </linearGradient>
           </defs>
           <circle cx="60" cy="60" r="56" fill="#18181b" />
-          <circle cx="60" cy="60" r="52" stroke="url(#vglGradient)" stroke-width="5" fill="none" style="filter: drop-shadow(0 0 4px rgba(34,211,238,0.3));" />
+          <circle cx="60" cy="60" r="52" stroke="url(#vglGradient)" stroke-width="5" fill="none" style="filter: drop-shadow(0 0 5px rgba(34,211,238,0.4));" />
           <g fill="#ffffff" style="font-family:'Inter', sans-serif; font-weight:800;">
             <path d="M 24 45 L 34 81 L 43 81 L 53 45 L 45 45 L 38.5 71 L 32 45 Z" />
             <path d="M 72 53 C 72 47.5 68 44 62.5 44 C 55.5 44 51.5 49 51.5 58 C 51.5 67 55.5 72 62.5 72 C 67.5 72 71.5 68.5 72 63 L 64.5 63 C 64 65.5 62.5 66.5 60.5 66.5 C 57.5 66.5 56 64 56 58 C 56 52 57.5 49.5 60.5 49.5 C 62.5 49.5 64 50.5 64.5 53 Z" />
@@ -46,23 +46,31 @@
           </g>
         </svg>
         <div class="logo-texts">
-          <span class="logo-text" style="font-size:13px; font-weight:800; letter-spacing:0.02em;">VIGNESH GROWTH LAB</span>
+          <span class="logo-text">VIGNESH GROWTH LAB</span>
           <span class="logo-sub">GSTIN: 33AABCU9603R1ZX</span>
         </div>
-      </div>
-      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </a>
+      <!-- Mobile-only drawer dismiss button (Hidden on PC/laptop) -->
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Close menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       </button>
     </div>
 
     <nav class="sidebar-nav">
+      <!-- Section 1: Main Operations -->
+      <div class="nav-section-label">
+        <span class="lang-en">Operations</span>
+        <span class="lang-ta">செயல்பாடுகள்</span>
+      </div>
+
       <a href="/" class="nav-item {% if page=='dashboard' %}active{% endif %}">
         <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
           </svg>
         </span>
         <span class="nav-label">
@@ -70,22 +78,35 @@
           <span class="lang-ta">டேஷ்போர்டு</span>
         </span>
       </a>
+
       <a href="/pos" class="nav-item {% if page=='pos' %}active{% endif %}">
         <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2.5"/><path d="M8 21h8M12 17v4"/>
           </svg>
         </span>
         <span class="nav-label">
           <span class="lang-en">POS Terminal</span>
-          <span class="lang-ta">விற்பனை முனையம் (POS)</span>
+          <span class="lang-ta">விற்பனை முனையம்</span>
         </span>
-        <span class="nav-badge">Live</span>
+        <span class="pos-live-pill">
+          <span class="live-dot"></span>
+          LIVE
+        </span>
       </a>
+
+      <!-- Section 2: Commerce & Catalog -->
+      <div class="nav-section-label">
+        <span class="lang-en">Commerce</span>
+        <span class="lang-ta">சரக்கு & விற்பனை</span>
+      </div>
+
       <a href="/products" class="nav-item {% if page=='products' %}active{% endif %}">
         <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
           </svg>
         </span>
         <span class="nav-label">
@@ -93,10 +114,15 @@
           <span class="lang-ta">பொருட்கள்</span>
         </span>
       </a>
+
       <a href="/sales" class="nav-item {% if page=='sales' %}active{% endif %}">
         <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
         </span>
         <span class="nav-label">
@@ -104,9 +130,10 @@
           <span class="lang-ta">விற்பனை வரலாறு</span>
         </span>
       </a>
+
       <a href="/customers" class="nav-item {% if page=='customers' %}active{% endif %}">
         <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
             <circle cx="9" cy="7" r="4"/>
             <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
@@ -117,9 +144,16 @@
           <span class="lang-ta">வாடிக்கையாளர்கள்</span>
         </span>
       </a>
+
+      <!-- Section 3: Intelligence & Management -->
+      <div class="nav-section-label">
+        <span class="lang-en">Management</span>
+        <span class="lang-ta">அறிக்கைகள் & அமைப்புகள்</span>
+      </div>
+
       <a href="/reports" class="nav-item {% if page=='reports' %}active{% endif %}">
         <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
             <line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/>
           </svg>
@@ -129,28 +163,42 @@
           <span class="lang-ta">அறிக்கைகள்</span>
         </span>
       </a>
+
       <a href="/settings" class="nav-item {% if page=='settings' %}active{% endif %}">
         <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
           </svg>
         </span>
         <span class="nav-label">
-          <span class="lang-en">Settings</span>
+          <span class="lang-en">Settings & Rebrand</span>
           <span class="lang-ta">அமைப்புகள்</span>
         </span>
       </a>
     </nav>
 
-    <div class="sidebar-footer" style="display: flex; align-items: center; justify-content: space-between;">
+    <!-- POS System Status Badge -->
+    <div class="sidebar-status-card">
+      <div class="status-indicator-dot pulse"></div>
+      <div class="status-text">
+        <div class="status-title">POS System Ready</div>
+        <div class="status-sub">Tamil Nadu GST · SQLite v3</div>
+      </div>
+    </div>
+
+    <!-- Sidebar Footer with User Card -->
+    <div class="sidebar-footer">
       <div class="user-info">
-        <div class="user-avatar" id="sidebarAvatar">V</div>
+        <div class="avatar-wrapper">
+          <div class="user-avatar" id="sidebarAvatar">V</div>
+          <span class="avatar-online-dot" title="Online / செயலில்"></span>
+        </div>
         <div class="user-details">
           <div class="user-name" id="sidebarUserName">Store Admin</div>
           <div class="user-role" id="sidebarUserRole">Vignesh Growth Lab · TN ✓</div>
         </div>
       </div>
-      <a href="/logout" onclick="localStorage.removeItem('vgl_session')" class="btn btn-ghost btn-sm text-secondary" title="Sign Out" style="padding: 6px 8px; border-radius: 8px; line-height: 1;">
+      <a href="/logout" onclick="localStorage.removeItem('vgl_session')" class="sidebar-logout-btn" title="Sign Out / விடுபடுக">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
           <polyline points="16 17 21 12 16 7"></polyline>
