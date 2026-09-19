@@ -48,6 +48,40 @@ setInterval(updateClock, 1000);
 const sidebar = document.getElementById('sidebar');
 const mainContent = document.getElementById('mainContent');
 
+function closeMobileSidebar() {
+  if (sidebar && sidebar.classList.contains('open')) {
+    sidebar.classList.remove('open');
+  }
+  const backdrop = document.getElementById('modalBackdrop');
+  if (backdrop && !document.querySelector('.modal.open')) {
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+function openMobileSidebar() {
+  if (sidebar) {
+    sidebar.classList.add('open');
+    const backdrop = document.getElementById('modalBackdrop');
+    if (backdrop) {
+      backdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+}
+
+function toggleSidebarState() {
+  if (window.innerWidth <= 768) {
+    if (sidebar && sidebar.classList.contains('open')) {
+      closeMobileSidebar();
+    } else {
+      openMobileSidebar();
+    }
+  } else {
+    ensureDesktopSidebar();
+  }
+}
+
 function ensureDesktopSidebar() {
   if (window.innerWidth > 768) {
     if (sidebar) {
@@ -58,62 +92,55 @@ function ensureDesktopSidebar() {
     const backdrop = document.getElementById('modalBackdrop');
     if (backdrop && !document.querySelector('.modal.open')) {
       backdrop.classList.remove('open');
+      document.body.style.overflow = '';
     }
-  }
-}
-
-function toggleSidebarState() {
-  if (window.innerWidth <= 768) {
-    if (sidebar) {
-      const isOpen = sidebar.classList.toggle('open');
-      const backdrop = document.getElementById('modalBackdrop');
-      if (backdrop) {
-        if (isOpen) backdrop.classList.add('open');
-        else if (!document.querySelector('.modal.open')) backdrop.classList.remove('open');
-      }
-    }
-  } else {
-    ensureDesktopSidebar();
   }
 }
 
 const sidebarToggle = document.getElementById('sidebarToggle');
 if (sidebarToggle) {
-  sidebarToggle.addEventListener('click', toggleSidebarState);
-}
-const topbarToggleBtn = document.getElementById('topbarToggleBtn');
-if (topbarToggleBtn) {
-  topbarToggleBtn.addEventListener('click', toggleSidebarState);
+  sidebarToggle.addEventListener('click', (e) => {
+    e.preventDefault();
+    closeMobileSidebar();
+  });
 }
 
-// Close mobile sidebar on nav-item click or backdrop click
+const topbarToggleBtn = document.getElementById('topbarToggleBtn');
+if (topbarToggleBtn) {
+  topbarToggleBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    toggleSidebarState();
+  });
+}
+
+// Close mobile sidebar when clicking any navigation link
 document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
   item.addEventListener('click', () => {
-    if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
-      sidebar.classList.remove('open');
-      const backdrop = document.getElementById('modalBackdrop');
-      if (backdrop && !document.querySelector('.modal.open')) backdrop.classList.remove('open');
+    if (window.innerWidth <= 768) {
+      closeMobileSidebar();
     }
   });
 });
 
+// Close mobile sidebar or modal on backdrop click
+const modalBackdropEl = document.getElementById('modalBackdrop');
+if (modalBackdropEl) {
+  modalBackdropEl.addEventListener('click', () => {
+    closeMobileSidebar();
+    document.querySelectorAll('.modal.open').forEach(m => closeModal(m.id));
+  });
+}
+
+// Escape key to close mobile sidebar or modal
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeMobileSidebar();
+    document.querySelectorAll('.modal.open').forEach(m => closeModal(m.id));
+  }
+});
+
 window.addEventListener('resize', ensureDesktopSidebar);
 ensureDesktopSidebar();
-
-// Modal helpers
-function openModal(id) {
-  const modal = document.getElementById(id);
-  const backdrop = document.getElementById('modalBackdrop');
-  if (modal) { modal.classList.add('open'); backdrop.classList.add('open'); document.body.style.overflow = 'hidden'; }
-}
-function closeModal(id) {
-  const modal = document.getElementById(id);
-  const backdrop = document.getElementById('modalBackdrop');
-  if (modal) { modal.classList.remove('open'); backdrop.classList.remove('open'); document.body.style.overflow = ''; }
-}
-document.getElementById('modalBackdrop').addEventListener('click', () => {
-  document.querySelectorAll('.modal.open').forEach(m => closeModal(m.id));
-});
 
 // Toast notification
 function showToast(message, type = 'info', duration = 3000) {
