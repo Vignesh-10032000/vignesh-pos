@@ -6,7 +6,7 @@ import uuid
 import secrets
 import logging
 import psutil
-from flask import Flask, abort, jsonify, request
+from flask import Flask, abort, jsonify, request, session, redirect
 from flask_compress import Compress
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -14,7 +14,7 @@ from flask_cors import CORS
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from extensions import db, cache
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # ── SQLite Optimization (WAL mode, normal synchronous, busy timeout) ─────────
 @event.listens_for(Engine, "connect")
@@ -87,6 +87,7 @@ def create_app(config=None):
     app.config['STORE_GSTIN'] = STORE_GSTIN
     app.config['STORE_ADDRESS'] = STORE_ADDRESS
     app.config['STORE_PHONE'] = STORE_PHONE
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
     # [P0-6] Test/override config must be applied BEFORE db.init_app(), because
     # Flask-SQLAlchemy 3.x builds its engine inside init_app(). Overriding
@@ -131,12 +132,26 @@ def create_app(config=None):
     app.register_blueprint(customers_bp)
     app.register_blueprint(reports_bp)
 
-    # Request tracking hooks
+    PROTECTED_PAGES = {
+        '/',
+        '/pos',
+        '/products',
+        '/sales',
+        '/customers',
+        '/reports',
+        '/settings',
+    }
+
+    # Request tracking and session authentication hooks
     @app.before_request
     def before_request():
         request.start_time = time.time()
         metrics.total_requests += 1
         metrics.active_connections += 1
+
+        path = request.path.rstrip('/') or '/'
+        if path in PROTECTED_PAGES and not session.get('user'):
+            return redirect(f'/login?next={request.path}')
 
     @app.after_request
     def after_request(response):

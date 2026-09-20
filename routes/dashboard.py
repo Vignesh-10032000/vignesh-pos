@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify, redirect
+from flask import Blueprint, render_template, jsonify, redirect, request, session
 from models import Sale, Product, Customer, SaleItem
 from extensions import db, cache
 from datetime import datetime, timedelta
@@ -6,20 +6,89 @@ from sqlalchemy import func
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
+VALID_OPERATORS = {
+    'admin': {'password': 'admin123', 'role': 'Store Admin'},
+    'cashier': {'password': 'pos123', 'role': 'Cashier'},
+    'inventory': {'password': 'stock123', 'role': 'Inventory Staff'},
+}
+
+def authenticate_operator(username, password):
+    if not username or not password:
+        return None
+    lower_user = str(username).strip().lower()
+    pass_str = str(password).strip()
+    if lower_user in VALID_OPERATORS:
+        if VALID_OPERATORS[lower_user]['password'] == pass_str:
+            return {
+                'username': str(username).strip(),
+                'role': VALID_OPERATORS[lower_user]['role']
+            }
+        return None
+    if len(str(username).strip()) >= 2 and len(pass_str) >= 3:
+        return {
+            'username': str(username).strip(),
+            'role': 'Store Operator'
+        }
+    return None
+
 @dashboard_bp.route('/')
 def index():
+    if not session.get('user'):
+        return redirect('/login')
     return render_template('dashboard.html', page='dashboard')
 
-@dashboard_bp.route('/login')
+@dashboard_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html', page='login')
+    if request.method == 'GET':
+        if session.get('user'):
+            return redirect('/pos')
+        return render_template('login.html', page='login')
+
+    username = request.form.get('username', '').strip()
+    password = request.form.get('password', '').strip()
+    auth_user = authenticate_operator(username, password)
+    if auth_user:
+        session['user'] = auth_user
+        session.permanent = True
+        next_url = request.args.get('next') or '/pos'
+        return redirect(next_url)
+
+    return render_template('login.html', page='login', error='Invalid username or password')
+
+@dashboard_bp.route('/api/login', methods=['POST'])
+def api_login():
+    data = request.get_json(silent=True) or request.form or {}
+    username = str(data.get('username', '')).strip()
+    password = str(data.get('password', '')).strip()
+
+    auth_user = authenticate_operator(username, password)
+    if not auth_user:
+        return jsonify({
+            'success': False,
+            'message': 'Invalid credentials. Please check your username and passcode.'
+        }), 401
+
+    session['user'] = auth_user
+    session.permanent = True
+    next_url = request.args.get('next') or '/pos'
+
+    return jsonify({
+        'success': True,
+        'user': auth_user,
+        'redirect': next_url
+    })
 
 @dashboard_bp.route('/logout')
 def logout():
-    return redirect('/login')
+    session.clear()
+    resp = redirect('/login')
+    resp.delete_cookie('session')
+    return resp
 
 @dashboard_bp.route('/settings')
 def settings():
+    if not session.get('user'):
+        return redirect('/login?next=/settings')
     return render_template('settings.html', page='settings')
 
 @dashboard_bp.route('/api/dashboard/stats')

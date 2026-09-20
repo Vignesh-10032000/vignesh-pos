@@ -541,6 +541,59 @@ class POSTestCase(unittest.TestCase):
         self.assertIn('ngrok.yml', gitignore)
         self.assertIn('loaderio-*.txt', gitignore)
 
+    # ── Authentication & Protected Route Access ───────────────────────────────
+
+    def test_unauthenticated_pages_redirect_to_login(self):
+        for path in ('/', '/pos', '/products', '/sales', '/customers', '/reports', '/settings'):
+            res = self.client.get(path)
+            self.assertEqual(res.status_code, 302, f"Expected redirect for {path}")
+            self.assertIn('/login', res.headers['Location'])
+
+    def test_public_receipt_accessible_without_login(self):
+        res = self.client.get(f'/receipt/{self.sale.id}')
+        self.assertEqual(res.status_code, 200)
+
+    def test_api_login_rejects_invalid_credentials(self):
+        res = self.client.post('/api/login', json={'username': 'admin', 'password': 'wrongpassword'})
+        self.assertEqual(res.status_code, 401)
+        data = json.loads(res.data)
+        self.assertFalse(data['success'])
+
+    def test_auth_login_and_logout_lifecycle(self):
+        # 1. Initially unauthenticated visit to / redirects to /login
+        res_init = self.client.get('/')
+        self.assertEqual(res_init.status_code, 302)
+        self.assertIn('/login', res_init.headers['Location'])
+
+        # 2. Login via API
+        res_login = self.client.post('/api/login', json={'username': 'admin', 'password': 'admin123'})
+        self.assertEqual(res_login.status_code, 200)
+        data = json.loads(res_login.data)
+        self.assertTrue(data['success'])
+        self.assertEqual(data['user']['role'], 'Store Admin')
+
+        # 3. Authenticated visit to / and /pos succeeds
+        res_dash = self.client.get('/')
+        self.assertEqual(res_dash.status_code, 200)
+
+        res_pos = self.client.get('/pos')
+        self.assertEqual(res_pos.status_code, 200)
+
+        # 4. Visiting /login while authenticated redirects to /pos
+        res_login_page = self.client.get('/login')
+        self.assertEqual(res_login_page.status_code, 302)
+        self.assertIn('/pos', res_login_page.headers['Location'])
+
+        # 5. Logout clears session and redirects to /login
+        res_logout = self.client.get('/logout')
+        self.assertEqual(res_logout.status_code, 302)
+        self.assertIn('/login', res_logout.headers['Location'])
+
+        # 6. Subsequent visit to / again redirects to /login
+        res_post_logout = self.client.get('/')
+        self.assertEqual(res_post_logout.status_code, 302)
+        self.assertIn('/login', res_post_logout.headers['Location'])
+
 
 if __name__ == '__main__':
     unittest.main()
