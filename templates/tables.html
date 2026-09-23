@@ -4,229 +4,731 @@
 
 {% block content %}
 <style>
-  /* Base CSS */
+  /* ── Floor Plan Table Grid ── */
   .table-grid {
     display: grid;
-    gap: 1.5rem;
-    grid-template-columns: repeat(5, 1fr);
-  }
-  @media (max-width: 1200px) {
-    .table-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-  @media (max-width: 768px) {
-    .table-grid { grid-template-columns: repeat(2, 1fr); }
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
   
   .table-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 1rem;
+    background: #141c2e;
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 1.25rem 1rem;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   }
   .table-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--text-muted);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    border-color: rgba(245, 158, 11, 0.4);
   }
   
-  .table-card.status-available { border-top: 4px solid #22c55e; }
-  .table-card.status-occupied { border-top: 4px solid #ef4444; }
-  .table-card.status-billed { border-top: 4px solid #eab308; }
-  .table-card.status-reserved { border-top: 4px solid #3b82f6; }
+  .table-card.status-available { border-top: 5px solid #22c55e; }
+  .table-card.status-occupied  { border-top: 5px solid #ef4444; background: #1a1628; }
+  .table-card.status-billed    { border-top: 5px solid #eab308; background: #1c1c24; }
+  .table-card.status-reserved  { border-top: 5px solid #3b82f6; }
   
   .table-number {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     font-weight: 800;
-    margin: 0.5rem 0;
+    margin: 0.35rem 0;
+    letter-spacing: -0.02em;
+    color: #ffffff;
   }
   .table-status {
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.78rem;
+    font-weight: 700;
     text-transform: uppercase;
-    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
   }
   .status-available .table-status { color: #22c55e; }
-  .status-occupied .table-status { color: #ef4444; }
-  .status-billed .table-status { color: #eab308; }
-  .status-reserved .table-status { color: #3b82f6; }
+  .status-occupied .table-status  { color: #ef4444; }
+  .status-billed .table-status    { color: #eab308; }
+  .status-reserved .table-status  { color: #3b82f6; }
   
   .table-info-pill {
-    background: var(--bg-input);
+    background: rgba(255, 255, 255, 0.06);
     border-radius: 20px;
-    padding: 2px 8px;
+    padding: 3px 10px;
     font-size: 0.75rem;
     display: inline-block;
-    color: var(--text-muted);
-    margin-bottom: 0.5rem;
+    color: #94a3b8;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
   }
   
   .table-meta {
     font-size: 0.85rem;
-    color: var(--text-primary);
   }
   
   .legend-bar {
     display: flex;
     gap: 1.5rem;
     margin-top: 2rem;
-    padding: 1rem;
-    background: var(--bg-card);
-    border-radius: 8px;
+    padding: 0.85rem 1.25rem;
+    background: #141c2e;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
     justify-content: center;
+    flex-wrap: wrap;
   }
   .legend-item {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-size: 0.85rem;
-    color: var(--text-muted);
+    color: #94a3b8;
+    font-weight: 500;
   }
   .legend-dot {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
   }
-  
+
+  /* ── Modern Table Order View (Opaque, High-Z-Index Full View) ── */
   .table-order-view {
     display: none;
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: var(--bg-main);
-    z-index: 1000;
-    padding: 1.5rem;
-    overflow: auto;
+    inset: 0;
+    background: #090d16 !important;
+    z-index: 9999;
+    flex-direction: column;
+    overflow: hidden;
+    color: #f1f5f9;
   }
-  
-  .pos-grid {
+
+  .order-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background: #111827;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    flex-shrink: 0;
+  }
+
+  .order-layout {
     display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 1.5rem;
-    height: calc(100vh - 100px);
+    grid-template-columns: 1fr 420px;
+    height: calc(100vh - 68px);
+    overflow: hidden;
+  }
+  @media (max-width: 992px) {
+    .order-layout {
+      grid-template-columns: 1fr;
+      height: auto;
+      overflow-y: auto;
+    }
+  }
+
+  /* ── Left: Menu & Dish Selection ── */
+  .menu-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    border-right: 1.5px solid rgba(255, 255, 255, 0.08);
+    background: #0d121f;
+  }
+
+  .menu-filter-bar {
+    padding: 14px 18px 10px;
+    background: #111827;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .search-input-wrapper {
+    position: relative;
+    width: 100%;
+  }
+  .search-input-wrapper input {
+    width: 100%;
+    background: #1e293b;
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 10px 14px 10px 38px;
+    color: #ffffff;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+  .search-input-wrapper input:focus {
+    outline: none;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+  }
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    pointer-events: none;
+  }
+
+  .category-pills {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+  }
+  .category-pill {
+    white-space: nowrap;
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+  .category-pill:hover {
+    background: #2d3748;
+    color: #ffffff;
+  }
+  .category-pill.active {
+    background: #f59e0b;
+    color: #000000;
+    border-color: #f59e0b;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+  }
+
+  /* ── Dish Cards Grid ── */
+  .dishes-scroll-area {
+    padding: 16px;
+    overflow-y: auto;
+    flex-grow: 1;
+  }
+  .dish-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+    gap: 12px;
+  }
+
+  .dish-card {
+    background: #151d2d;
+    border: 1.5px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    user-select: none;
+  }
+  .dish-card:hover {
+    transform: translateY(-3px);
+    border-color: #f59e0b;
+    background: #1a253a;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  }
+  .dish-card:active {
+    transform: scale(0.98);
+  }
+
+  /* FSSAI Veg / Non-Veg Standard Icon */
+  .fssai-symbol {
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid #22c55e;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .fssai-symbol.non-veg {
+    border-color: #ef4444;
+  }
+  .fssai-symbol .fssai-dot {
+    width: 6px;
+    height: 6px;
+    background: #22c55e;
+    border-radius: 50%;
+  }
+  .fssai-symbol.non-veg .fssai-dot {
+    background: #ef4444;
+  }
+
+  .dish-emoji {
+    font-size: 1.8rem;
+    margin: 4px 0 8px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  }
+  .dish-name {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.25;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .dish-sku {
+    font-size: 0.72rem;
+    color: #64748b;
+    margin-bottom: 8px;
+  }
+  .dish-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  }
+  .dish-price {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #f59e0b;
+  }
+  .dish-add-btn {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    transition: all 0.15s;
+  }
+  .dish-card:hover .dish-add-btn {
+    background: #f59e0b;
+    color: #000000;
+  }
+
+  .dish-in-cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #f59e0b;
+    color: #000;
+    font-size: 0.75rem;
+    font-weight: 800;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    border: 2px solid #090d16;
+  }
+
+  /* ── Right: Order & Bill Panel ── */
+  .order-panel {
+    background: #111827;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .order-panel-header {
+    padding: 14px 18px;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #141c2e;
+  }
+
+  .order-items-scroll {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Unfired item card in cart */
+  .cart-item-row {
+    background: #172133;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .cart-item-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cart-item-title {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: #ffffff;
+  }
+  .cart-item-price {
+    font-weight: 800;
+    color: #f59e0b;
+    font-size: 0.95rem;
+  }
+  .qty-stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #0f172a;
+    border-radius: 6px;
+    padding: 2px 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .qty-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.15s;
+  }
+  .qty-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+  }
+  .qty-val {
+    font-size: 0.9rem;
+    font-weight: 800;
+    min-width: 18px;
+    text-align: center;
+    color: #ffffff;
+  }
+
+  /* Quick Cooking Note Chips */
+  .quick-notes {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+  }
+  .note-chip {
+    font-size: 0.72rem;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    padding: 2px 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .note-chip:hover {
+    background: #f59e0b;
+    color: #000;
+    border-color: #f59e0b;
+  }
+
+  .note-input {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    width: 100%;
+  }
+  .note-input:focus {
+    outline: none;
+    border-color: #f59e0b;
+  }
+
+  /* Fired KOT Card */
+  .kot-group-box {
+    background: #0c121f;
+    border: 1px solid rgba(34, 197, 94, 0.25);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .kot-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+    margin-bottom: 6px;
+  }
+
+  /* Order Bottom Summary & Actions */
+  .order-summary-box {
+    padding: 14px 18px;
+    background: #141c2e;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
+  }
+  .summary-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    font-size: 0.85rem;
+    color: #94a3b8;
+  }
+  .summary-line.grand {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.15);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #f59e0b;
+  }
+
+  .order-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .btn-fire-kot {
+    grid-column: span 2;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #000000;
+    font-weight: 800;
+    font-size: 1rem;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-fire-kot:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  }
+  .btn-fire-kot:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .btn-bill {
+    background: #0284c7;
+    color: #ffffff;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+  }
+  .btn-bill:hover { background: #0369a1; }
+
+  .btn-settle {
+    background: #10b981;
+    color: #ffffff;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+  }
+  .btn-settle:hover { background: #059669; }
+
+  .btn-cancel-order {
+    grid-column: span 2;
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    font-size: 0.8rem;
+    padding: 6px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .btn-cancel-order:hover {
+    background: rgba(239, 68, 68, 0.1);
   }
 </style>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <select id="areaFilter" class="form-select w-auto" onchange="renderTables()">
-    <option value="">All Areas</option>
-  </select>
-  <button class="btn btn-primary" onclick="loadTables()">↻ Refresh</button>
+<!-- Floor Plan Header -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div class="d-flex align-items-center gap-3">
+    <select id="areaFilter" class="form-select bg-dark text-white border-secondary w-auto" onchange="renderTables()">
+      <option value="">All Areas</option>
+    </select>
+    <div class="text-muted text-sm" id="tableStatsSummary">8 Tables Available</div>
+  </div>
+  <button class="btn btn-primary" onclick="loadTables()">↻ Refresh Tables</button>
 </div>
 
+<!-- Table Cards Grid -->
 <div id="tableGrid" class="table-grid">
-  <!-- Tables injected here -->
+  <!-- Injected via JavaScript -->
 </div>
 
+<!-- Status Color Legend -->
 <div class="legend-bar">
-  <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div> Available</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> Occupied</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#eab308"></div> Billed</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> Reserved</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div> 🟢 Available</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> 🔴 Occupied (Seated)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#eab308"></div> 🟡 Billed (Waiting Pay)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> 🔵 Reserved</div>
 </div>
 
 {% endblock %}
 
 {% block modals %}
+<!-- Open Table Modal -->
 <div class="modal" id="openTableModal">
   <div class="modal-dialog modal-sm">
     <div class="modal-header">
-      <h3>Open Table <span id="openTableNumber"></span></h3>
+      <h3 class="mb-0">Open Table <span id="openTableNumber" class="text-warning"></span></h3>
       <button class="modal-close" onclick="closeModal('openTableModal')">✕</button>
     </div>
     <div class="modal-body p-4">
       <input type="hidden" id="openTableId">
       <div class="mb-3">
-        <label>Waiter Name</label>
-        <input type="text" id="waiterName" class="form-control" placeholder="Enter waiter name">
+        <label class="form-label text-muted">Waiter / Captain Name</label>
+        <input type="text" id="waiterName" class="form-control bg-dark text-white border-secondary" placeholder="e.g. Vicky, Ravi, Suresh" autofocus>
+      </div>
+      <div class="text-xs text-muted">
+        Opening table will create a live running order and change table state to 🔴 Occupied.
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary w-100" onclick="submitOpenTable()">Confirm</button>
+      <button class="btn btn-primary w-100" onclick="submitOpenTable()">Confirm & Open Table</button>
     </div>
   </div>
 </div>
 
+<!-- Settle Payment Modal -->
 <div class="modal" id="settleTableModal">
   <div class="modal-dialog modal-sm">
     <div class="modal-header">
-      <h3>Settle Table <span id="settleTableNumber"></span></h3>
+      <h3 class="mb-0">Settle Bill — Table <span id="settleTableNumber" class="text-warning"></span></h3>
       <button class="modal-close" onclick="closeModal('settleTableModal')">✕</button>
     </div>
     <div class="modal-body p-4">
       <input type="hidden" id="settleTableId">
       <div class="mb-3">
-        <label>Payment Method</label>
-        <select id="paymentMethod" class="form-select">
-          <option value="cash">Cash</option>
-          <option value="card">Card</option>
-          <option value="upi">UPI</option>
+        <label class="form-label text-muted">Payment Method</label>
+        <select id="paymentMethod" class="form-select bg-dark text-white border-secondary">
+          <option value="cash">💵 Cash</option>
+          <option value="upi">📱 UPI / QR Code</option>
+          <option value="card">💳 Card</option>
         </select>
       </div>
       <div class="mb-3">
-        <label>Amount Paid</label>
-        <input type="number" id="amountPaid" class="form-control" step="0.01">
+        <label class="form-label text-muted">Amount Paid (₹)</label>
+        <input type="number" id="amountPaid" class="form-control bg-dark text-white border-secondary" step="0.01">
+      </div>
+      <div class="text-xs text-muted">
+        Settling completes the sale, deducts product inventory, and frees the table back to 🟢 Available.
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary w-100" onclick="submitSettleTable()">Settle & Pay</button>
+      <button class="btn btn-success w-100 fw-bold" onclick="submitSettleTable()">Complete Settlement</button>
     </div>
   </div>
 </div>
 
+<!-- Modern Full Table Order View Overlay (Solid Background) -->
 <div class="table-order-view" id="tableOrderView">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Table <span id="orderTableNumber"></span> <small class="text-muted ms-2" id="orderTableInfo"></small></h2>
-    <button class="btn btn-ghost" onclick="closeOrderView()">✕ Close</button>
-  </div>
-  
-  <div class="pos-grid">
-    <!-- LEFT: Products -->
-    <div class="card d-flex flex-column" style="height: 100%;">
-      <div class="card-header">
-        <input type="text" id="productSearch" class="form-control" placeholder="Search products..." oninput="searchProducts()">
-      </div>
-      <div class="card-body p-2" style="overflow-y:auto;">
-        <div id="productGrid" class="pos-products-grid"></div>
+  <!-- Top Bar -->
+  <div class="order-top-bar">
+    <div class="d-flex align-items-center gap-3">
+      <span class="badge" style="background:#f59e0b; color:#000; font-size:1.15rem; font-weight:800; padding:6px 14px; border-radius:8px;" id="orderTableNumber">T1</span>
+      <div>
+        <div class="fw-bold" id="orderTableArea" style="font-size: 1rem; color:#ffffff;">Main Hall</div>
+        <div class="text-xs text-muted" id="orderTableInfo">Waiter: Vicky · 4-seat</div>
       </div>
     </div>
-    
-    <!-- RIGHT: Order list -->
-    <div class="card d-flex flex-column" style="height: 100%;">
-      <div class="card-header border-bottom">
-        <h3 class="card-title mb-0">Current Order</h3>
-      </div>
-      <div class="card-body p-0 d-flex flex-column" style="height: 100%;">
-        <div id="orderItems" class="flex-grow-1 p-3" style="overflow-y:auto; background:var(--bg-input);">
-          <!-- Order items injected here -->
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-sm btn-outline-secondary" onclick="closeOrderView()" style="border-radius: 8px; font-weight: 600;">
+        ✕ Close (Back to Tables)
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Order Layout -->
+  <div class="order-layout">
+    <!-- Left: Menu & Dishes Selection -->
+    <div class="menu-panel">
+      <!-- Filter & Search Bar -->
+      <div class="menu-filter-bar">
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="dishSearch" placeholder="Search dish name, SKU, or HSN..." oninput="onSearchChange()">
         </div>
-        
-        <div class="p-3 border-top bg-card">
-          <div class="d-flex justify-content-between mb-2">
-            <span class="text-muted">Subtotal</span>
-            <span id="orderSubtotal">₹0.00</span>
-          </div>
-          <div class="d-flex justify-content-between mb-2">
-            <span class="text-muted">CGST</span>
-            <span id="orderCgst">₹0.00</span>
-          </div>
-          <div class="d-flex justify-content-between mb-2">
-            <span class="text-muted">SGST</span>
-            <span id="orderSgst">₹0.00</span>
-          </div>
-          <div class="d-flex justify-content-between mb-3 fs-5 fw-bold text-primary">
-            <span>Total</span>
-            <span id="orderTotal">₹0.00</span>
-          </div>
-          
-          <div class="d-grid gap-2">
-            <button class="btn btn-warning fw-bold text-dark" onclick="fireKot()">🔥 Fire KOT</button>
-            <button class="btn btn-info fw-bold text-dark" onclick="printBill()">🧾 Print Bill</button>
-            <button class="btn btn-primary fw-bold" onclick="openSettleModalFromOrder()">💰 Settle & Pay</button>
-            <button class="btn btn-outline-danger" onclick="cancelOrder()">❌ Cancel Order</button>
-          </div>
+        <div class="category-pills" id="categoryPills">
+          <div class="category-pill active" onclick="setCategoryFilter('ALL', this)">🌟 All Items</div>
+          <div class="category-pill" onclick="setCategoryFilter('FOOD', this)">🍛 Food & Drinks</div>
+          <div class="category-pill" onclick="setCategoryFilter('VEG', this)">🟢 Pure Veg</div>
+          <div class="category-pill" onclick="setCategoryFilter('NONVEG', this)">🔴 Non-Veg</div>
+        </div>
+      </div>
+
+      <!-- Dish Cards Board -->
+      <div class="dishes-scroll-area">
+        <div class="dish-grid" id="dishGrid">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Current Order Bill & KOT Actions -->
+    <div class="order-panel">
+      <div class="order-panel-header">
+        <div class="fw-bold text-white" style="font-size: 1.05rem;">Current Table Order</div>
+        <span class="badge bg-secondary text-xs" id="itemCountBadge">0 items</span>
+      </div>
+
+      <!-- Items List -->
+      <div class="order-items-scroll" id="orderItemsContainer">
+        <!-- Rendered items here -->
+      </div>
+
+      <!-- Summary & Action Buttons -->
+      <div class="order-summary-box">
+        <div class="summary-line">
+          <span>Subtotal (Taxable)</span>
+          <span id="orderSubtotal">₹0.00</span>
+        </div>
+        <div class="summary-line">
+          <span>CGST (2.5%)</span>
+          <span id="orderCgst">₹0.00</span>
+        </div>
+        <div class="summary-line">
+          <span>SGST (2.5%)</span>
+          <span id="orderSgst">₹0.00</span>
+        </div>
+        <div class="summary-line grand">
+          <span>Grand Total</span>
+          <span id="orderTotal">₹0.00</span>
+        </div>
+
+        <div class="order-actions-grid">
+          <button class="btn-fire-kot" id="btnFireKot" onclick="fireKot()">
+            🔥 Fire KOT to Kitchen <span id="unfiredCountBadge"></span>
+          </button>
+          <button class="btn-bill" onclick="printBill()">🧾 Print Bill</button>
+          <button class="btn-settle" onclick="openSettleModalFromOrder()">💰 Settle & Pay</button>
+          <button class="btn-cancel-order" onclick="cancelOrder()">❌ Cancel Table Order</button>
         </div>
       </div>
     </div>
@@ -237,38 +739,55 @@
 {% block scripts %}
 <script>
 let allTables = [];
+let allProducts = [];
 let currentTableId = null;
 let currentOrderData = null;
-let pendingNewItems = [];
+let pendingNewItems = []; // [{ product, quantity, cooking_notes }]
+let selectedCategory = 'ALL';
+let searchKeyword = '';
+
+const QUICK_NOTES = ['🌶️ Less Spicy', '🚫 No Onion/Garlic', '🍲 Extra Gravy', '📦 Parcel', '☕ Less Sugar', '🔥 Extra Hot'];
 
 async function loadTables() {
-  const res = await fetch('/api/tables');
-  allTables = await res.json();
-  
-  // Populate areas filter
-  const areas = [...new Set(allTables.map(t => t.area))].filter(Boolean);
-  const filter = document.getElementById('areaFilter');
-  const currentVal = filter.value;
-  filter.innerHTML = '<option value="">All Areas</option>' + areas.map(a => `<option value="${a}">${escapeHtml(a)}</option>`).join('');
-  filter.value = currentVal;
-  
-  renderTables();
+  try {
+    const res = await fetch('/api/tables');
+    allTables = await res.json();
+    
+    // Areas dropdown
+    const areas = [...new Set(allTables.map(t => t.area))].filter(Boolean);
+    const filter = document.getElementById('areaFilter');
+    const curVal = filter.value;
+    filter.innerHTML = '<option value="">All Areas</option>' + areas.map(a => `<option value="${a}">${escapeHtml(a)}</option>`).join('');
+    filter.value = curVal;
+    
+    const occupiedCount = allTables.filter(t => t.status === 'OCCUPIED').length;
+    const billedCount = allTables.filter(t => t.status === 'BILLED').length;
+    document.getElementById('tableStatsSummary').textContent = `${allTables.length} Tables · ${occupiedCount} Occupied · ${billedCount} Billed`;
+
+    renderTables();
+  } catch (e) {
+    console.error('Error loading tables:', e);
+  }
 }
 
 function renderTables() {
   const grid = document.getElementById('tableGrid');
   const filterArea = document.getElementById('areaFilter').value;
-  
   const filtered = filterArea ? allTables.filter(t => t.area === filterArea) : allTables;
   
   grid.innerHTML = filtered.map(t => {
-    let meta = '';
+    let meta = `<div class="text-xs text-muted mt-2">Ready to seat</div>`;
     if (t.status === 'OCCUPIED') {
-      meta = `<div class="table-meta fw-bold text-danger">₹${(t.current_order_total || 0).toFixed(2)}</div>
-              <div class="table-meta text-xs text-muted mt-1">Seated</div>`;
+      const mins = t.time_since_occupied || 0;
+      meta = `
+        <div class="table-meta fw-bold text-danger fs-5 mt-1">₹${(t.current_order_total || 0).toFixed(2)}</div>
+        <div class="text-xs text-muted">⏱️ Seated ${mins}m ago · ${t.item_count || 0} items</div>
+      `;
     } else if (t.status === 'BILLED') {
-      meta = `<div class="table-meta fw-bold text-warning">₹${(t.current_order_total || 0).toFixed(2)}</div>
-              <div class="table-meta text-xs text-warning mt-1">Billed</div>`;
+      meta = `
+        <div class="table-meta fw-bold text-warning fs-5 mt-1">₹${(t.current_order_total || 0).toFixed(2)}</div>
+        <div class="text-xs text-warning">🟡 Bill printed · Waiting pay</div>
+      `;
     }
     
     return `
@@ -284,67 +803,60 @@ function renderTables() {
 
 function handleTableClick(id, status) {
   const table = allTables.find(t => t.id === id);
+  if (!table) return;
+
   if (status === 'AVAILABLE') {
     document.getElementById('openTableId').value = id;
     document.getElementById('openTableNumber').textContent = table.table_number;
     document.getElementById('waiterName').value = '';
     openModal('openTableModal');
-  } else if (status === 'OCCUPIED') {
+    setTimeout(() => document.getElementById('waiterName').focus(), 150);
+  } else if (status === 'OCCUPIED' || status === 'BILLED') {
     openOrderView(id);
-  } else if (status === 'BILLED') {
-    document.getElementById('settleTableId').value = id;
-    document.getElementById('settleTableNumber').textContent = table.table_number;
-    document.getElementById('amountPaid').value = (table.current_order_total || 0).toFixed(2);
-    openModal('settleTableModal');
   }
 }
 
 async function submitOpenTable() {
   const id = document.getElementById('openTableId').value;
-  const waiter = document.getElementById('waiterName').value;
-  const res = await fetch(`/api/tables/${id}/open`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({waiter_name: waiter})
-  });
-  const data = await res.json();
-  if (data.success) {
-    closeModal('openTableModal');
-    loadTables();
-    openOrderView(id);
-  } else {
-    showToast(data.error || 'Failed', 'error');
-  }
-}
-
-async function submitSettleTable() {
-  const id = document.getElementById('settleTableId').value;
-  const amount = document.getElementById('amountPaid').value;
-  const method = document.getElementById('paymentMethod').value;
-  const res = await fetch(`/api/tables/${id}/settle`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({amount_paid: amount, payment_method: method})
-  });
-  const data = await res.json();
-  if (data.success) {
-    closeModal('settleTableModal');
-    loadTables();
-    showToast('Settled successfully', 'success');
-  } else {
-    showToast(data.error || 'Failed', 'error');
+  const waiter = document.getElementById('waiterName').value.trim();
+  try {
+    const res = await fetch(`/api/tables/${id}/open`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({waiter_name: waiter || 'Captain'})
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeModal('openTableModal');
+      await loadTables();
+      openOrderView(id);
+    } else {
+      showToast(data.error || 'Failed to open table', 'error');
+    }
+  } catch (e) {
+    showToast('Network error opening table', 'error');
   }
 }
 
 async function openOrderView(id) {
   currentTableId = id;
   const table = allTables.find(t => t.id === id);
+  if (!table) return;
+
   document.getElementById('orderTableNumber').textContent = table.table_number;
-  document.getElementById('tableOrderView').style.display = 'block';
+  document.getElementById('orderTableArea').textContent = `${table.area} (${table.capacity}-seat)`;
+  document.getElementById('tableOrderView').style.display = 'flex';
   pendingNewItems = [];
-  
+
+  // Load products if not cached
+  if (allProducts.length === 0) {
+    const res = await fetch('/api/products/search?q=');
+    allProducts = await res.json();
+    buildCategoryPills();
+  }
+
   await fetchOrderData();
-  searchProducts();
+  renderDishGrid();
 }
 
 function closeOrderView() {
@@ -356,126 +868,316 @@ function closeOrderView() {
 
 async function fetchOrderData() {
   if (!currentTableId) return;
-  const res = await fetch(`/api/tables/${currentTableId}/order`);
-  const data = await res.json();
-  if (data.error) {
-    showToast(data.error, 'error');
+  try {
+    const res = await fetch(`/api/tables/${currentTableId}/order`);
+    const data = await res.json();
+    if (data.error) {
+      showToast(data.error, 'error');
+      return;
+    }
+    currentOrderData = data;
+    document.getElementById('orderTableInfo').textContent = `Waiter: ${data.waiter_name || 'Not assigned'} · Seated ${data.opened_at || ''}`;
+    renderOrderItems();
+  } catch (e) {
+    console.error('Error fetching order:', e);
+  }
+}
+
+function buildCategoryPills() {
+  const categories = [...new Set(allProducts.map(p => p.category))].filter(Boolean);
+  const container = document.getElementById('categoryPills');
+  let html = `
+    <div class="category-pill ${selectedCategory === 'ALL' ? 'active' : ''}" onclick="setCategoryFilter('ALL', this)">🌟 All Items</div>
+    <div class="category-pill ${selectedCategory === 'FOOD' ? 'active' : ''}" onclick="setCategoryFilter('FOOD', this)">🍛 Food & Drinks</div>
+    <div class="category-pill ${selectedCategory === 'VEG' ? 'active' : ''}" onclick="setCategoryFilter('VEG', this)">🟢 Pure Veg</div>
+    <div class="category-pill ${selectedCategory === 'NONVEG' ? 'active' : ''}" onclick="setCategoryFilter('NONVEG', this)">🔴 Non-Veg</div>
+  `;
+  categories.forEach(cat => {
+    if (cat.toLowerCase().includes('food') || cat.toLowerCase().includes('beverage')) return; // already in Food
+    html += `<div class="category-pill ${selectedCategory === cat ? 'active' : ''}" onclick="setCategoryFilter('${escapeHtml(cat)}', this)">${escapeHtml(cat)}</div>`;
+  });
+  container.innerHTML = html;
+}
+
+function setCategoryFilter(cat, element) {
+  selectedCategory = cat;
+  document.querySelectorAll('.category-pill').forEach(el => el.classList.remove('active'));
+  if (element) element.classList.add('active');
+  renderDishGrid();
+}
+
+function onSearchChange() {
+  searchKeyword = document.getElementById('dishSearch').value.trim().toLowerCase();
+  renderDishGrid();
+}
+
+function renderDishGrid() {
+  const container = document.getElementById('dishGrid');
+  let filtered = allProducts;
+
+  // Category filter
+  if (selectedCategory === 'FOOD') {
+    filtered = filtered.filter(p => (p.category || '').toLowerCase().includes('food') || (p.category || '').toLowerCase().includes('beverage') || p.sku.startsWith('FB'));
+  } else if (selectedCategory === 'VEG') {
+    filtered = filtered.filter(p => p.is_veg === true);
+  } else if (selectedCategory === 'NONVEG') {
+    filtered = filtered.filter(p => p.is_veg === false);
+  } else if (selectedCategory !== 'ALL') {
+    filtered = filtered.filter(p => p.category === selectedCategory);
+  }
+
+  // Keyword search
+  if (searchKeyword) {
+    filtered = filtered.filter(p => 
+      p.name.toLowerCase().includes(searchKeyword) ||
+      p.sku.toLowerCase().includes(searchKeyword) ||
+      (p.hsn_code || '').toLowerCase().includes(searchKeyword)
+    );
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: #64748b;">
+        <div style="font-size: 2.5rem; margin-bottom: 8px;">🍽️</div>
+        <div class="fw-bold">No dishes found</div>
+        <div class="text-xs">Try selecting 'All Items' or changing search keyword.</div>
+      </div>
+    `;
     return;
   }
-  currentOrderData = data;
-  document.getElementById('orderTableInfo').textContent = `Waiter: ${data.waiter_name || 'N/A'}`;
-  renderOrderItems();
-}
 
-function renderOrderItems() {
-  const container = document.getElementById('orderItems');
-  let html = '';
-  
-  // Existing items grouped by KOT
-  if (currentOrderData && currentOrderData.kots && currentOrderData.kots.length > 0) {
-    currentOrderData.kots.forEach(kot => {
-      html += `<div class="mb-3">
-        <div class="d-flex justify-content-between align-items-center mb-1">
-          <span class="text-xs fw-bold text-muted uppercase">KOT #${kot.kot_number} (${kot.status}) - ${new Date(kot.created_at).toLocaleTimeString()}</span>
-          <a href="/kot/${kot.id}/print" target="_blank" class="btn btn-sm btn-ghost text-primary py-0 px-2" style="font-size: 11px; text-decoration: none;">🖨️ Print Ticket</a>
-        </div>`;
-      kot.items.forEach(item => {
-        html += `<div class="d-flex justify-content-between py-1 text-muted" style="opacity:0.7">
-          <span>✅ ${item.quantity} × ${item.product_name || 'Item'} ${item.cooking_notes ? `<br><small>(${item.cooking_notes})</small>` : ''}</span>
-        </div>`;
-      });
-      html += `</div>`;
-    });
-  }
-  
-  // Pending new items
-  if (pendingNewItems.length > 0) {
-    html += `<div class="mb-3"><div class="text-xs fw-bold text-warning mb-1 uppercase">UNFIRED ITEMS</div>`;
-    pendingNewItems.forEach((item, index) => {
-      html += `<div class="d-flex justify-content-between align-items-center py-2 border-bottom border-secondary">
-        <div>
-          <div class="fw-bold">${item.quantity} × ${escapeHtml(item.product.name)}</div>
-          <input type="text" class="form-control form-control-sm mt-1 bg-dark text-white border-secondary" placeholder="Notes..." value="${item.cooking_notes || ''}" onchange="updateNote(${index}, this.value)">
+  container.innerHTML = filtered.map(p => {
+    const isVeg = p.is_veg !== false;
+    const inCartQty = pendingNewItems.filter(i => i.product.id === p.id).reduce((sum, i) => sum + i.quantity, 0);
+    const cartBadge = inCartQty > 0 ? `<div class="dish-in-cart-badge">${inCartQty}</div>` : '';
+    
+    // Pick suitable icon based on name
+    let icon = p.category_icon || '🍲';
+    const nl = p.name.toLowerCase();
+    if (nl.includes('coffee') || nl.includes('tea')) icon = '☕';
+    else if (nl.includes('biriyani') || nl.includes('rice')) icon = '🍚';
+    else if (nl.includes('dosa') || nl.includes('parotta') || nl.includes('idli')) icon = '🫓';
+    else if (nl.includes('vada')) icon = '🍩';
+    else if (nl.includes('meal')) icon = '🍛';
+    
+    return `
+      <div class="dish-card" onclick='addDishToOrder(${JSON.stringify(p).replace(/'/g, "&apos;")})'>
+        ${cartBadge}
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="fssai-symbol ${isVeg ? 'veg' : 'non-veg'}" title="${isVeg ? 'Vegetarian' : 'Non-Vegetarian'}">
+            <span class="fssai-dot"></span>
+          </span>
+          <span class="dish-sku">${escapeHtml(p.sku)}</span>
         </div>
-        <div class="text-end">
-          <div class="mb-1">₹${(item.quantity * item.product.price).toFixed(2)}</div>
-          <button class="btn btn-sm btn-ghost text-danger" onclick="removeNewItem(${index})">✕</button>
+        
+        <div class="text-center">
+          <div class="dish-emoji">${icon}</div>
+          <div class="dish-name" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</div>
         </div>
-      </div>`;
-    });
-    html += `</div>`;
-  }
-  
-  container.innerHTML = html || '<div class="text-muted text-center py-4">No items yet</div>';
-  
-  // Calculate totals
-  let total = currentOrderData ? currentOrderData.total : 0;
-  let sub = currentOrderData ? currentOrderData.subtotal : 0;
-  let cgst = currentOrderData ? currentOrderData.total_cgst : 0;
-  let sgst = currentOrderData ? currentOrderData.total_sgst : 0;
-  
-  pendingNewItems.forEach(item => {
-    let gross = item.quantity * item.product.price;
-    let rate = item.product.gst_rate / 100;
-    let net = gross / (1 + rate);
-    let tax = gross - net;
-    sub += net;
-    cgst += tax / 2;
-    sgst += tax / 2;
-    total += gross;
-  });
-  
-  document.getElementById('orderSubtotal').textContent = '₹' + sub.toFixed(2);
-  document.getElementById('orderCgst').textContent = '₹' + cgst.toFixed(2);
-  document.getElementById('orderSgst').textContent = '₹' + sgst.toFixed(2);
-  document.getElementById('orderTotal').textContent = '₹' + total.toFixed(2);
+        
+        <div class="dish-footer">
+          <span class="dish-price">₹${p.price.toFixed(2)}</span>
+          <button class="dish-add-btn">+ Add</button>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
-let posProducts = [];
-async function searchProducts() {
-  const q = document.getElementById('productSearch').value;
-  if (posProducts.length === 0) {
-    const res = await fetch('/api/products/search?q=');
-    posProducts = await res.json();
-  }
-  
-  let filtered = posProducts;
-  if (q) {
-    const lq = q.toLowerCase();
-    filtered = posProducts.filter(p => p.name.toLowerCase().includes(lq) || p.sku.toLowerCase().includes(lq));
-  }
-  
-  document.getElementById('productGrid').innerHTML = filtered.map(p => `
-    <div class="pos-product-card" onclick='addNewItem(${JSON.stringify(p).replace(/'/g, "&apos;")})'>
-      <div class="d-flex justify-content-between align-items-start mb-2">
-        <span class="pos-product-sku">${escapeHtml(p.sku)}</span>
-        <span class="text-xs">${p.is_veg ? '🟢' : '🔴'}</span>
-      </div>
-      <div class="pos-product-name">${escapeHtml(p.name)}</div>
-      <div class="d-flex justify-content-between align-items-end mt-2">
-        <span class="pos-product-price">₹${p.price.toFixed(2)}</span>
-      </div>
-    </div>
-  `).join('');
-}
-
-function addNewItem(product) {
+function addDishToOrder(product) {
   const existing = pendingNewItems.find(i => i.product.id === product.id && !i.cooking_notes);
   if (existing) {
     existing.quantity++;
   } else {
-    pendingNewItems.push({product: product, quantity: 1, cooking_notes: ''});
+    pendingNewItems.push({
+      product: product,
+      quantity: 1,
+      cooking_notes: ''
+    });
+  }
+  renderOrderItems();
+  renderDishGrid(); // updates in-cart badges
+}
+
+function changeQty(index, delta) {
+  if (pendingNewItems[index]) {
+    pendingNewItems[index].quantity += delta;
+    if (pendingNewItems[index].quantity <= 0) {
+      pendingNewItems.splice(index, 1);
+    }
+  }
+  renderOrderItems();
+  renderDishGrid();
+}
+
+function removePendingItem(index) {
+  pendingNewItems.splice(index, 1);
+  renderOrderItems();
+  renderDishGrid();
+}
+
+function appendQuickNote(index, noteText) {
+  const item = pendingNewItems[index];
+  if (!item) return;
+  if (!item.cooking_notes) {
+    item.cooking_notes = noteText;
+  } else if (!item.cooking_notes.includes(noteText)) {
+    item.cooking_notes += ', ' + noteText;
   }
   renderOrderItems();
 }
 
-function removeNewItem(index) {
-  pendingNewItems.splice(index, 1);
-  renderOrderItems();
+function updateItemNote(index, text) {
+  if (pendingNewItems[index]) {
+    pendingNewItems[index].cooking_notes = text;
+  }
 }
 
-function updateNote(index, val) {
-  pendingNewItems[index].cooking_notes = val;
+function renderOrderItems() {
+  const container = document.getElementById('orderItemsContainer');
+  let html = '';
+  let totalItemCount = 0;
+
+  // 1. Previously Fired KOTs
+  if (currentOrderData && currentOrderData.kots && currentOrderData.kots.length > 0) {
+    currentOrderData.kots.forEach(kot => {
+      totalItemCount += kot.items.reduce((s, i) => s + i.quantity, 0);
+      html += `
+        <div class="kot-group-box">
+          <div class="kot-group-header">
+            <div>
+              <span class="badge bg-success text-dark fw-bold me-1">KOT #${kot.kot_number}</span>
+              <span class="text-xs text-muted">${new Date(kot.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+            </div>
+            <a href="/kot/${kot.id}/print" target="_blank" class="btn btn-xs btn-outline-info py-0 px-2" style="font-size:10px; text-decoration:none;">🖨️ Reprint KOT</a>
+          </div>
+          <div class="d-flex flex-column gap-1">
+      `;
+      kot.items.forEach(ki => {
+        html += `
+          <div class="d-flex justify-content-between text-xs py-1" style="color:#cbd5e1;">
+            <div>
+              <span class="text-success fw-bold me-1">✓</span> <strong>${ki.quantity}×</strong> ${escapeHtml(ki.product_name || 'Dish')}
+              ${ki.cooking_notes ? `<div class="text-warning text-xs ms-3">💬 <em>${escapeHtml(ki.cooking_notes)}</em></div>` : ''}
+            </div>
+          </div>
+        `;
+      });
+      html += `</div></div>`;
+    });
+  }
+
+  // 2. Unfired Items
+  if (pendingNewItems.length > 0) {
+    const unfiredCount = pendingNewItems.reduce((s, i) => s + i.quantity, 0);
+    totalItemCount += unfiredCount;
+    html += `
+      <div class="d-flex justify-content-between align-items-center mt-2 mb-1">
+        <span class="text-xs fw-bold text-warning uppercase">⏳ Unfired Items (${unfiredCount})</span>
+        <button class="btn btn-xs btn-ghost text-danger py-0" style="font-size:11px;" onclick="clearPendingItems()">Clear</button>
+      </div>
+    `;
+
+    pendingNewItems.forEach((item, idx) => {
+      const lineGross = (item.quantity * item.product.price).toFixed(2);
+      html += `
+        <div class="cart-item-row">
+          <div class="cart-item-main">
+            <div>
+              <div class="cart-item-title">${escapeHtml(item.product.name)}</div>
+              <div class="text-xs text-muted">₹${item.product.price.toFixed(2)} / unit</div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <div class="qty-stepper">
+                <button class="qty-btn" onclick="changeQty(${idx}, -1)">−</button>
+                <span class="qty-val">${item.quantity}</span>
+                <button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button>
+              </div>
+              <div class="cart-item-price">₹${lineGross}</div>
+              <button class="btn btn-sm btn-ghost text-danger p-0 ms-1" onclick="removePendingItem(${idx})">✕</button>
+            </div>
+          </div>
+
+          <!-- Quick notes chips -->
+          <div class="quick-notes">
+            ${QUICK_NOTES.map(qn => `<span class="note-chip" onclick="appendQuickNote(${idx}, '${qn}')">${qn}</span>`).join('')}
+          </div>
+
+          <!-- Custom note input -->
+          <input type="text" class="note-input" placeholder="Cooking instruction / note..." value="${escapeHtml(item.cooking_notes || '')}" onchange="updateItemNote(${idx}, this.value)">
+        </div>
+      `;
+    });
+  }
+
+  if (totalItemCount === 0) {
+    html = `
+      <div class="text-center text-muted py-5">
+        <div style="font-size: 2.2rem; margin-bottom: 8px;">🍽️</div>
+        <div class="fw-bold">No dishes in this order yet</div>
+        <div class="text-xs">Click any dish on the left menu to add.</div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+  document.getElementById('itemCountBadge').textContent = `${totalItemCount} items`;
+
+  // Calculate live financial totals from existing items and pending items
+  let grossTotal = 0;
+  let subTotal = 0;
+  let cgstTotal = 0;
+  let sgstTotal = 0;
+
+  // 1. Already saved items in order
+  if (currentOrderData && currentOrderData.items && currentOrderData.items.length > 0) {
+    currentOrderData.items.forEach(item => {
+      const gross = item.subtotal || 0;
+      const rate = (item.gst_rate !== undefined ? item.gst_rate : 5) / 100;
+      const net = gross / (1 + rate);
+      const tax = gross - net;
+      subTotal += net;
+      cgstTotal += tax / 2;
+      sgstTotal += tax / 2;
+      grossTotal += gross;
+    });
+  }
+
+  // 2. Pending unfired items
+  pendingNewItems.forEach(item => {
+    const gross = item.quantity * item.product.price;
+    const rate = (item.product.gst_rate || 5) / 100;
+    const net = gross / (1 + rate);
+    const tax = gross - net;
+    subTotal += net;
+    cgstTotal += tax / 2;
+    sgstTotal += tax / 2;
+    grossTotal += gross;
+  });
+
+  document.getElementById('orderSubtotal').textContent = '₹' + subTotal.toFixed(2);
+  document.getElementById('orderCgst').textContent = '₹' + cgstTotal.toFixed(2);
+  document.getElementById('orderSgst').textContent = '₹' + sgstTotal.toFixed(2);
+  document.getElementById('orderTotal').textContent = '₹' + grossTotal.toFixed(2);
+
+  const unfiredTotal = pendingNewItems.reduce((s, i) => s + i.quantity, 0);
+  const fireBtn = document.getElementById('btnFireKot');
+  if (unfiredTotal > 0) {
+    fireBtn.disabled = false;
+    document.getElementById('unfiredCountBadge').textContent = `(${unfiredTotal} new)`;
+  } else {
+    fireBtn.disabled = true;
+    document.getElementById('unfiredCountBadge').textContent = ``;
+  }
+}
+
+function clearPendingItems() {
+  if (pendingNewItems.length > 0) {
+    if (!confirm('Clear all unfired items?')) return;
+    pendingNewItems = [];
+    renderOrderItems();
+    renderDishGrid();
+  }
 }
 
 async function fireKot() {
@@ -483,76 +1185,126 @@ async function fireKot() {
     showToast('No new items to fire', 'info');
     return;
   }
-  
+
   const itemsPayload = pendingNewItems.map(i => ({
     product_id: i.product.id,
     quantity: i.quantity,
     cooking_notes: i.cooking_notes
   }));
-  
-  const addRes = await fetch(`/api/tables/${currentTableId}/items`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({items: itemsPayload})
-  });
-  if (!(await addRes.json()).success) {
-    showToast('Failed to add items', 'error');
-    return;
-  }
-  
-  const kotRes = await fetch(`/api/tables/${currentTableId}/kot`, {method: 'POST'});
-  const kotData = await kotRes.json();
-  
-  if (kotData.success) {
-    showToast(`KOT #${kotData.kot.kot_number} Fired!`, 'success');
-    window.open(`/kot/${kotData.kot.id}/print`, '_blank');
-    pendingNewItems = [];
-    await fetchOrderData();
-  } else {
-    showToast(kotData.error, 'error');
+
+  try {
+    const addRes = await fetch(`/api/tables/${currentTableId}/items`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({items: itemsPayload})
+    });
+    const addData = await addRes.json();
+    if (!addData.success) {
+      showToast(addData.error || 'Failed to add items', 'error');
+      return;
+    }
+
+    const kotRes = await fetch(`/api/tables/${currentTableId}/kot`, {method: 'POST'});
+    const kotData = await kotRes.json();
+
+    if (kotData.success) {
+      showToast(`🔥 KOT #${kotData.kot.kot_number} fired to kitchen!`, 'success');
+      // Auto open print window in new tab
+      window.open(`/kot/${kotData.kot.id}/print`, '_blank');
+      pendingNewItems = [];
+      await fetchOrderData();
+      renderDishGrid();
+    } else {
+      showToast(kotData.error || 'Failed to fire KOT', 'error');
+    }
+  } catch (e) {
+    showToast('Network error while firing KOT', 'error');
   }
 }
 
 async function printBill() {
-  const res = await fetch(`/api/tables/${currentTableId}/print-bill`, {method: 'POST'});
-  const data = await res.json();
-  if (data.success) {
-    window.open(`/receipt/${data.sale.id}`, '_blank');
-    closeOrderView();
-  } else {
-    showToast(data.error, 'error');
+  if (!currentTableId) return;
+  if (pendingNewItems.length > 0) {
+    if (!confirm('You have unfired items! They are not sent to the kitchen yet. Print bill without them?')) return;
+  }
+
+  try {
+    const res = await fetch(`/api/tables/${currentTableId}/print-bill`, {method: 'POST'});
+    const data = await res.json();
+    if (data.success) {
+      showToast('Bill generated', 'success');
+      window.open(`/receipt/${data.sale.id}`, '_blank');
+      closeOrderView();
+    } else {
+      showToast(data.error || 'Failed to generate bill', 'error');
+    }
+  } catch (e) {
+    showToast('Network error generating bill', 'error');
   }
 }
 
 function openSettleModalFromOrder() {
   const t = allTables.find(tb => tb.id === currentTableId);
   if (!t) return;
+
+  if (pendingNewItems.length > 0) {
+    if (!confirm('You have unfired items in cart. They will NOT be settled. Proceed to payment?')) return;
+  }
+
   document.getElementById('settleTableId').value = t.id;
   document.getElementById('settleTableNumber').textContent = t.table_number;
-  if (pendingNewItems.length > 0) {
-    if (!confirm('You have unfired items. They will NOT be billed. Continue?')) return;
-  }
-  document.getElementById('amountPaid').value = currentOrderData ? currentOrderData.total.toFixed(2) : '0.00';
+  document.getElementById('amountPaid').value = (currentOrderData ? currentOrderData.total : (t.current_order_total || 0)).toFixed(2);
   openModal('settleTableModal');
 }
 
-async function cancelOrder() {
-  if (!confirm('Are you sure you want to cancel this order?')) return;
-  const reason = prompt('Reason for cancellation:');
-  const res = await fetch(`/api/tables/${currentTableId}/cancel`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({reason: reason || ''})
-  });
-  const data = await res.json();
-  if (data.success) {
-    showToast('Order cancelled', 'success');
-    closeOrderView();
-  } else {
-    showToast(data.error, 'error');
+async function submitSettleTable() {
+  const id = document.getElementById('settleTableId').value;
+  const amount = document.getElementById('amountPaid').value;
+  const method = document.getElementById('paymentMethod').value;
+
+  try {
+    const res = await fetch(`/api/tables/${id}/settle`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({amount_paid: amount, payment_method: method})
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeModal('settleTableModal');
+      closeOrderView();
+      showToast('Payment settled! Table freed 🟢', 'success');
+      loadTables();
+    } else {
+      showToast(data.error || 'Settlement failed', 'error');
+    }
+  } catch (e) {
+    showToast('Network error during settlement', 'error');
   }
 }
 
+async function cancelOrder() {
+  if (!confirm('Are you sure you want to cancel this dine-in table order?')) return;
+  const reason = prompt('Cancellation reason:') || 'Customer cancelled';
+
+  try {
+    const res = await fetch(`/api/tables/${currentTableId}/cancel`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({reason: reason})
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Order cancelled. Table freed 🟢', 'info');
+      closeOrderView();
+    } else {
+      showToast(data.error || 'Failed to cancel', 'error');
+    }
+  } catch (e) {
+    showToast('Network error cancelling order', 'error');
+  }
+}
+
+// Initial load & Polling
 loadTables();
 setInterval(() => {
   if (!currentTableId) loadTables();

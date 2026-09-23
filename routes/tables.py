@@ -399,5 +399,6 @@ def get_table_order(id):
     
     result = sale.to_dict()
     result['kots'] = [k.to_dict() for k in kots]
+    result['running_total'] = sum(i.subtotal for i in sale.items)
     
     return jsonify(result)
