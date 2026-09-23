@@ -1,0 +1,561 @@
+{% extends 'base.html' %}
+{% block title %}Table Management{% endblock %}
+{% block page_title %}🍽️ Table Management{% endblock %}
+
+{% block content %}
+<style>
+  /* Base CSS */
+  .table-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(5, 1fr);
+  }
+  @media (max-width: 1200px) {
+    .table-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 768px) {
+    .table-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  
+  .table-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .table-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--text-muted);
+  }
+  
+  .table-card.status-available { border-top: 4px solid #22c55e; }
+  .table-card.status-occupied { border-top: 4px solid #ef4444; }
+  .table-card.status-billed { border-top: 4px solid #eab308; }
+  .table-card.status-reserved { border-top: 4px solid #3b82f6; }
+  
+  .table-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0.5rem 0;
+  }
+  .table-status {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .status-available .table-status { color: #22c55e; }
+  .status-occupied .table-status { color: #ef4444; }
+  .status-billed .table-status { color: #eab308; }
+  .status-reserved .table-status { color: #3b82f6; }
+  
+  .table-info-pill {
+    background: var(--bg-input);
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    display: inline-block;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+  
+  .table-meta {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+  }
+  
+  .legend-bar {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding: 1rem;
+    background: var(--bg-card);
+    border-radius: 8px;
+    justify-content: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+  
+  .table-order-view {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--bg-main);
+    z-index: 1000;
+    padding: 1.5rem;
+    overflow: auto;
+  }
+  
+  .pos-grid {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 1.5rem;
+    height: calc(100vh - 100px);
+  }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <select id="areaFilter" class="form-select w-auto" onchange="renderTables()">
+    <option value="">All Areas</option>
+  </select>
+  <button class="btn btn-primary" onclick="loadTables()">↻ Refresh</button>
+</div>
+
+<div id="tableGrid" class="table-grid">
+  <!-- Tables injected here -->
+</div>
+
+<div class="legend-bar">
+  <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div> Available</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> Occupied</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#eab308"></div> Billed</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> Reserved</div>
+</div>
+
+{% endblock %}
+
+{% block modals %}
+<div class="modal" id="openTableModal">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-header">
+      <h3>Open Table <span id="openTableNumber"></span></h3>
+      <button class="modal-close" onclick="closeModal('openTableModal')">✕</button>
+    </div>
+    <div class="modal-body p-4">
+      <input type="hidden" id="openTableId">
+      <div class="mb-3">
+        <label>Waiter Name</label>
+        <input type="text" id="waiterName" class="form-control" placeholder="Enter waiter name">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary w-100" onclick="submitOpenTable()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="settleTableModal">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-header">
+      <h3>Settle Table <span id="settleTableNumber"></span></h3>
+      <button class="modal-close" onclick="closeModal('settleTableModal')">✕</button>
+    </div>
+    <div class="modal-body p-4">
+      <input type="hidden" id="settleTableId">
+      <div class="mb-3">
+        <label>Payment Method</label>
+        <select id="paymentMethod" class="form-select">
+          <option value="cash">Cash</option>
+          <option value="card">Card</option>
+          <option value="upi">UPI</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label>Amount Paid</label>
+        <input type="number" id="amountPaid" class="form-control" step="0.01">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary w-100" onclick="submitSettleTable()">Settle & Pay</button>
+    </div>
+  </div>
+</div>
+
+<div class="table-order-view" id="tableOrderView">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Table <span id="orderTableNumber"></span> <small class="text-muted ms-2" id="orderTableInfo"></small></h2>
+    <button class="btn btn-ghost" onclick="closeOrderView()">✕ Close</button>
+  </div>
+  
+  <div class="pos-grid">
+    <!-- LEFT: Products -->
+    <div class="card d-flex flex-column" style="height: 100%;">
+      <div class="card-header">
+        <input type="text" id="productSearch" class="form-control" placeholder="Search products..." oninput="searchProducts()">
+      </div>
+      <div class="card-body p-2" style="overflow-y:auto;">
+        <div id="productGrid" class="pos-products-grid"></div>
+      </div>
+    </div>
+    
+    <!-- RIGHT: Order list -->
+    <div class="card d-flex flex-column" style="height: 100%;">
+      <div class="card-header border-bottom">
+        <h3 class="card-title mb-0">Current Order</h3>
+      </div>
+      <div class="card-body p-0 d-flex flex-column" style="height: 100%;">
+        <div id="orderItems" class="flex-grow-1 p-3" style="overflow-y:auto; background:var(--bg-input);">
+          <!-- Order items injected here -->
+        </div>
+        
+        <div class="p-3 border-top bg-card">
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Subtotal</span>
+            <span id="orderSubtotal">₹0.00</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">CGST</span>
+            <span id="orderCgst">₹0.00</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">SGST</span>
+            <span id="orderSgst">₹0.00</span>
+          </div>
+          <div class="d-flex justify-content-between mb-3 fs-5 fw-bold text-primary">
+            <span>Total</span>
+            <span id="orderTotal">₹0.00</span>
+          </div>
+          
+          <div class="d-grid gap-2">
+            <button class="btn btn-warning fw-bold text-dark" onclick="fireKot()">🔥 Fire KOT</button>
+            <button class="btn btn-info fw-bold text-dark" onclick="printBill()">🧾 Print Bill</button>
+            <button class="btn btn-primary fw-bold" onclick="openSettleModalFromOrder()">💰 Settle & Pay</button>
+            <button class="btn btn-outline-danger" onclick="cancelOrder()">❌ Cancel Order</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let allTables = [];
+let currentTableId = null;
+let currentOrderData = null;
+let pendingNewItems = [];
+
+async function loadTables() {
+  const res = await fetch('/api/tables');
+  allTables = await res.json();
+  
+  // Populate areas filter
+  const areas = [...new Set(allTables.map(t => t.area))].filter(Boolean);
+  const filter = document.getElementById('areaFilter');
+  const currentVal = filter.value;
+  filter.innerHTML = '<option value="">All Areas</option>' + areas.map(a => `<option value="${a}">${escapeHtml(a)}</option>`).join('');
+  filter.value = currentVal;
+  
+  renderTables();
+}
+
+function renderTables() {
+  const grid = document.getElementById('tableGrid');
+  const filterArea = document.getElementById('areaFilter').value;
+  
+  const filtered = filterArea ? allTables.filter(t => t.area === filterArea) : allTables;
+  
+  grid.innerHTML = filtered.map(t => {
+    let meta = '';
+    if (t.status === 'OCCUPIED') {
+      meta = `<div class="table-meta fw-bold text-danger">₹${(t.current_order_total || 0).toFixed(2)}</div>
+              <div class="table-meta text-xs text-muted mt-1">Seated</div>`;
+    } else if (t.status === 'BILLED') {
+      meta = `<div class="table-meta fw-bold text-warning">₹${(t.current_order_total || 0).toFixed(2)}</div>
+              <div class="table-meta text-xs text-warning mt-1">Billed</div>`;
+    }
+    
+    return `
+      <div class="table-card status-${t.status.toLowerCase()}" onclick="handleTableClick(${t.id}, '${t.status}')">
+        <div class="table-info-pill">${escapeHtml(t.area)} • ${t.capacity}-seat</div>
+        <div class="table-number">${escapeHtml(t.table_number)}</div>
+        <div class="table-status">${t.status}</div>
+        ${meta}
+      </div>
+    `;
+  }).join('');
+}
+
+function handleTableClick(id, status) {
+  const table = allTables.find(t => t.id === id);
+  if (status === 'AVAILABLE') {
+    document.getElementById('openTableId').value = id;
+    document.getElementById('openTableNumber').textContent = table.table_number;
+    document.getElementById('waiterName').value = '';
+    openModal('openTableModal');
+  } else if (status === 'OCCUPIED') {
+    openOrderView(id);
+  } else if (status === 'BILLED') {
+    document.getElementById('settleTableId').value = id;
+    document.getElementById('settleTableNumber').textContent = table.table_number;
+    document.getElementById('amountPaid').value = (table.current_order_total || 0).toFixed(2);
+    openModal('settleTableModal');
+  }
+}
+
+async function submitOpenTable() {
+  const id = document.getElementById('openTableId').value;
+  const waiter = document.getElementById('waiterName').value;
+  const res = await fetch(`/api/tables/${id}/open`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({waiter_name: waiter})
+  });
+  const data = await res.json();
+  if (data.success) {
+    closeModal('openTableModal');
+    loadTables();
+    openOrderView(id);
+  } else {
+    showToast(data.error || 'Failed', 'error');
+  }
+}
+
+async function submitSettleTable() {
+  const id = document.getElementById('settleTableId').value;
+  const amount = document.getElementById('amountPaid').value;
+  const method = document.getElementById('paymentMethod').value;
+  const res = await fetch(`/api/tables/${id}/settle`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({amount_paid: amount, payment_method: method})
+  });
+  const data = await res.json();
+  if (data.success) {
+    closeModal('settleTableModal');
+    loadTables();
+    showToast('Settled successfully', 'success');
+  } else {
+    showToast(data.error || 'Failed', 'error');
+  }
+}
+
+async function openOrderView(id) {
+  currentTableId = id;
+  const table = allTables.find(t => t.id === id);
+  document.getElementById('orderTableNumber').textContent = table.table_number;
+  document.getElementById('tableOrderView').style.display = 'block';
+  pendingNewItems = [];
+  
+  await fetchOrderData();
+  searchProducts();
+}
+
+function closeOrderView() {
+  document.getElementById('tableOrderView').style.display = 'none';
+  currentTableId = null;
+  currentOrderData = null;
+  loadTables();
+}
+
+async function fetchOrderData() {
+  if (!currentTableId) return;
+  const res = await fetch(`/api/tables/${currentTableId}/order`);
+  const data = await res.json();
+  if (data.error) {
+    showToast(data.error, 'error');
+    return;
+  }
+  currentOrderData = data;
+  document.getElementById('orderTableInfo').textContent = `Waiter: ${data.waiter_name || 'N/A'}`;
+  renderOrderItems();
+}
+
+function renderOrderItems() {
+  const container = document.getElementById('orderItems');
+  let html = '';
+  
+  // Existing items grouped by KOT
+  if (currentOrderData && currentOrderData.kots && currentOrderData.kots.length > 0) {
+    currentOrderData.kots.forEach(kot => {
+      html += `<div class="mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="text-xs fw-bold text-muted uppercase">KOT #${kot.kot_number} (${kot.status}) - ${new Date(kot.created_at).toLocaleTimeString()}</span>
+          <a href="/kot/${kot.id}/print" target="_blank" class="btn btn-sm btn-ghost text-primary py-0 px-2" style="font-size: 11px; text-decoration: none;">🖨️ Print Ticket</a>
+        </div>`;
+      kot.items.forEach(item => {
+        html += `<div class="d-flex justify-content-between py-1 text-muted" style="opacity:0.7">
+          <span>✅ ${item.quantity} × ${item.product_name || 'Item'} ${item.cooking_notes ? `<br><small>(${item.cooking_notes})</small>` : ''}</span>
+        </div>`;
+      });
+      html += `</div>`;
+    });
+  }
+  
+  // Pending new items
+  if (pendingNewItems.length > 0) {
+    html += `<div class="mb-3"><div class="text-xs fw-bold text-warning mb-1 uppercase">UNFIRED ITEMS</div>`;
+    pendingNewItems.forEach((item, index) => {
+      html += `<div class="d-flex justify-content-between align-items-center py-2 border-bottom border-secondary">
+        <div>
+          <div class="fw-bold">${item.quantity} × ${escapeHtml(item.product.name)}</div>
+          <input type="text" class="form-control form-control-sm mt-1 bg-dark text-white border-secondary" placeholder="Notes..." value="${item.cooking_notes || ''}" onchange="updateNote(${index}, this.value)">
+        </div>
+        <div class="text-end">
+          <div class="mb-1">₹${(item.quantity * item.product.price).toFixed(2)}</div>
+          <button class="btn btn-sm btn-ghost text-danger" onclick="removeNewItem(${index})">✕</button>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+  
+  container.innerHTML = html || '<div class="text-muted text-center py-4">No items yet</div>';
+  
+  // Calculate totals
+  let total = currentOrderData ? currentOrderData.total : 0;
+  let sub = currentOrderData ? currentOrderData.subtotal : 0;
+  let cgst = currentOrderData ? currentOrderData.total_cgst : 0;
+  let sgst = currentOrderData ? currentOrderData.total_sgst : 0;
+  
+  pendingNewItems.forEach(item => {
+    let gross = item.quantity * item.product.price;
+    let rate = item.product.gst_rate / 100;
+    let net = gross / (1 + rate);
+    let tax = gross - net;
+    sub += net;
+    cgst += tax / 2;
+    sgst += tax / 2;
+    total += gross;
+  });
+  
+  document.getElementById('orderSubtotal').textContent = '₹' + sub.toFixed(2);
+  document.getElementById('orderCgst').textContent = '₹' + cgst.toFixed(2);
+  document.getElementById('orderSgst').textContent = '₹' + sgst.toFixed(2);
+  document.getElementById('orderTotal').textContent = '₹' + total.toFixed(2);
+}
+
+let posProducts = [];
+async function searchProducts() {
+  const q = document.getElementById('productSearch').value;
+  if (posProducts.length === 0) {
+    const res = await fetch('/api/products/search?q=');
+    posProducts = await res.json();
+  }
+  
+  let filtered = posProducts;
+  if (q) {
+    const lq = q.toLowerCase();
+    filtered = posProducts.filter(p => p.name.toLowerCase().includes(lq) || p.sku.toLowerCase().includes(lq));
+  }
+  
+  document.getElementById('productGrid').innerHTML = filtered.map(p => `
+    <div class="pos-product-card" onclick='addNewItem(${JSON.stringify(p).replace(/'/g, "&apos;")})'>
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <span class="pos-product-sku">${escapeHtml(p.sku)}</span>
+        <span class="text-xs">${p.is_veg ? '🟢' : '🔴'}</span>
+      </div>
+      <div class="pos-product-name">${escapeHtml(p.name)}</div>
+      <div class="d-flex justify-content-between align-items-end mt-2">
+        <span class="pos-product-price">₹${p.price.toFixed(2)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addNewItem(product) {
+  const existing = pendingNewItems.find(i => i.product.id === product.id && !i.cooking_notes);
+  if (existing) {
+    existing.quantity++;
+  } else {
+    pendingNewItems.push({product: product, quantity: 1, cooking_notes: ''});
+  }
+  renderOrderItems();
+}
+
+function removeNewItem(index) {
+  pendingNewItems.splice(index, 1);
+  renderOrderItems();
+}
+
+function updateNote(index, val) {
+  pendingNewItems[index].cooking_notes = val;
+}
+
+async function fireKot() {
+  if (pendingNewItems.length === 0) {
+    showToast('No new items to fire', 'info');
+    return;
+  }
+  
+  const itemsPayload = pendingNewItems.map(i => ({
+    product_id: i.product.id,
+    quantity: i.quantity,
+    cooking_notes: i.cooking_notes
+  }));
+  
+  const addRes = await fetch(`/api/tables/${currentTableId}/items`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({items: itemsPayload})
+  });
+  if (!(await addRes.json()).success) {
+    showToast('Failed to add items', 'error');
+    return;
+  }
+  
+  const kotRes = await fetch(`/api/tables/${currentTableId}/kot`, {method: 'POST'});
+  const kotData = await kotRes.json();
+  
+  if (kotData.success) {
+    showToast(`KOT #${kotData.kot.kot_number} Fired!`, 'success');
+    window.open(`/kot/${kotData.kot.id}/print`, '_blank');
+    pendingNewItems = [];
+    await fetchOrderData();
+  } else {
+    showToast(kotData.error, 'error');
+  }
+}
+
+async function printBill() {
+  const res = await fetch(`/api/tables/${currentTableId}/print-bill`, {method: 'POST'});
+  const data = await res.json();
+  if (data.success) {
+    window.open(`/receipt/${data.sale.id}`, '_blank');
+    closeOrderView();
+  } else {
+    showToast(data.error, 'error');
+  }
+}
+
+function openSettleModalFromOrder() {
+  const t = allTables.find(tb => tb.id === currentTableId);
+  if (!t) return;
+  document.getElementById('settleTableId').value = t.id;
+  document.getElementById('settleTableNumber').textContent = t.table_number;
+  if (pendingNewItems.length > 0) {
+    if (!confirm('You have unfired items. They will NOT be billed. Continue?')) return;
+  }
+  document.getElementById('amountPaid').value = currentOrderData ? currentOrderData.total.toFixed(2) : '0.00';
+  openModal('settleTableModal');
+}
+
+async function cancelOrder() {
+  if (!confirm('Are you sure you want to cancel this order?')) return;
+  const reason = prompt('Reason for cancellation:');
+  const res = await fetch(`/api/tables/${currentTableId}/cancel`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({reason: reason || ''})
+  });
+  const data = await res.json();
+  if (data.success) {
+    showToast('Order cancelled', 'success');
+    closeOrderView();
+  } else {
+    showToast(data.error, 'error');
+  }
+}
+
+loadTables();
+setInterval(() => {
+  if (!currentTableId) loadTables();
+}, 10000);
+</script>
+{% endblock %}

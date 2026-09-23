@@ -23,16 +23,16 @@ def revenue_report():
         day_start = datetime.combine(day, datetime.min.time())
         day_end = day_start + timedelta(days=1)
         revenue = db.session.query(func.sum(Sale.total)).filter(
-            Sale.created_at >= day_start, Sale.created_at < day_end
+            Sale.created_at >= day_start, Sale.created_at < day_end, Sale.status == 'COMPLETED'
         ).scalar() or 0
-        count = Sale.query.filter(Sale.created_at >= day_start, Sale.created_at < day_end).count()
+        count = Sale.query.filter(Sale.created_at >= day_start, Sale.created_at < day_end, Sale.status == 'COMPLETED').count()
         data.append({'date': day.strftime('%b %d'), 'revenue': round(revenue, 2), 'count': count})
 
     total = sum(d['revenue'] for d in data)
     total_orders = sum(d['count'] for d in data)
     avg_order = total / total_orders if total_orders > 0 else 0
-    total_cgst = db.session.query(func.sum(Sale.total_cgst)).filter(Sale.created_at >= start).scalar() or 0
-    total_sgst = db.session.query(func.sum(Sale.total_sgst)).filter(Sale.created_at >= start).scalar() or 0
+    total_cgst = db.session.query(func.sum(Sale.total_cgst)).filter(Sale.created_at >= start, Sale.status == 'COMPLETED').scalar() or 0
+    total_sgst = db.session.query(func.sum(Sale.total_sgst)).filter(Sale.created_at >= start, Sale.status == 'COMPLETED').scalar() or 0
 
     return jsonify({
         'data': data,
@@ -56,7 +56,7 @@ def top_products():
         func.sum(SaleItem.subtotal).label('revenue'),
     ).join(SaleItem, Product.id == SaleItem.product_id)\
      .join(Sale, Sale.id == SaleItem.sale_id)\
-     .filter(Sale.created_at >= start)\
+     .filter(Sale.created_at >= start, Sale.status == 'COMPLETED')\
      .group_by(Product.id)\
      .order_by(func.sum(SaleItem.subtotal).desc())\
      .limit(10).all()
@@ -74,7 +74,7 @@ def payment_methods():
         Sale.payment_method,
         func.count(Sale.id).label('count'),
         func.sum(Sale.total).label('total')
-    ).filter(Sale.created_at >= start)\
+    ).filter(Sale.created_at >= start, Sale.status == 'COMPLETED')\
      .group_by(Sale.payment_method).all()
     return jsonify([
         {'method': r.payment_method, 'count': r.count, 'total': round(float(r.total or 0), 2)}
@@ -92,7 +92,7 @@ def category_revenue():
     ).join(Product, Category.id == Product.category_id)\
      .join(SaleItem, Product.id == SaleItem.product_id)\
      .join(Sale, Sale.id == SaleItem.sale_id)\
-     .filter(Sale.created_at >= start)\
+     .filter(Sale.created_at >= start, Sale.status == 'COMPLETED')\
      .group_by(Category.id)\
      .order_by(func.sum(SaleItem.subtotal).desc()).all()
     return jsonify([
@@ -113,7 +113,7 @@ def best_customers():
         func.sum(Sale.total).label('total_spent'),
         Customer.points
     ).join(Sale, Customer.id == Sale.customer_id)\
-     .filter(Sale.created_at >= start)\
+     .filter(Sale.created_at >= start, Sale.status == 'COMPLETED')\
      .group_by(Customer.id)\
      .order_by(func.sum(Sale.total).desc())\
      .limit(10).all()
@@ -141,14 +141,14 @@ def product_performance():
         func.sum(SaleItem.quantity).label('qty_sold')
     ).join(SaleItem, Product.id == SaleItem.product_id)\
      .join(Sale, Sale.id == SaleItem.sale_id)\
-     .filter(Sale.created_at >= start)\
+     .filter(Sale.created_at >= start, Sale.status == 'COMPLETED')\
      .group_by(Product.id)\
      .order_by(func.sum(SaleItem.quantity).desc())\
      .limit(5).all()
 
     sold_product_ids = db.session.query(SaleItem.product_id)\
                                  .join(Sale, Sale.id == SaleItem.sale_id)\
-                                 .filter(Sale.created_at >= start).distinct().all()
+                                 .filter(Sale.created_at >= start, Sale.status == 'COMPLETED').distinct().all()
     sold_ids = [r[0] for r in sold_product_ids]
     
     slow_moving = Product.query.filter(
@@ -173,7 +173,7 @@ def day_close():
     
     sales_today = Sale.query.filter(
         Sale.created_at >= start,
-        Sale.created_at <= end
+        Sale.created_at <= end, Sale.status == 'COMPLETED'
     ).all()
     
     total_cash = sum(s.total for s in sales_today if s.payment_method == 'cash')

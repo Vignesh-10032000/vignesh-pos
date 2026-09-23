@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KOT #{{ kot.kot_number }}</title>
+<style>
+  body {
+    font-family: monospace;
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+    width: 80mm;
+  }
+  .header {
+    text-align: center;
+    border-bottom: 1px dashed #000;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+  }
+  .info {
+    margin-bottom: 10px;
+    border-bottom: 1px dashed #000;
+    padding-bottom: 5px;
+  }
+  .item {
+    margin-bottom: 5px;
+  }
+  .cooking-notes {
+    font-weight: bold;
+    padding-left: 10px;
+    font-size: 13px;
+  }
+  @media print {
+    body { width: 100%; margin: 0; }
+  }
+</style>
+</head>
+<body onload="window.print()">
+  <div class="header">
+    <h2 style="margin:5px 0;">KOT #{{ kot.kot_number }}</h2>
+  </div>
+  <div class="info">
+    <div><strong>Table:</strong> {{ kot.table.table_number }} ({{ kot.table.area }})</div>
+    <div><strong>Waiter:</strong> {{ kot.waiter_name or 'N/A' }}</div>
+    <div><strong>Time:</strong> {{ kot.created_at.strftime('%I:%M %p') }}</div>
+  </div>
+  <div>
+    {% for item in kot.items %}
+    <div class="item">
+      <div>{{ item.quantity }} × {{ item.product.name }}</div>
+      {% if item.cooking_notes %}
+      <div class="cooking-notes">{{ item.cooking_notes }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</body>
+</html>

@@ -124,6 +124,7 @@ def create_app(config=None):
     from routes.sales import sales_bp
     from routes.customers import customers_bp
     from routes.reports import reports_bp
+    from routes.tables import tables_bp
 
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(pos_bp)
@@ -131,10 +132,12 @@ def create_app(config=None):
     app.register_blueprint(sales_bp)
     app.register_blueprint(customers_bp)
     app.register_blueprint(reports_bp)
+    app.register_blueprint(tables_bp)
 
     PROTECTED_PAGES = {
         '/',
         '/pos',
+        '/tables',
         '/products',
         '/sales',
         '/customers',

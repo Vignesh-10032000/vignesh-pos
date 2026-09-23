@@ -89,6 +89,11 @@ class POSTestCase(unittest.TestCase):
         self.cust_walkin = Customer(name="Walk-in Customer", phone="0000000000")
         self.cust_regular = Customer(name="Kavitha", phone="9841002002")
         db.session.add_all([self.cust_walkin, self.cust_regular])
+        
+        from models import DiningTable
+        self.table1 = DiningTable(table_number='T1', area='Main Hall', capacity=4, status='AVAILABLE')
+        db.session.add(self.table1)
+        
         db.session.commit()
 
         self.sale = Sale(
@@ -595,5 +600,163 @@ class POSTestCase(unittest.TestCase):
         self.assertIn('/login', res_post_logout.headers['Location'])
 
 
+
+    # ── Phase 1 & 2 Restaurant POS Tests ────────────────────────────────────
+    def test_create_dining_table(self):
+        response = self.client.post('/api/tables/config', json={'table_number': 'T99', 'capacity': 2})
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertTrue(data['success'])
+        self.assertEqual(data['table']['table_number'], 'T99')
+
+    def test_open_order_on_table(self):
+        # Open T1
+        response = self.client.post('/api/tables/1/open', json={'waiter_name': 'Ravi'})
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertTrue(data['success'])
+        self.assertEqual(data['sale']['status'], 'OPEN')
+        self.assertEqual(data['sale']['order_type'], 'DINE_IN')
+        self.assertEqual(data['sale']['waiter_name'], 'Ravi')
+
+    def test_add_items_to_table_order(self):
+        self.client.post('/api/tables/1/open', json={'waiter_name': 'Ravi'})
+        response = self.client.post('/api/tables/1/items', json={
+            'items': [
+                {'product_id': self.prod1.id, 'quantity': 2, 'cooking_notes': 'Hot'}
+            ]
+        })
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['sale']['items']), 1)
+        self.assertEqual(data['sale']['items'][0]['cooking_notes'], 'Hot')
+
+    def test_fire_kot(self):
+        self.client.post('/api/tables/1/open', json={'waiter_name': 'Ravi'})
+        self.client.post('/api/tables/1/items', json={'items': [{'product_id': self.prod1.id, 'quantity': 2}]})
+        response = self.client.post('/api/tables/1/kot')
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertTrue(data['success'])
+        self.assertEqual(data['kot']['status'], 'SENT')
+        self.assertEqual(len(data['kot']['items']), 1)
+        self.assertEqual(data['kot']['items'][0]['quantity'], 2)
+
+    def test_multiple_kots_per_table(self):
+        self.client.post('/api/tables/1/open', json={'waiter_name': 'Ravi'})
+        self.client.post('/api/tables/1/items', json={'items': [{'product_id': self.prod1.id, 'quantity': 2}]})
+        self.client.post('/api/tables/1/kot')
+        
+        self.client.post('/api/tables/1/items', json={'items': [{'product_id': self.prod2.id, 'quantity': 1}]})
+        response = self.client.post('/api/tables/1/kot')
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['kot']['items']), 1)
+        self.assertEqual(data['kot']['items'][0]['product_id'], self.prod2.id)
+
+    def test_settle_table(self):
+        self.client.post('/api/tables/1/open', json={'waiter_name': 'Ravi'})
+        self.client.post('/api/tables/1/items', json={'items': [{'product_id': self.prod1.id, 'quantity': 2}]})
+        response = self.client.post('/api/tables/1/settle', json={'amount_paid': 42.0}) # 20*2 + 5% gst = 42
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertTrue(data['success'])
+        self.assertEqual(data['sale']['status'], 'COMPLETED')
+        
+        # Table freed
+        tables = json.loads(self.client.get('/api/tables').data)
+        t1 = next(t for t in tables if t['id'] == 1)
+        self.assertEqual(t1['status'], 'AVAILABLE')
+
+    def test_cancel_open_order(self):
+        self.client.post('/api/tables/1/open', json={'waiter_name': 'Ravi'})
+        response = self.client.post('/api/tables/1/cancel', json={'reason': 'Customer left'})
+        self.assertEqual(response.status_code, 200)
+        
+        # Table freed
+        tables = json.loads(self.client.get('/api/tables').data)
+        t1 = next(t for t in tables if t['id'] == 1)
+        self.assertEqual(t1['status'], 'AVAILABLE')
+
+    def test_reports_exclude_open_orders(self):
+        # Ensure open orders don't appear in revenue
+        rev_before = json.loads(self.client.get('/api/reports/revenue').data)['total']
+        self.client.post('/api/tables/1/open', json={'waiter_name': 'Ravi'})
+        self.client.post('/api/tables/1/items', json={'items': [{'product_id': self.prod1.id, 'quantity': 100}]})
+        
+        rev_after = json.loads(self.client.get('/api/reports/revenue').data)['total']
+        self.assertEqual(rev_before, rev_after)
+
+    def test_existing_retail_checkout_still_works(self):
+        response = self.checkout({
+            'items': [{'product_id': self.prod1.id, 'quantity': 2}],
+            'customer_id': self.cust_walkin.id,
+            'payment_method': 'cash',
+            'amount_paid': 50,
+            'discount': 0,
+        })
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data['sale']['status'], 'COMPLETED')
+        self.assertEqual(data['sale']['order_type'], 'COUNTER')
+
+    def test_cooking_notes_on_kot_items(self):
+        self.client.post('/api/tables/1/open')
+        self.client.post('/api/tables/1/items', json={'items': [{'product_id': self.prod1.id, 'quantity': 1, 'cooking_notes': 'Extra sugar'}]})
+        resp = self.client.post('/api/tables/1/kot')
+        data = json.loads(resp.data)
+        self.assertEqual(data['kot']['items'][0]['cooking_notes'], 'Extra sugar')
+
+    def test_cannot_remove_item_after_kot(self):
+        self.client.post('/api/tables/1/open')
+        self.client.post('/api/tables/1/items', json={'items': [{'product_id': self.prod1.id, 'quantity': 1}]})
+        
+        # We need the item_id. 
+        order_resp = self.client.get('/api/tables/1/order')
+        item_id = json.loads(order_resp.data)['items'][0]['id']
+        
+        self.client.post('/api/tables/1/kot')
+        
+        # Try delete
+        del_resp = self.client.delete(f'/api/tables/1/items/{item_id}')
+        self.assertEqual(del_resp.status_code, 400)
+        self.assertIn('Item already sent', json.loads(del_resp.data)['error'])
+
+    def test_print_bill_calculates_gst(self):
+        self.client.post('/api/tables/1/open')
+        self.client.post('/api/tables/1/items', json={'items': [{'product_id': self.prod1.id, 'quantity': 2}]}) # 20*2 = 40.00 incl GST
+        resp = self.client.post('/api/tables/1/print-bill')
+        data = json.loads(resp.data)
+        self.assertEqual(data['sale']['status'], 'BILLED')
+        # 40 / 1.05 = 38.10 taxable, 1.90 GST
+        self.assertEqual(data['sale']['subtotal'], 38.10)
+        self.assertEqual(data['sale']['total_cgst'], 0.95)
+        self.assertEqual(data['sale']['total_sgst'], 0.95)
+        self.assertEqual(data['sale']['total'], 40.0)
+
+    def test_kot_print_template_renders_table_info(self):
+        self.client.post('/api/tables/1/open', json={'waiter_name': 'Suresh'})
+        self.client.post('/api/tables/1/items', json={'items': [{'product_id': self.prod1.id, 'quantity': 1, 'cooking_notes': 'Spicy'}]})
+        kot_resp = self.client.post('/api/tables/1/kot')
+        kot_id = json.loads(kot_resp.data)['kot']['id']
+        
+        resp = self.client.get(f'/kot/{kot_id}/print')
+        self.assertEqual(resp.status_code, 200)
+        content = resp.get_data(as_text=True)
+        self.assertIn('KOT #', content)
+        self.assertIn('Table:', content)
+        self.assertIn('T1', content)
+        self.assertIn('Suresh', content)
+        self.assertIn('Spicy', content)
+
+    def test_unauthenticated_tables_page_redirects(self):
+        resp = self.client.get('/tables')
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn('/login?next=/tables', resp.headers['Location'])
+
+
 if __name__ == '__main__':
     unittest.main()
+

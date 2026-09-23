@@ -406,7 +406,7 @@
     </div>
 
     <div class="divider"></div>
-    <div class="invoice-title">Tax Invoice / Cash Memo</div>
+    <div class="invoice-title">Tax Invoice / Cash Memo {% if sale.order_type == 'DINE_IN' %}<span class="gstin-badge" style="background:#eab308; color:#000; margin-top:0;">DINE-IN</span>{% endif %}</div>
     <div class="divider"></div>
 
     <!-- Metadata Details -->
@@ -427,6 +427,16 @@
         <span class="label">Payment Mode</span>
         <span class="value">{{ sale.payment_method.upper() }}</span>
       </div>
+      {% if sale.order_type == 'DINE_IN' %}
+      <div class="detail-item">
+        <span class="label">Dine-In Table</span>
+        <span class="value">{{ sale.table.table_number if sale.table else 'N/A' }}</span>
+      </div>
+      <div class="detail-item" style="text-align: right;">
+        <span class="label">Waiter</span>
+        <span class="value">{{ sale.waiter_name or 'N/A' }}</span>
+      </div>
+      {% endif %}
     </div>
 
     <table class="items-table">

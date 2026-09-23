@@ -99,10 +99,10 @@ def stats():
     week_start = today_start - timedelta(days=7)
     month_start = today_start - timedelta(days=30)
 
-    today_sales = db.session.query(func.sum(Sale.total)).filter(Sale.created_at >= today_start).scalar() or 0
-    today_count = Sale.query.filter(Sale.created_at >= today_start).count()
-    week_sales = db.session.query(func.sum(Sale.total)).filter(Sale.created_at >= week_start).scalar() or 0
-    month_sales = db.session.query(func.sum(Sale.total)).filter(Sale.created_at >= month_start).scalar() or 0
+    today_sales = db.session.query(func.sum(Sale.total)).filter(Sale.created_at >= today_start, Sale.status == 'COMPLETED').scalar() or 0
+    today_count = Sale.query.filter(Sale.created_at >= today_start, Sale.status == 'COMPLETED').count()
+    week_sales = db.session.query(func.sum(Sale.total)).filter(Sale.created_at >= week_start, Sale.status == 'COMPLETED').scalar() or 0
+    month_sales = db.session.query(func.sum(Sale.total)).filter(Sale.created_at >= month_start, Sale.status == 'COMPLETED').scalar() or 0
     total_products = Product.query.filter_by(active=True).count()
     low_stock = Product.query.filter(Product.stock <= Product.low_stock_threshold, Product.active==True).count()
     total_customers = Customer.query.count()
@@ -113,7 +113,7 @@ def stats():
         day = today_start - timedelta(days=i)
         day_end = day + timedelta(days=1)
         revenue = db.session.query(func.sum(Sale.total)).filter(
-            Sale.created_at >= day, Sale.created_at < day_end
+            Sale.created_at >= day, Sale.created_at < day_end, Sale.status == 'COMPLETED'
         ).scalar() or 0
         daily_data.append({'date': day.strftime('%a'), 'revenue': round(revenue, 2)})
 
@@ -124,13 +124,13 @@ def stats():
         func.sum(SaleItem.subtotal).label('revenue')
     ).join(SaleItem, Product.id == SaleItem.product_id)\
      .join(Sale, Sale.id == SaleItem.sale_id)\
-     .filter(Sale.created_at >= month_start)\
+     .filter(Sale.created_at >= month_start, Sale.status == 'COMPLETED')\
      .group_by(Product.id)\
      .order_by(func.sum(SaleItem.subtotal).desc())\
      .limit(5).all()
 
     # Recent sales
-    recent_sales = Sale.query.order_by(Sale.created_at.desc()).limit(8).all()
+    recent_sales = Sale.query.filter(Sale.cancelled_at.is_(None)).order_by(Sale.created_at.desc()).limit(8).all()
 
     # Low stock products
     low_stock_products = Product.query.filter(
@@ -140,8 +140,8 @@ def stats():
     return jsonify({
         'today_sales': round(today_sales, 2),
         'today_count': today_count,
-        'today_cgst': round(db.session.query(func.sum(Sale.total_cgst)).filter(Sale.created_at >= today_start).scalar() or 0, 2),
-        'today_sgst': round(db.session.query(func.sum(Sale.total_sgst)).filter(Sale.created_at >= today_start).scalar() or 0, 2),
+        'today_cgst': round(db.session.query(func.sum(Sale.total_cgst)).filter(Sale.created_at >= today_start, Sale.status == 'COMPLETED').scalar() or 0, 2),
+        'today_sgst': round(db.session.query(func.sum(Sale.total_sgst)).filter(Sale.created_at >= today_start, Sale.status == 'COMPLETED').scalar() or 0, 2),
         'week_sales': round(week_sales, 2),
         'month_sales': round(month_sales, 2),
         'total_products': total_products,

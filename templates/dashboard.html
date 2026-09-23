@@ -50,6 +50,33 @@
     </div>
   </div>
 
+  <div class="stats-grid mt-3" id="restaurantStatsGrid" style="display: flex; gap: 1rem; overflow-x: auto; margin-bottom: 1.5rem;">
+    <div class="stat-card stat-card--primary" style="flex: 1; min-width: 200px;">
+      <div class="stat-icon">🍽️</div>
+      <div class="stat-info">
+        <div class="stat-label">Tables Occupied</div>
+        <div class="stat-value"><span id="tablesOccupied">—</span></div>
+        <div class="stat-sub">of <span id="tablesTotal">—</span> total</div>
+      </div>
+    </div>
+    <div class="stat-card stat-card--purple" style="flex: 1; min-width: 200px;">
+      <div class="stat-icon">📝</div>
+      <div class="stat-info">
+        <div class="stat-label">Open Orders</div>
+        <div class="stat-value" id="openOrdersCount">—</div>
+        <div class="stat-sub" id="openOrdersValue">—</div>
+      </div>
+    </div>
+    <div class="stat-card stat-card--green" style="flex: 1; min-width: 200px;">
+      <div class="stat-icon">🔥</div>
+      <div class="stat-info">
+        <div class="stat-label">KOTs Pending</div>
+        <div class="stat-value" id="kotsPending">—</div>
+        <div class="stat-sub">To Kitchen</div>
+      </div>
+    </div>
+  </div>
+
   <!-- GST summary strip -->
   <div class="gst-summary-strip" id="gstStrip" style="display:none">
     <div class="gst-strip-item">
@@ -140,6 +167,41 @@ async function loadDashboard() {
   document.getElementById('totalProducts').textContent = data.total_products;
   document.getElementById('lowStockStat').textContent = data.low_stock + ' low stock';
   document.getElementById('totalCustomers').textContent = data.total_customers;
+
+  // Fetch Restaurant stats
+  try {
+    const [tablesRes, kotRes] = await Promise.all([
+      fetch('/api/tables'),
+      fetch('/api/kot/pending')
+    ]);
+    const tablesData = await tablesRes.json();
+    const kotData = await kotRes.json();
+    
+    let occupiedCount = 0;
+    let openCount = 0;
+    let openValue = 0;
+    
+    tablesData.forEach(t => {
+      if (t.status === 'OCCUPIED' || t.status === 'BILLED') occupiedCount++;
+      if (t.current_order_total !== undefined) {
+        openCount++;
+        openValue += t.current_order_total;
+      }
+    });
+    
+    document.getElementById('tablesOccupied').textContent = occupiedCount;
+    document.getElementById('tablesTotal').textContent = tablesData.length;
+    document.getElementById('openOrdersCount').textContent = openCount;
+    document.getElementById('openOrdersValue').textContent = '₹' + openValue.toFixed(2);
+    
+    let pendingKots = 0;
+    if (Array.isArray(kotData)) {
+      pendingKots = kotData.filter(k => k.status === 'SENT' || k.status === 'IN_PROGRESS').length;
+    }
+    document.getElementById('kotsPending').textContent = pendingKots;
+  } catch(e) {
+    console.error('Failed to fetch restaurant stats', e);
+  }
 
   // GST strip
   if (data.today_cgst !== undefined) {

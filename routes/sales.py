@@ -50,12 +50,26 @@ def delete_sale(sid):
     # DELETE guard: a sale is a financial record — never hard-delete it.
     # Cancellation is stamped in cancelled_at; stock restoration stays.
     s = Sale.query.get_or_404(sid)
-    if s.cancelled_at is not None:
+    if s.cancelled_at is not None or s.status == 'CANCELLED':
         return jsonify({'success': False,
                         'error': 'Sale is already cancelled'}), 400
-    for item in s.items:
-        item.product.stock += item.quantity
+    
+    # Stock is only restored if it was actually deducted (i.e. COMPLETED sales)
+    if s.status == 'COMPLETED':
+        for item in s.items:
+            item.product.stock += item.quantity
+            
     s.cancelled_at = datetime.utcnow()
+    s.status = 'CANCELLED'
+    
+    if s.table_id:
+        from models import DiningTable
+        table = DiningTable.query.get(s.table_id)
+        if table and table.current_order_id == s.id:
+            table.status = 'AVAILABLE'
+            table.current_order_id = None
+            table.occupied_at = None
+            
     db.session.commit()
     return jsonify({'success': True})
 
@@ -98,6 +112,9 @@ def whatsapp_receipt(sale_id):
 @sales_bp.route('/api/sales/<int:sale_id>/return', methods=['POST'])
 def create_return(sale_id):
     sale = Sale.query.get_or_404(sale_id)
+    if sale.status != 'COMPLETED':
+        return jsonify({'success': False, 'error': 'Cannot return items on an uncompleted sale'}), 400
+        
     data = request.get_json() or {}
     
     returned_items_req = data.get('items', [])

@@ -230,6 +230,13 @@ html.theme-light .btn-action-delete { background: #fef2f2 !important; color: #b9
           <label class="form-label">Low Stock Alert</label>
           <input type="number" id="productLowStock" class="form-input" value="10" min="0">
         </div>
+        <div class="form-group">
+          <label class="form-label">Dietary</label>
+          <div class="d-flex align-items-center gap-2 mt-1">
+            <input type="checkbox" id="productIsVeg" class="form-check-input" style="width: 18px; height: 18px;">
+            <label for="productIsVeg" class="form-check-label mb-0 fw-bold">🟢 Veg Item</label>
+          </div>
+        </div>
       </div>
       <div class="gst-preview" id="gstPreview"></div>
     </div>
@@ -333,7 +340,7 @@ function renderProducts(products) {
         <div class="product-name-cell">
           <span class="product-icon">${escapeHtml(p.category_icon || '📦')}</span>
           <div class="product-meta">
-            <div class="product-title-text">${escapeHtml(p.name)}</div>
+            <div class="product-title-text">${escapeHtml(p.name)} <span style="font-size: 10px; margin-left: 4px;">${p.is_veg ? '🟢' : '🔴'}</span></div>
             ${p.barcode ? `<div class="product-barcode-text">${escapeHtml(p.barcode)}</div>` : ''}
           </div>
         </div>
@@ -382,6 +389,7 @@ document.getElementById('addProductBtn').addEventListener('click', () => {
   ['productName','productSku','productBarcode','productHsn','productPrice','productCost','productStock'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('productLowStock').value = 10;
   document.getElementById('productGstRate').value = '0';
+  document.getElementById('productIsVeg').checked = false;
   document.getElementById('gstPreview').innerHTML = '';
   openModal('productModal');
 });
@@ -401,6 +409,7 @@ async function editProduct(id) {
   document.getElementById('productLowStock').value = p.low_stock_threshold;
   document.getElementById('productCategory').value = p.category_id;
   document.getElementById('productGstRate').value = p.gst_rate;
+  document.getElementById('productIsVeg').checked = p.is_veg || false;
   updateGstPreview();
   openModal('productModal');
 }
@@ -418,6 +427,7 @@ document.getElementById('saveProductBtn').addEventListener('click', async () => 
     low_stock_threshold: document.getElementById('productLowStock').value,
     category_id: document.getElementById('productCategory').value,
     gst_rate: document.getElementById('productGstRate').value,
+    is_veg: document.getElementById('productIsVeg').checked,
     active: true,
   };
   if (!payload.name || !payload.sku || !payload.price) { showToast('Please fill all required fields', 'error'); return; }

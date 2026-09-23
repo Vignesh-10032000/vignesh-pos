@@ -45,6 +45,7 @@ def create_product():
         category_id=data.get('category_id'),
         gst_rate=float(data.get('gst_rate', 0)),
         hsn_code=data.get('hsn_code', ''),
+        is_veg=data.get('is_veg', True),
         active=data.get('active', True),
     )
     db.session.add(p)
@@ -65,6 +66,7 @@ def update_product(pid):
     p.category_id = data.get('category_id', p.category_id)
     p.gst_rate = float(data.get('gst_rate', p.gst_rate))
     p.hsn_code = data.get('hsn_code', p.hsn_code)
+    p.is_veg = data.get('is_veg', p.is_veg)
     p.active = data.get('active', p.active)
     db.session.commit()
     return jsonify(p.to_dict())
