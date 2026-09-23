@@ -670,6 +670,22 @@ class POSTestCase(unittest.TestCase):
         t1 = next(t for t in tables if t['id'] == 1)
         self.assertEqual(t1['status'], 'AVAILABLE')
 
+    def test_settle_table_with_string_amount(self):
+        # Browser forms often submit amount_paid as strings (e.g. "42.00")
+        self.client.post('/api/tables/1/open', json={'waiter_name': 'Ravi'})
+        self.client.post('/api/tables/1/items', json={'items': [{'product_id': self.prod1.id, 'quantity': 2}]})
+        response = self.client.post('/api/tables/1/settle', json={'amount_paid': "42.00", 'payment_method': 'cash'})
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertTrue(data['success'])
+        self.assertEqual(data['sale']['status'], 'COMPLETED')
+        self.assertEqual(data['sale']['payment_method'], 'cash')
+        
+        # Table freed
+        tables = json.loads(self.client.get('/api/tables').data)
+        t1 = next(t for t in tables if t['id'] == 1)
+        self.assertEqual(t1['status'], 'AVAILABLE')
+
     def test_cancel_open_order(self):
         self.client.post('/api/tables/1/open', json={'waiter_name': 'Ravi'})
         response = self.client.post('/api/tables/1/cancel', json={'reason': 'Customer left'})

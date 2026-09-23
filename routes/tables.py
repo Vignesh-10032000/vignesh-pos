@@ -264,7 +264,13 @@ def settle_table(id):
     sale = Sale.query.get(table.current_order_id)
     data = request.get_json(silent=True) or {}
     
-    discount = _parse_money(data.get('discount', sale.discount)) or Decimal('0.00')
+    raw_discount = data.get('discount', sale.discount)
+    if isinstance(raw_discount, str):
+        try:
+            raw_discount = float(raw_discount)
+        except (ValueError, TypeError):
+            pass
+    discount = _parse_money(raw_discount) or Decimal('0.00')
     sale.discount = float(discount)
     
     # Recalculate bill
@@ -294,7 +300,17 @@ def settle_table(id):
 
     total_after_discount = grand_total - discount
     
-    amount_paid = _parse_money(data.get('amount_paid', total_after_discount))
+    raw_paid = data.get('amount_paid')
+    if raw_paid is None or raw_paid == '':
+        amount_paid = total_after_discount
+    else:
+        if isinstance(raw_paid, str):
+            try:
+                raw_paid = float(raw_paid)
+            except (ValueError, TypeError):
+                pass
+        amount_paid = _parse_money(raw_paid)
+
     if amount_paid is None or amount_paid < Decimal('0.00'):
         return jsonify({'error': 'Invalid amount_paid'}), 400
 

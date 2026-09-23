@@ -629,6 +629,14 @@
     font-weight: 700;
     font-size: 0.72rem;
   }
+
+  /* Ensure modals & backdrops sit above the full-screen order overlay (z-index 9999) */
+  .modal {
+    z-index: 10005 !important;
+  }
+  .modal-backdrop {
+    z-index: 10000 !important;
+  }
 </style>
 
 <!-- Floor Plan Header -->
@@ -684,6 +692,12 @@
     </div>
     <div class="modal-body p-4">
       <input type="hidden" id="settleTableId">
+      
+      <div class="text-center py-2 mb-3 rounded" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25);">
+        <div class="text-xs text-muted">Total Amount Due</div>
+        <div class="fs-3 fw-bold text-warning" id="settleTotalDue">₹0.00</div>
+      </div>
+
       <div class="mb-3">
         <label class="form-label text-muted">Payment Method</label>
         <select id="paymentMethod" class="form-select bg-dark text-white border-secondary">
@@ -693,12 +707,12 @@
         </select>
       </div>
       <div class="mb-3">
-        <label class="form-label text-muted">Amount Paid (₹)</label>
-        <input type="number" id="amountPaid" class="form-control bg-dark text-white border-secondary" step="0.01">
+        <label class="form-label text-muted">Amount Received (₹)</label>
+        <input type="number" id="amountPaid" class="form-control bg-dark text-white border-secondary fs-5 fw-bold" step="0.01">
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-success w-100 fw-bold" onclick="submitSettleTable()">Complete Settlement</button>
+      <button class="btn btn-success w-100 fw-bold py-2" onclick="submitSettleTable()">✓ Complete Settlement & Free Table</button>
     </div>
   </div>
 </div>
@@ -1447,15 +1461,31 @@ function openSettleModalFromOrder() {
   const t = allTables.find(tb => tb.id === currentTableId);
   if (!t) return;
 
+  if (pendingNewItems.length > 0) {
+    if (!confirm('You have unfired items in cart! Proceed to settlement without them?')) return;
+  }
+
   document.getElementById('settleTableId').value = t.id;
   document.getElementById('settleTableNumber').textContent = t.table_number;
-  document.getElementById('amountPaid').value = (currentOrderData ? currentOrderData.running_total || currentOrderData.total : (t.current_order_total || 0)).toFixed(2);
+
+  let totalDue = 0;
+  if (currentOrderData && (currentOrderData.running_total !== undefined || currentOrderData.total !== undefined)) {
+    totalDue = currentOrderData.running_total !== undefined ? currentOrderData.running_total : currentOrderData.total;
+  } else {
+    totalDue = t.current_order_total || 0;
+  }
+  const totalNum = parseFloat(totalDue) || 0;
+
+  const totalEl = document.getElementById('settleTotalDue');
+  if (totalEl) totalEl.textContent = '₹' + totalNum.toFixed(2);
+  document.getElementById('amountPaid').value = totalNum.toFixed(2);
   openModal('settleTableModal');
+  setTimeout(() => document.getElementById('amountPaid').focus(), 150);
 }
 
 async function submitSettleTable() {
   const id = document.getElementById('settleTableId').value;
-  const amount = document.getElementById('amountPaid').value;
+  const amount = parseFloat(document.getElementById('amountPaid').value) || 0;
   const method = document.getElementById('paymentMethod').value;
 
   try {
@@ -1468,6 +1498,9 @@ async function submitSettleTable() {
     if (data.success) {
       closeModal('settleTableModal');
       closeOrderView();
+      if (data.sale && data.sale.id) {
+        window.open(`/receipt/${data.sale.id}`, '_blank');
+      }
       showToast('Payment settled! Table freed 🟢', 'success');
       lastTablesFingerprint = '';
       loadTables();
