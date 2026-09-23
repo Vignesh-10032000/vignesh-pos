@@ -20,15 +20,27 @@ def print_kot_page(id):
 
 @tables_bp.route('/api/tables', methods=['GET'])
 def get_tables():
-    tables = DiningTable.query.all()
+    from sqlalchemy.orm import joinedload
+    tables = DiningTable.query.order_by(DiningTable.id).all()
+    order_ids = [t.current_order_id for t in tables if t.current_order_id]
+    
+    sales_map = {}
+    if order_ids:
+        sales = Sale.query.options(joinedload(Sale.items)).filter(Sale.id.in_(order_ids)).all()
+        for s in sales:
+            sales_map[s.id] = (
+                sum(i.subtotal for i in s.items),
+                sum(i.quantity for i in s.items)
+            )
+
     result = []
     for t in tables:
         t_dict = t.to_dict()
-        if t.current_order_id:
-            sale = Sale.query.get(t.current_order_id)
-            if sale:
-                t_dict['current_order_total'] = sum(i.subtotal for i in sale.items)
-                t_dict['item_count'] = sum(i.quantity for i in sale.items)
+        if t.current_order_id in sales_map:
+            t_dict['current_order_total'], t_dict['item_count'] = sales_map[t.current_order_id]
+        else:
+            t_dict['current_order_total'] = 0.0
+            t_dict['item_count'] = 0
         result.append(t_dict)
     return jsonify(result)
 

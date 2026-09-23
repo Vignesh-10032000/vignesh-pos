@@ -4,11 +4,12 @@
 
 {% block content %}
 <style>
-  /* ── Floor Plan Table Grid ── */
+  /* ── 60fps GPU Hardware-Accelerated CSS ── */
   .table-grid {
     display: grid;
     gap: 1.25rem;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    contain: layout style;
   }
   
   .table-card {
@@ -18,19 +19,23 @@
     padding: 1.25rem 1rem;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.12s ease;
+    transform: translateZ(0);
+    will-change: transform;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    user-select: none;
   }
   .table-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    border-color: rgba(245, 158, 11, 0.4);
+    transform: translateY(-2px) translateZ(0);
+    border-color: rgba(245, 158, 11, 0.45);
+  }
+  .table-card:active {
+    transform: scale(0.97) translateZ(0);
   }
   
   .table-card.status-available { border-top: 5px solid #22c55e; }
-  .table-card.status-occupied  { border-top: 5px solid #ef4444; background: #1a1628; }
+  .table-card.status-occupied  { border-top: 5px solid #ef4444; background: #181424; }
   .table-card.status-billed    { border-top: 5px solid #eab308; background: #1c1c24; }
   .table-card.status-reserved  { border-top: 5px solid #3b82f6; }
   
@@ -64,10 +69,6 @@
     font-weight: 500;
   }
   
-  .table-meta {
-    font-size: 0.85rem;
-  }
-  
   .legend-bar {
     display: flex;
     gap: 1.5rem;
@@ -93,7 +94,7 @@
     border-radius: 50%;
   }
 
-  /* ── Modern Table Order View (Opaque, High-Z-Index Full View) ── */
+  /* ── Ultra-Fast Modern Order Overlay (Zero Bleed-Through) ── */
   .table-order-view {
     display: none;
     position: fixed;
@@ -109,17 +110,16 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 24px;
+    padding: 10px 20px;
     background: #111827;
     border-bottom: 1.5px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     flex-shrink: 0;
   }
 
   .order-layout {
     display: grid;
     grid-template-columns: 1fr 420px;
-    height: calc(100vh - 68px);
+    height: calc(100vh - 96px);
     overflow: hidden;
   }
   @media (max-width: 992px) {
@@ -130,7 +130,7 @@
     }
   }
 
-  /* ── Left: Menu & Dish Selection ── */
+  /* ── Menu & Dish Board ── */
   .menu-panel {
     display: flex;
     flex-direction: column;
@@ -141,12 +141,12 @@
   }
 
   .menu-filter-bar {
-    padding: 14px 18px 10px;
+    padding: 12px 16px 8px;
     background: #111827;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     flex-shrink: 0;
   }
 
@@ -158,48 +158,50 @@
     width: 100%;
     background: #1e293b;
     border: 1.5px solid rgba(255, 255, 255, 0.12);
-    border-radius: 10px;
-    padding: 10px 14px 10px 38px;
+    border-radius: 8px;
+    padding: 9px 12px 9px 36px;
     color: #ffffff;
-    font-size: 0.95rem;
-    transition: all 0.2s;
+    font-size: 0.92rem;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
   .search-input-wrapper input:focus {
-    outline: none;
     border-color: #f59e0b;
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
   }
   .search-icon {
     position: absolute;
-    left: 12px;
+    left: 11px;
     top: 50%;
     transform: translateY(-50%);
     color: #94a3b8;
     pointer-events: none;
+    font-size: 0.85rem;
   }
 
   .category-pills {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     overflow-x: auto;
     padding-bottom: 4px;
     scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
   }
   .category-pill {
     white-space: nowrap;
     background: #1e293b;
     border: 1px solid rgba(255, 255, 255, 0.08);
     color: #94a3b8;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.82rem;
+    padding: 5px 12px;
+    border-radius: 16px;
+    font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background 0.1s ease, color 0.1s ease;
     user-select: none;
   }
   .category-pill:hover {
-    background: #2d3748;
+    background: #2a374a;
     color: #ffffff;
   }
   .category-pill.active {
@@ -207,48 +209,57 @@
     color: #000000;
     border-color: #f59e0b;
     font-weight: 700;
-    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
   }
 
-  /* ── Dish Cards Grid ── */
   .dishes-scroll-area {
-    padding: 16px;
+    padding: 14px;
     overflow-y: auto;
     flex-grow: 1;
+    -webkit-overflow-scrolling: touch;
+    contain: content;
   }
   .dish-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: 10px;
+    contain: layout style;
   }
 
   .dish-card {
     background: #151d2d;
-    border: 1.5px solid rgba(255, 255, 255, 0.07);
-    border-radius: 12px;
-    padding: 12px;
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.12s ease, box-shadow 0.12s ease;
+    transform: translateZ(0);
+    will-change: transform;
+    contain: layout style;
     position: relative;
     user-select: none;
   }
   .dish-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px) translateZ(0);
     border-color: #f59e0b;
-    background: #1a253a;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    background: #1a2538;
   }
   .dish-card:active {
-    transform: scale(0.98);
+    transform: scale(0.96) translateZ(0);
+  }
+  .dish-card.focused {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 2px #f59e0b, 0 6px 16px rgba(245, 158, 11, 0.3);
+    transform: translateY(-2px) translateZ(0);
+    background: #1a2538 !important;
   }
 
-  /* FSSAI Veg / Non-Veg Standard Icon */
+  /* FSSAI Standard Symbol */
   .fssai-symbol {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
     border: 1.5px solid #22c55e;
     display: inline-flex;
     align-items: center;
@@ -256,39 +267,33 @@
     border-radius: 2px;
     flex-shrink: 0;
   }
-  .fssai-symbol.non-veg {
-    border-color: #ef4444;
-  }
+  .fssai-symbol.non-veg { border-color: #ef4444; }
   .fssai-symbol .fssai-dot {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     background: #22c55e;
     border-radius: 50%;
   }
-  .fssai-symbol.non-veg .fssai-dot {
-    background: #ef4444;
-  }
+  .fssai-symbol.non-veg .fssai-dot { background: #ef4444; }
 
   .dish-emoji {
-    font-size: 1.8rem;
-    margin: 4px 0 8px;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    font-size: 1.7rem;
+    margin: 2px 0 6px;
   }
   .dish-name {
-    font-size: 0.92rem;
+    font-size: 0.88rem;
     font-weight: 700;
     color: #ffffff;
     line-height: 1.25;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
   .dish-sku {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: #64748b;
-    margin-bottom: 8px;
   }
   .dish-footer {
     display: flex;
@@ -299,7 +304,7 @@
     border-top: 1px dashed rgba(255, 255, 255, 0.08);
   }
   .dish-price {
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 800;
     color: #f59e0b;
   }
@@ -307,36 +312,82 @@
     background: rgba(245, 158, 11, 0.15);
     color: #f59e0b;
     border: 1px solid rgba(245, 158, 11, 0.3);
-    border-radius: 6px;
-    font-size: 0.75rem;
+    border-radius: 5px;
+    font-size: 0.72rem;
     font-weight: 700;
-    padding: 3px 8px;
-    transition: all 0.15s;
+    padding: 2px 7px;
+    cursor: pointer;
+    transition: background 0.1s, color 0.1s;
   }
   .dish-card:hover .dish-add-btn {
     background: #f59e0b;
     color: #000000;
   }
 
-  .dish-in-cart-badge {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: #f59e0b;
-    color: #000;
-    font-size: 0.75rem;
+  /* Inline Card Stepper (Swiggy / Toast Style) */
+  .dish-card-stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: #0f172a;
+    border: 1px solid #f59e0b;
+    border-radius: 5px;
+    padding: 1px 3px;
+  }
+  .card-step-btn {
+    background: none;
+    border: none;
+    color: #f59e0b;
+    font-size: 0.85rem;
     font-weight: 800;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-    border: 2px solid #090d16;
+    border-radius: 3px;
+    padding: 0;
+  }
+  .card-step-btn:hover {
+    background: #f59e0b;
+    color: #000000;
+  }
+  .card-step-val {
+    font-size: 0.8rem;
+    font-weight: 800;
+    min-width: 14px;
+    text-align: center;
+    color: #ffffff;
   }
 
-  /* ── Right: Order & Bill Panel ── */
+  .dish-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #f59e0b;
+    color: #000;
+    font-size: 0.72rem;
+    font-weight: 800;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #090d16;
+    transform: translateZ(0);
+  }
+  @keyframes badgePop {
+    0% { transform: scale(0.6); }
+    70% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+  }
+  .dish-badge.popping {
+    animation: badgePop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* ── Right Panel: Order & Kitchen Dispatch ── */
   .order-panel {
     background: #111827;
     display: flex;
@@ -346,7 +397,7 @@
   }
 
   .order-panel-header {
-    padding: 14px 18px;
+    padding: 12px 16px;
     border-bottom: 1.5px solid rgba(255, 255, 255, 0.08);
     display: flex;
     justify-content: space-between;
@@ -357,21 +408,21 @@
   .order-items-scroll {
     flex-grow: 1;
     overflow-y: auto;
-    padding: 14px 18px;
+    padding: 12px 16px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
+    -webkit-overflow-scrolling: touch;
   }
 
-  /* Unfired item card in cart */
   .cart-item-row {
     background: #172133;
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 10px;
-    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 10px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
   }
   .cart-item-main {
     display: flex;
@@ -380,66 +431,65 @@
   }
   .cart-item-title {
     font-weight: 700;
-    font-size: 0.92rem;
+    font-size: 0.88rem;
     color: #ffffff;
   }
   .cart-item-price {
     font-weight: 800;
     color: #f59e0b;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
   }
+
   .qty-stepper {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     background: #0f172a;
-    border-radius: 6px;
-    padding: 2px 6px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    padding: 2px 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
   .qty-btn {
     background: none;
     border: none;
     color: #94a3b8;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 800;
     cursor: pointer;
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
-    transition: all 0.15s;
+    border-radius: 3px;
   }
   .qty-btn:hover {
     background: rgba(255, 255, 255, 0.15);
     color: #ffffff;
   }
   .qty-val {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 800;
-    min-width: 18px;
+    min-width: 16px;
     text-align: center;
     color: #ffffff;
   }
 
-  /* Quick Cooking Note Chips */
   .quick-notes {
     display: flex;
     gap: 4px;
     flex-wrap: wrap;
-    margin-top: 2px;
   }
   .note-chip {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     background: #0f172a;
     border: 1px solid rgba(255, 255, 255, 0.08);
     color: #94a3b8;
-    padding: 2px 8px;
-    border-radius: 12px;
+    padding: 2px 7px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: all 0.12s;
+    transition: background 0.1s, color 0.1s;
+    user-select: none;
   }
   .note-chip:hover {
     background: #f59e0b;
@@ -450,36 +500,32 @@
   .note-input {
     background: #0f172a;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 6px;
+    border-radius: 5px;
     color: #ffffff;
-    font-size: 0.8rem;
-    padding: 4px 8px;
+    font-size: 0.78rem;
+    padding: 3px 6px;
     width: 100%;
-  }
-  .note-input:focus {
     outline: none;
-    border-color: #f59e0b;
   }
+  .note-input:focus { border-color: #f59e0b; }
 
-  /* Fired KOT Card */
   .kot-group-box {
     background: #0c121f;
     border: 1px solid rgba(34, 197, 94, 0.25);
-    border-radius: 10px;
-    padding: 10px 12px;
+    border-radius: 8px;
+    padding: 8px 10px;
   }
   .kot-group-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 6px;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
-    margin-bottom: 6px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+    margin-bottom: 5px;
   }
 
-  /* Order Bottom Summary & Actions */
   .order-summary-box {
-    padding: 14px 18px;
+    padding: 10px 16px 12px;
     background: #141c2e;
     border-top: 1.5px solid rgba(255, 255, 255, 0.08);
     flex-shrink: 0;
@@ -487,15 +533,15 @@
   .summary-line {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 4px;
-    font-size: 0.85rem;
+    margin-bottom: 2px;
+    font-size: 0.8rem;
     color: #94a3b8;
   }
   .summary-line.grand {
-    margin-top: 8px;
-    padding-top: 8px;
+    margin-top: 4px;
+    padding-top: 4px;
     border-top: 1px dashed rgba(255, 255, 255, 0.15);
-    font-size: 1.25rem;
+    font-size: 1.15rem;
     font-weight: 800;
     color: #f59e0b;
   }
@@ -503,39 +549,32 @@
   .order-actions-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 12px;
+    gap: 7px;
+    margin-top: 8px;
   }
   .btn-fire-kot {
     grid-column: span 2;
     background: linear-gradient(135deg, #f59e0b, #d97706);
     color: #000000;
     font-weight: 800;
-    font-size: 1rem;
-    padding: 10px;
-    border-radius: 8px;
+    font-size: 0.95rem;
+    padding: 9px;
+    border-radius: 7px;
     border: none;
-    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: transform 0.1s;
   }
-  .btn-fire-kot:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
-  }
-  .btn-fire-kot:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
+  .btn-fire-kot:hover:not(:disabled) { transform: translateY(-1px); }
+  .btn-fire-kot:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .btn-bill {
     background: #0284c7;
     color: #ffffff;
     font-weight: 700;
     border: none;
-    border-radius: 8px;
-    padding: 8px;
+    border-radius: 7px;
+    padding: 7px;
+    font-size: 0.85rem;
     cursor: pointer;
   }
   .btn-bill:hover { background: #0369a1; }
@@ -545,8 +584,9 @@
     color: #ffffff;
     font-weight: 700;
     border: none;
-    border-radius: 8px;
-    padding: 8px;
+    border-radius: 7px;
+    padding: 7px;
+    font-size: 0.85rem;
     cursor: pointer;
   }
   .btn-settle:hover { background: #059669; }
@@ -556,13 +596,33 @@
     background: transparent;
     border: 1px solid rgba(239, 68, 68, 0.3);
     color: #ef4444;
-    font-size: 0.8rem;
-    padding: 6px;
-    border-radius: 8px;
+    font-size: 0.78rem;
+    padding: 4px;
+    border-radius: 7px;
     cursor: pointer;
   }
-  .btn-cancel-order:hover {
-    background: rgba(239, 68, 68, 0.1);
+  .btn-cancel-order:hover { background: rgba(239, 68, 68, 0.1); }
+
+  /* Bottom Shortcuts Hint Bar */
+  .order-bottom-hints {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 6px 16px;
+    background: #0b0f19;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 0.75rem;
+    color: #64748b;
+    flex-shrink: 0;
+  }
+  .hint-tag {
+    background: #1e293b;
+    color: #f59e0b;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.72rem;
   }
 </style>
 
@@ -578,18 +638,15 @@
 </div>
 
 <!-- Table Cards Grid -->
-<div id="tableGrid" class="table-grid">
-  <!-- Injected via JavaScript -->
-</div>
+<div id="tableGrid" class="table-grid"></div>
 
-<!-- Status Color Legend -->
+<!-- Status Legend -->
 <div class="legend-bar">
   <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div> 🟢 Available</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> 🔴 Occupied (Seated)</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#eab308"></div> 🟡 Billed (Waiting Pay)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> 🔴 Occupied</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#eab308"></div> 🟡 Billed</div>
   <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> 🔵 Reserved</div>
 </div>
-
 {% endblock %}
 
 {% block modals %}
@@ -603,11 +660,8 @@
     <div class="modal-body p-4">
       <input type="hidden" id="openTableId">
       <div class="mb-3">
-        <label class="form-label text-muted">Waiter / Captain Name</label>
-        <input type="text" id="waiterName" class="form-control bg-dark text-white border-secondary" placeholder="e.g. Vicky, Ravi, Suresh" autofocus>
-      </div>
-      <div class="text-xs text-muted">
-        Opening table will create a live running order and change table state to 🔴 Occupied.
+        <label class="form-label text-muted">Waiter Name</label>
+        <input type="text" id="waiterName" class="form-control bg-dark text-white border-secondary" placeholder="e.g. Vicky, Ravi" autofocus>
       </div>
     </div>
     <div class="modal-footer">
@@ -637,9 +691,6 @@
         <label class="form-label text-muted">Amount Paid (₹)</label>
         <input type="number" id="amountPaid" class="form-control bg-dark text-white border-secondary" step="0.01">
       </div>
-      <div class="text-xs text-muted">
-        Settling completes the sale, deducts product inventory, and frees the table back to 🟢 Available.
-      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-success w-100 fw-bold" onclick="submitSettleTable()">Complete Settlement</button>
@@ -647,66 +698,56 @@
   </div>
 </div>
 
-<!-- Modern Full Table Order View Overlay (Solid Background) -->
+<!-- Modern Full Table Order View Overlay (Zero Bleed-Through) -->
 <div class="table-order-view" id="tableOrderView">
   <!-- Top Bar -->
   <div class="order-top-bar">
     <div class="d-flex align-items-center gap-3">
-      <span class="badge" style="background:#f59e0b; color:#000; font-size:1.15rem; font-weight:800; padding:6px 14px; border-radius:8px;" id="orderTableNumber">T1</span>
+      <span class="badge" style="background:#f59e0b; color:#000; font-size:1.1rem; font-weight:800; padding:5px 12px; border-radius:6px;" id="orderTableNumber">T1</span>
       <div>
-        <div class="fw-bold" id="orderTableArea" style="font-size: 1rem; color:#ffffff;">Main Hall</div>
-        <div class="text-xs text-muted" id="orderTableInfo">Waiter: Vicky · 4-seat</div>
+        <div class="fw-bold text-white" id="orderTableArea" style="font-size: 0.95rem;">Main Hall</div>
+        <div class="text-xs text-muted" id="orderTableInfo">Waiter: Vicky</div>
       </div>
     </div>
-    <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-sm btn-outline-secondary" onclick="closeOrderView()" style="border-radius: 8px; font-weight: 600;">
-        ✕ Close (Back to Tables)
-      </button>
-    </div>
+    <button class="btn btn-sm btn-outline-secondary" onclick="closeOrderView()" style="border-radius: 6px; font-weight: 600;">
+      ✕ Close (Esc)
+    </button>
   </div>
 
-  <!-- Main Order Layout -->
+  <!-- Layout -->
   <div class="order-layout">
-    <!-- Left: Menu & Dishes Selection -->
+    <!-- Left: Menu Selection -->
     <div class="menu-panel">
-      <!-- Filter & Search Bar -->
       <div class="menu-filter-bar">
         <div class="search-input-wrapper">
           <span class="search-icon">🔍</span>
-          <input type="text" id="dishSearch" placeholder="Search dish name, SKU, or HSN..." oninput="onSearchChange()">
+          <input type="text" id="dishSearch" placeholder="Search dish name, SKU, or HSN... (Press Enter to add first match)" oninput="onSearchChange()" autocomplete="off">
         </div>
         <div class="category-pills" id="categoryPills">
-          <div class="category-pill active" onclick="setCategoryFilter('ALL', this)">🌟 All Items</div>
+          <div class="category-pill active" onclick="setCategoryFilter('ALL', this)">🌟 All</div>
           <div class="category-pill" onclick="setCategoryFilter('FOOD', this)">🍛 Food & Drinks</div>
           <div class="category-pill" onclick="setCategoryFilter('VEG', this)">🟢 Pure Veg</div>
           <div class="category-pill" onclick="setCategoryFilter('NONVEG', this)">🔴 Non-Veg</div>
         </div>
       </div>
 
-      <!-- Dish Cards Board -->
-      <div class="dishes-scroll-area">
-        <div class="dish-grid" id="dishGrid">
-          <!-- Injected via JavaScript -->
-        </div>
+      <div class="dishes-scroll-area" id="dishesScrollArea">
+        <div class="dish-grid" id="dishGrid"></div>
       </div>
     </div>
 
-    <!-- Right: Current Order Bill & KOT Actions -->
+    <!-- Right: Order Panel -->
     <div class="order-panel">
       <div class="order-panel-header">
-        <div class="fw-bold text-white" style="font-size: 1.05rem;">Current Table Order</div>
+        <div class="fw-bold text-white">Current Table Order</div>
         <span class="badge bg-secondary text-xs" id="itemCountBadge">0 items</span>
       </div>
 
-      <!-- Items List -->
-      <div class="order-items-scroll" id="orderItemsContainer">
-        <!-- Rendered items here -->
-      </div>
+      <div class="order-items-scroll" id="orderItemsContainer"></div>
 
-      <!-- Summary & Action Buttons -->
       <div class="order-summary-box">
         <div class="summary-line">
-          <span>Subtotal (Taxable)</span>
+          <span>Subtotal</span>
           <span id="orderSubtotal">₹0.00</span>
         </div>
         <div class="summary-line">
@@ -728,10 +769,22 @@
           </button>
           <button class="btn-bill" onclick="printBill()">🧾 Print Bill</button>
           <button class="btn-settle" onclick="openSettleModalFromOrder()">💰 Settle & Pay</button>
-          <button class="btn-cancel-order" onclick="cancelOrder()">❌ Cancel Table Order</button>
+          <button class="btn-cancel-order" onclick="cancelOrder()">❌ Cancel Order</button>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Bottom Shortcuts Hint Bar -->
+  <div class="order-bottom-hints">
+    <span><span class="hint-tag">/</span> Focus Search</span>
+    <span><span class="hint-tag">↑ ↓ ← →</span> Navigate Cards</span>
+    <span><span class="hint-tag">Enter</span> Add Dish</span>
+    <span><span class="hint-tag">+ / −</span> Card Stepper</span>
+    <span><span class="hint-tag">Ctrl+Enter</span> Fire KOT</span>
+    <span><span class="hint-tag">F9</span> Bill</span>
+    <span><span class="hint-tag">F10</span> Settle</span>
+    <span><span class="hint-tag">Esc</span> Back</span>
   </div>
 </div>
 {% endblock %}
@@ -740,19 +793,54 @@
 <script>
 let allTables = [];
 let allProducts = [];
+let productMap = new Map();
 let currentTableId = null;
 let currentOrderData = null;
 let pendingNewItems = []; // [{ product, quantity, cooking_notes }]
 let selectedCategory = 'ALL';
 let searchKeyword = '';
+let lastTablesFingerprint = '';
+let dishElementsMap = new Map(); // productId -> DOM Element
+let visibleDishIds = [];
+let focusedDishIndex = -1;
 
-const QUICK_NOTES = ['🌶️ Less Spicy', '🚫 No Onion/Garlic', '🍲 Extra Gravy', '📦 Parcel', '☕ Less Sugar', '🔥 Extra Hot'];
+const QUICK_NOTES = ['🌶️ Less Spicy', '🚫 No Onion', '🍲 Extra Gravy', '📦 Parcel', '☕ Less Sugar', '🔥 Extra Hot'];
+
+// Prefetch products & tables on load
+async function init() {
+  await Promise.all([loadTables(), prefetchProducts()]);
+  setupGlobalKeyboardShortcuts();
+}
+
+async function prefetchProducts() {
+  if (allProducts.length > 0) return;
+  try {
+    const res = await fetch('/api/products/search?q=');
+    allProducts = await res.json();
+    productMap.clear();
+    allProducts.forEach(p => {
+      p._search = (p.name + ' ' + (p.sku || '') + ' ' + (p.hsn_code || '')).toLowerCase();
+      productMap.set(p.id, p);
+    });
+    buildCategoryPills();
+    buildDishCardsOnce();
+  } catch (e) {
+    console.error('Prefetch error:', e);
+  }
+}
 
 async function loadTables() {
   try {
     const res = await fetch('/api/tables');
     allTables = await res.json();
     
+    // Quick fingerprint to avoid re-rendering DOM if unchanged
+    const fp = JSON.stringify(allTables.map(t => [t.id, t.status, t.current_order_total]));
+    if (fp === lastTablesFingerprint && document.getElementById('tableGrid').children.length > 0) {
+      return;
+    }
+    lastTablesFingerprint = fp;
+
     // Areas dropdown
     const areas = [...new Set(allTables.map(t => t.area))].filter(Boolean);
     const filter = document.getElementById('areaFilter');
@@ -760,13 +848,13 @@ async function loadTables() {
     filter.innerHTML = '<option value="">All Areas</option>' + areas.map(a => `<option value="${a}">${escapeHtml(a)}</option>`).join('');
     filter.value = curVal;
     
-    const occupiedCount = allTables.filter(t => t.status === 'OCCUPIED').length;
-    const billedCount = allTables.filter(t => t.status === 'BILLED').length;
-    document.getElementById('tableStatsSummary').textContent = `${allTables.length} Tables · ${occupiedCount} Occupied · ${billedCount} Billed`;
+    const occupied = allTables.filter(t => t.status === 'OCCUPIED').length;
+    const billed = allTables.filter(t => t.status === 'BILLED').length;
+    document.getElementById('tableStatsSummary').textContent = `${allTables.length} Tables · ${occupied} Occupied · ${billed} Billed`;
 
     renderTables();
   } catch (e) {
-    console.error('Error loading tables:', e);
+    console.error('Tables load error:', e);
   }
 }
 
@@ -780,12 +868,12 @@ function renderTables() {
     if (t.status === 'OCCUPIED') {
       const mins = t.time_since_occupied || 0;
       meta = `
-        <div class="table-meta fw-bold text-danger fs-5 mt-1">₹${(t.current_order_total || 0).toFixed(2)}</div>
+        <div class="fw-bold text-danger fs-5 mt-1">₹${(t.current_order_total || 0).toFixed(2)}</div>
         <div class="text-xs text-muted">⏱️ Seated ${mins}m ago · ${t.item_count || 0} items</div>
       `;
     } else if (t.status === 'BILLED') {
       meta = `
-        <div class="table-meta fw-bold text-warning fs-5 mt-1">₹${(t.current_order_total || 0).toFixed(2)}</div>
+        <div class="fw-bold text-warning fs-5 mt-1">₹${(t.current_order_total || 0).toFixed(2)}</div>
         <div class="text-xs text-warning">🟡 Bill printed · Waiting pay</div>
       `;
     }
@@ -810,7 +898,7 @@ function handleTableClick(id, status) {
     document.getElementById('openTableNumber').textContent = table.table_number;
     document.getElementById('waiterName').value = '';
     openModal('openTableModal');
-    setTimeout(() => document.getElementById('waiterName').focus(), 150);
+    setTimeout(() => document.getElementById('waiterName').focus(), 100);
   } else if (status === 'OCCUPIED' || status === 'BILLED') {
     openOrderView(id);
   }
@@ -828,13 +916,14 @@ async function submitOpenTable() {
     const data = await res.json();
     if (data.success) {
       closeModal('openTableModal');
+      lastTablesFingerprint = ''; // force table refresh
       await loadTables();
       openOrderView(id);
     } else {
-      showToast(data.error || 'Failed to open table', 'error');
+      showToast(data.error || 'Failed to open', 'error');
     }
   } catch (e) {
-    showToast('Network error opening table', 'error');
+    showToast('Network error', 'error');
   }
 }
 
@@ -848,21 +937,34 @@ async function openOrderView(id) {
   document.getElementById('tableOrderView').style.display = 'flex';
   pendingNewItems = [];
 
-  // Load products if not cached
+  // Reset search & categories
+  selectedCategory = 'ALL';
+  searchKeyword = '';
+  document.getElementById('dishSearch').value = '';
+  document.querySelectorAll('.category-pill').forEach(el => el.classList.remove('active'));
+  const firstPill = document.querySelector('.category-pill');
+  if (firstPill) firstPill.classList.add('active');
+
   if (allProducts.length === 0) {
-    const res = await fetch('/api/products/search?q=');
-    allProducts = await res.json();
-    buildCategoryPills();
+    await prefetchProducts();
   }
 
+  applyDishFilter();
+  syncAllDishBadges();
   await fetchOrderData();
-  renderDishGrid();
+
+  // Focus search immediately
+  setTimeout(() => {
+    const searchInput = document.getElementById('dishSearch');
+    if (searchInput) searchInput.focus();
+  }, 100);
 }
 
 function closeOrderView() {
   document.getElementById('tableOrderView').style.display = 'none';
   currentTableId = null;
   currentOrderData = null;
+  lastTablesFingerprint = '';
   loadTables();
 }
 
@@ -876,10 +978,11 @@ async function fetchOrderData() {
       return;
     }
     currentOrderData = data;
-    document.getElementById('orderTableInfo').textContent = `Waiter: ${data.waiter_name || 'Not assigned'} · Seated ${data.opened_at || ''}`;
+    document.getElementById('orderTableInfo').textContent = `Waiter: ${data.waiter_name || 'Not assigned'}`;
     renderOrderItems();
+    syncAllDishBadges();
   } catch (e) {
-    console.error('Error fetching order:', e);
+    console.error('Fetch order error:', e);
   }
 }
 
@@ -887,14 +990,14 @@ function buildCategoryPills() {
   const categories = [...new Set(allProducts.map(p => p.category))].filter(Boolean);
   const container = document.getElementById('categoryPills');
   let html = `
-    <div class="category-pill ${selectedCategory === 'ALL' ? 'active' : ''}" onclick="setCategoryFilter('ALL', this)">🌟 All Items</div>
-    <div class="category-pill ${selectedCategory === 'FOOD' ? 'active' : ''}" onclick="setCategoryFilter('FOOD', this)">🍛 Food & Drinks</div>
-    <div class="category-pill ${selectedCategory === 'VEG' ? 'active' : ''}" onclick="setCategoryFilter('VEG', this)">🟢 Pure Veg</div>
-    <div class="category-pill ${selectedCategory === 'NONVEG' ? 'active' : ''}" onclick="setCategoryFilter('NONVEG', this)">🔴 Non-Veg</div>
+    <div class="category-pill active" onclick="setCategoryFilter('ALL', this)">🌟 All</div>
+    <div class="category-pill" onclick="setCategoryFilter('FOOD', this)">🍛 Food & Drinks</div>
+    <div class="category-pill" onclick="setCategoryFilter('VEG', this)">🟢 Pure Veg</div>
+    <div class="category-pill" onclick="setCategoryFilter('NONVEG', this)">🔴 Non-Veg</div>
   `;
   categories.forEach(cat => {
-    if (cat.toLowerCase().includes('food') || cat.toLowerCase().includes('beverage')) return; // already in Food
-    html += `<div class="category-pill ${selectedCategory === cat ? 'active' : ''}" onclick="setCategoryFilter('${escapeHtml(cat)}', this)">${escapeHtml(cat)}</div>`;
+    if (cat.toLowerCase().includes('food') || cat.toLowerCase().includes('beverage')) return;
+    html += `<div class="category-pill" onclick="setCategoryFilter('${escapeHtml(cat)}', this)">${escapeHtml(cat)}</div>`;
   });
   container.innerHTML = html;
 }
@@ -903,55 +1006,24 @@ function setCategoryFilter(cat, element) {
   selectedCategory = cat;
   document.querySelectorAll('.category-pill').forEach(el => el.classList.remove('active'));
   if (element) element.classList.add('active');
-  renderDishGrid();
+  applyDishFilter();
 }
 
 function onSearchChange() {
   searchKeyword = document.getElementById('dishSearch').value.trim().toLowerCase();
-  renderDishGrid();
+  applyDishFilter();
 }
 
-function renderDishGrid() {
+// Build DOM nodes once for butter-smooth 60fps performance
+function buildDishCardsOnce() {
   const container = document.getElementById('dishGrid');
-  let filtered = allProducts;
+  container.innerHTML = '';
+  dishElementsMap.clear();
 
-  // Category filter
-  if (selectedCategory === 'FOOD') {
-    filtered = filtered.filter(p => (p.category || '').toLowerCase().includes('food') || (p.category || '').toLowerCase().includes('beverage') || p.sku.startsWith('FB'));
-  } else if (selectedCategory === 'VEG') {
-    filtered = filtered.filter(p => p.is_veg === true);
-  } else if (selectedCategory === 'NONVEG') {
-    filtered = filtered.filter(p => p.is_veg === false);
-  } else if (selectedCategory !== 'ALL') {
-    filtered = filtered.filter(p => p.category === selectedCategory);
-  }
+  const fragment = document.createDocumentFragment();
 
-  // Keyword search
-  if (searchKeyword) {
-    filtered = filtered.filter(p => 
-      p.name.toLowerCase().includes(searchKeyword) ||
-      p.sku.toLowerCase().includes(searchKeyword) ||
-      (p.hsn_code || '').toLowerCase().includes(searchKeyword)
-    );
-  }
-
-  if (filtered.length === 0) {
-    container.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: #64748b;">
-        <div style="font-size: 2.5rem; margin-bottom: 8px;">🍽️</div>
-        <div class="fw-bold">No dishes found</div>
-        <div class="text-xs">Try selecting 'All Items' or changing search keyword.</div>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = filtered.map(p => {
+  allProducts.forEach(p => {
     const isVeg = p.is_veg !== false;
-    const inCartQty = pendingNewItems.filter(i => i.product.id === p.id).reduce((sum, i) => sum + i.quantity, 0);
-    const cartBadge = inCartQty > 0 ? `<div class="dish-in-cart-badge">${inCartQty}</div>` : '';
-    
-    // Pick suitable icon based on name
     let icon = p.category_icon || '🍲';
     const nl = p.name.toLowerCase();
     if (nl.includes('coffee') || nl.includes('tea')) icon = '☕';
@@ -959,32 +1031,144 @@ function renderDishGrid() {
     else if (nl.includes('dosa') || nl.includes('parotta') || nl.includes('idli')) icon = '🫓';
     else if (nl.includes('vada')) icon = '🍩';
     else if (nl.includes('meal')) icon = '🍛';
-    
-    return `
-      <div class="dish-card" onclick='addDishToOrder(${JSON.stringify(p).replace(/'/g, "&apos;")})'>
-        ${cartBadge}
-        <div class="d-flex justify-content-between align-items-center">
-          <span class="fssai-symbol ${isVeg ? 'veg' : 'non-veg'}" title="${isVeg ? 'Vegetarian' : 'Non-Vegetarian'}">
-            <span class="fssai-dot"></span>
-          </span>
-          <span class="dish-sku">${escapeHtml(p.sku)}</span>
-        </div>
-        
-        <div class="text-center">
-          <div class="dish-emoji">${icon}</div>
-          <div class="dish-name" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</div>
-        </div>
-        
-        <div class="dish-footer">
-          <span class="dish-price">₹${p.price.toFixed(2)}</span>
-          <button class="dish-add-btn">+ Add</button>
+
+    const card = document.createElement('div');
+    card.className = 'dish-card';
+    card.id = `dish-card-${p.id}`;
+    card.dataset.id = p.id;
+    card.onclick = (e) => {
+      // If clicking button or stepper, let their handlers work
+      if (e.target.closest('.dish-card-stepper') || e.target.closest('.dish-add-btn')) return;
+      addDishById(p.id);
+    };
+
+    card.innerHTML = `
+      <div class="dish-badge" id="dish-badge-${p.id}"></div>
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="fssai-symbol ${isVeg ? 'veg' : 'non-veg'}">
+          <span class="fssai-dot"></span>
+        </span>
+        <span class="dish-sku">${escapeHtml(p.sku)}</span>
+      </div>
+      <div class="text-center">
+        <div class="dish-emoji">${icon}</div>
+        <div class="dish-name" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</div>
+      </div>
+      <div class="dish-footer">
+        <span class="dish-price">₹${p.price.toFixed(2)}</span>
+        <div id="dish-action-${p.id}">
+          <button class="dish-add-btn" onclick="addDishById(${p.id})">+ Add</button>
         </div>
       </div>
     `;
-  }).join('');
+
+    fragment.appendChild(card);
+    dishElementsMap.set(p.id, card);
+  });
+
+  container.appendChild(fragment);
+  applyDishFilter();
 }
 
-function addDishToOrder(product) {
+// Instant 0ms filter without wiping out DOM
+function applyDishFilter() {
+  visibleDishIds = [];
+  
+  allProducts.forEach(p => {
+    const card = dishElementsMap.get(p.id);
+    if (!card) return;
+
+    let matchesCategory = true;
+    if (selectedCategory === 'FOOD') {
+      matchesCategory = (p.category || '').toLowerCase().includes('food') || 
+                        (p.category || '').toLowerCase().includes('beverage') || 
+                        p.sku.startsWith('FB');
+    } else if (selectedCategory === 'VEG') {
+      matchesCategory = p.is_veg === true;
+    } else if (selectedCategory === 'NONVEG') {
+      matchesCategory = p.is_veg === false;
+    } else if (selectedCategory !== 'ALL') {
+      matchesCategory = p.category === selectedCategory;
+    }
+
+    let matchesSearch = true;
+    if (searchKeyword) {
+      matchesSearch = p._search.includes(searchKeyword);
+    }
+
+    if (matchesCategory && matchesSearch) {
+      card.style.display = '';
+      visibleDishIds.push(p.id);
+    } else {
+      card.style.display = 'none';
+    }
+  });
+
+  // Reset or adjust focused card
+  if (visibleDishIds.length > 0) {
+    setFocusedDishIndex(0);
+  } else {
+    setFocusedDishIndex(-1);
+  }
+}
+
+function setFocusedDishIndex(idx) {
+  // Clear previous focus
+  document.querySelectorAll('.dish-card.focused').forEach(el => el.classList.remove('focused'));
+
+  if (idx < 0 || idx >= visibleDishIds.length) {
+    focusedDishIndex = -1;
+    return;
+  }
+
+  focusedDishIndex = idx;
+  const cardId = visibleDishIds[focusedDishIndex];
+  const card = dishElementsMap.get(cardId);
+  if (card) {
+    card.classList.add('focused');
+  }
+}
+
+// O(1) instant badge & card stepper update
+function syncSingleDishCard(productId) {
+  const badge = document.getElementById(`dish-badge-${productId}`);
+  const actionContainer = document.getElementById(`dish-action-${productId}`);
+  if (!badge || !actionContainer) return;
+
+  const count = pendingNewItems
+    .filter(i => i.product.id === productId)
+    .reduce((sum, i) => sum + i.quantity, 0);
+
+  if (count > 0) {
+    badge.textContent = count;
+    badge.style.display = 'flex';
+    badge.classList.remove('popping');
+    void badge.offsetWidth; // trigger reflow for animation
+    badge.classList.add('popping');
+
+    actionContainer.innerHTML = `
+      <div class="dish-card-stepper" onclick="event.stopPropagation();">
+        <button class="card-step-btn" onclick="changeDishQty(${productId}, -1)">−</button>
+        <span class="card-step-val">${count}</span>
+        <button class="card-step-btn" onclick="changeDishQty(${productId}, 1)">+</button>
+      </div>
+    `;
+  } else {
+    badge.style.display = 'none';
+    actionContainer.innerHTML = `
+      <button class="dish-add-btn" onclick="addDishById(${productId})">+ Add</button>
+    `;
+  }
+}
+
+function syncAllDishBadges() {
+  allProducts.forEach(p => syncSingleDishCard(p.id));
+}
+
+function addDishById(productId) {
+  const product = productMap.get(productId);
+  if (!product) return;
+
   const existing = pendingNewItems.find(i => i.product.id === product.id && !i.cooking_notes);
   if (existing) {
     existing.quantity++;
@@ -996,24 +1180,43 @@ function addDishToOrder(product) {
     });
   }
   renderOrderItems();
-  renderDishGrid(); // updates in-cart badges
+  syncSingleDishCard(productId);
+}
+
+function changeDishQty(productId, delta) {
+  const idx = pendingNewItems.findIndex(i => i.product.id === productId);
+  if (idx !== -1) {
+    pendingNewItems[idx].quantity += delta;
+    if (pendingNewItems[idx].quantity <= 0) {
+      pendingNewItems.splice(idx, 1);
+    }
+  } else if (delta > 0) {
+    addDishById(productId);
+    return;
+  }
+  renderOrderItems();
+  syncSingleDishCard(productId);
 }
 
 function changeQty(index, delta) {
   if (pendingNewItems[index]) {
+    const pid = pendingNewItems[index].product.id;
     pendingNewItems[index].quantity += delta;
     if (pendingNewItems[index].quantity <= 0) {
       pendingNewItems.splice(index, 1);
     }
+    renderOrderItems();
+    syncSingleDishCard(pid);
   }
-  renderOrderItems();
-  renderDishGrid();
 }
 
 function removePendingItem(index) {
-  pendingNewItems.splice(index, 1);
-  renderOrderItems();
-  renderDishGrid();
+  if (pendingNewItems[index]) {
+    const pid = pendingNewItems[index].product.id;
+    pendingNewItems.splice(index, 1);
+    renderOrderItems();
+    syncSingleDishCard(pid);
+  }
 }
 
 function appendQuickNote(index, noteText) {
@@ -1024,7 +1227,10 @@ function appendQuickNote(index, noteText) {
   } else if (!item.cooking_notes.includes(noteText)) {
     item.cooking_notes += ', ' + noteText;
   }
-  renderOrderItems();
+  const inputEl = document.getElementById(`note-input-${index}`);
+  if (inputEl) {
+    inputEl.value = item.cooking_notes;
+  }
 }
 
 function updateItemNote(index, text) {
@@ -1038,7 +1244,7 @@ function renderOrderItems() {
   let html = '';
   let totalItemCount = 0;
 
-  // 1. Previously Fired KOTs
+  // 1. Fired KOTs
   if (currentOrderData && currentOrderData.kots && currentOrderData.kots.length > 0) {
     currentOrderData.kots.forEach(kot => {
       totalItemCount += kot.items.reduce((s, i) => s + i.quantity, 0);
@@ -1049,7 +1255,7 @@ function renderOrderItems() {
               <span class="badge bg-success text-dark fw-bold me-1">KOT #${kot.kot_number}</span>
               <span class="text-xs text-muted">${new Date(kot.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
             </div>
-            <a href="/kot/${kot.id}/print" target="_blank" class="btn btn-xs btn-outline-info py-0 px-2" style="font-size:10px; text-decoration:none;">🖨️ Reprint KOT</a>
+            <a href="/kot/${kot.id}/print" target="_blank" class="btn btn-xs btn-outline-info py-0 px-2" style="font-size:10px; text-decoration:none;">🖨️ Reprint</a>
           </div>
           <div class="d-flex flex-column gap-1">
       `;
@@ -1073,7 +1279,7 @@ function renderOrderItems() {
     totalItemCount += unfiredCount;
     html += `
       <div class="d-flex justify-content-between align-items-center mt-2 mb-1">
-        <span class="text-xs fw-bold text-warning uppercase">⏳ Unfired Items (${unfiredCount})</span>
+        <span class="text-xs fw-bold text-warning uppercase">⏳ Unfired (${unfiredCount})</span>
         <button class="btn btn-xs btn-ghost text-danger py-0" style="font-size:11px;" onclick="clearPendingItems()">Clear</button>
       </div>
     `;
@@ -1098,13 +1304,11 @@ function renderOrderItems() {
             </div>
           </div>
 
-          <!-- Quick notes chips -->
           <div class="quick-notes">
             ${QUICK_NOTES.map(qn => `<span class="note-chip" onclick="appendQuickNote(${idx}, '${qn}')">${qn}</span>`).join('')}
           </div>
 
-          <!-- Custom note input -->
-          <input type="text" class="note-input" placeholder="Cooking instruction / note..." value="${escapeHtml(item.cooking_notes || '')}" onchange="updateItemNote(${idx}, this.value)">
+          <input type="text" id="note-input-${idx}" class="note-input" placeholder="Cooking instruction / note..." value="${escapeHtml(item.cooking_notes || '')}" oninput="updateItemNote(${idx}, this.value)">
         </div>
       `;
     });
@@ -1113,9 +1317,9 @@ function renderOrderItems() {
   if (totalItemCount === 0) {
     html = `
       <div class="text-center text-muted py-5">
-        <div style="font-size: 2.2rem; margin-bottom: 8px;">🍽️</div>
-        <div class="fw-bold">No dishes in this order yet</div>
-        <div class="text-xs">Click any dish on the left menu to add.</div>
+        <div style="font-size: 2rem; margin-bottom: 6px;">🍽️</div>
+        <div class="fw-bold">No dishes in this order</div>
+        <div class="text-xs">Select any dish on the left to add.</div>
       </div>
     `;
   }
@@ -1123,14 +1327,13 @@ function renderOrderItems() {
   container.innerHTML = html;
   document.getElementById('itemCountBadge').textContent = `${totalItemCount} items`;
 
-  // Calculate live financial totals from existing items and pending items
+  // Calculate live financial totals
   let grossTotal = 0;
   let subTotal = 0;
   let cgstTotal = 0;
   let sgstTotal = 0;
 
-  // 1. Already saved items in order
-  if (currentOrderData && currentOrderData.items && currentOrderData.items.length > 0) {
+  if (currentOrderData && currentOrderData.items) {
     currentOrderData.items.forEach(item => {
       const gross = item.subtotal || 0;
       const rate = (item.gst_rate !== undefined ? item.gst_rate : 5) / 100;
@@ -1143,7 +1346,6 @@ function renderOrderItems() {
     });
   }
 
-  // 2. Pending unfired items
   pendingNewItems.forEach(item => {
     const gross = item.quantity * item.product.price;
     const rate = (item.product.gst_rate || 5) / 100;
@@ -1173,18 +1375,14 @@ function renderOrderItems() {
 
 function clearPendingItems() {
   if (pendingNewItems.length > 0) {
-    if (!confirm('Clear all unfired items?')) return;
     pendingNewItems = [];
     renderOrderItems();
-    renderDishGrid();
+    syncAllDishBadges();
   }
 }
 
 async function fireKot() {
-  if (pendingNewItems.length === 0) {
-    showToast('No new items to fire', 'info');
-    return;
-  }
+  if (pendingNewItems.length === 0) return;
 
   const itemsPayload = pendingNewItems.map(i => ({
     product_id: i.product.id,
@@ -1208,12 +1406,10 @@ async function fireKot() {
     const kotData = await kotRes.json();
 
     if (kotData.success) {
-      showToast(`🔥 KOT #${kotData.kot.kot_number} fired to kitchen!`, 'success');
-      // Auto open print window in new tab
+      showToast(`🔥 KOT #${kotData.kot.kot_number} fired!`, 'success');
       window.open(`/kot/${kotData.kot.id}/print`, '_blank');
       pendingNewItems = [];
       await fetchOrderData();
-      renderDishGrid();
     } else {
       showToast(kotData.error || 'Failed to fire KOT', 'error');
     }
@@ -1225,14 +1421,13 @@ async function fireKot() {
 async function printBill() {
   if (!currentTableId) return;
   if (pendingNewItems.length > 0) {
-    if (!confirm('You have unfired items! They are not sent to the kitchen yet. Print bill without them?')) return;
+    if (!confirm('You have unfired items! Print bill without them?')) return;
   }
 
   try {
     const res = await fetch(`/api/tables/${currentTableId}/print-bill`, {method: 'POST'});
     const data = await res.json();
     if (data.success) {
-      showToast('Bill generated', 'success');
       window.open(`/receipt/${data.sale.id}`, '_blank');
       closeOrderView();
     } else {
@@ -1247,13 +1442,9 @@ function openSettleModalFromOrder() {
   const t = allTables.find(tb => tb.id === currentTableId);
   if (!t) return;
 
-  if (pendingNewItems.length > 0) {
-    if (!confirm('You have unfired items in cart. They will NOT be settled. Proceed to payment?')) return;
-  }
-
   document.getElementById('settleTableId').value = t.id;
   document.getElementById('settleTableNumber').textContent = t.table_number;
-  document.getElementById('amountPaid').value = (currentOrderData ? currentOrderData.total : (t.current_order_total || 0)).toFixed(2);
+  document.getElementById('amountPaid').value = (currentOrderData ? currentOrderData.running_total || currentOrderData.total : (t.current_order_total || 0)).toFixed(2);
   openModal('settleTableModal');
 }
 
@@ -1273,6 +1464,7 @@ async function submitSettleTable() {
       closeModal('settleTableModal');
       closeOrderView();
       showToast('Payment settled! Table freed 🟢', 'success');
+      lastTablesFingerprint = '';
       loadTables();
     } else {
       showToast(data.error || 'Settlement failed', 'error');
@@ -1283,7 +1475,7 @@ async function submitSettleTable() {
 }
 
 async function cancelOrder() {
-  if (!confirm('Are you sure you want to cancel this dine-in table order?')) return;
+  if (!confirm('Are you sure you want to cancel this order?')) return;
   const reason = prompt('Cancellation reason:') || 'Customer cancelled';
 
   try {
@@ -1294,20 +1486,129 @@ async function cancelOrder() {
     });
     const data = await res.json();
     if (data.success) {
-      showToast('Order cancelled. Table freed 🟢', 'info');
+      showToast('Order cancelled', 'info');
       closeOrderView();
     } else {
       showToast(data.error || 'Failed to cancel', 'error');
     }
   } catch (e) {
-    showToast('Network error cancelling order', 'error');
+    showToast('Network error', 'error');
   }
 }
 
-// Initial load & Polling
-loadTables();
+// ── Modern Keyboard Shortcuts & Arrow Navigation Engine ──
+function setupGlobalKeyboardShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    const orderOverlay = document.getElementById('tableOrderView');
+    const isOrderOpen = orderOverlay && orderOverlay.style.display === 'flex';
+
+    if (!isOrderOpen) return;
+
+    const searchInput = document.getElementById('dishSearch');
+    const isTypingInSearch = document.activeElement === searchInput;
+    const isTypingInNote = document.activeElement && document.activeElement.classList.contains('note-input');
+
+    // 1. Esc: Clear search or Close
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      if (searchInput && searchInput.value) {
+        searchInput.value = '';
+        onSearchChange();
+      } else {
+        closeOrderView();
+      }
+      return;
+    }
+
+    // 2. Focus Search on "/"
+    if (e.key === '/' && !isTypingInSearch && !isTypingInNote) {
+      e.preventDefault();
+      if (searchInput) {
+        searchInput.focus();
+        searchInput.select();
+      }
+      return;
+    }
+
+    // 3. F8 or Ctrl+Enter: Fire KOT
+    if (e.key === 'F8' || (e.ctrlKey && e.key === 'Enter')) {
+      e.preventDefault();
+      fireKot();
+      return;
+    }
+
+    // 4. F9: Print Bill
+    if (e.key === 'F9') {
+      e.preventDefault();
+      printBill();
+      return;
+    }
+
+    // 5. F10: Settle
+    if (e.key === 'F10') {
+      e.preventDefault();
+      openSettleModalFromOrder();
+      return;
+    }
+
+    // 6. Enter key handling:
+    if (e.key === 'Enter' && !isTypingInNote) {
+      e.preventDefault();
+      if (focusedDishIndex >= 0 && focusedDishIndex < visibleDishIds.length) {
+        const pid = visibleDishIds[focusedDishIndex];
+        addDishById(pid);
+      } else if (visibleDishIds.length > 0) {
+        addDishById(visibleDishIds[0]);
+      }
+      return;
+    }
+
+    // 7. Arrow Navigation (Up, Down, Left, Right)
+    if (['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key) && !isTypingInNote) {
+      e.preventDefault();
+      if (visibleDishIds.length === 0) return;
+
+      const grid = document.getElementById('dishGrid');
+      const cols = Math.max(1, Math.floor(grid.offsetWidth / 165)); // approximate columns
+
+      let nextIndex = focusedDishIndex;
+      if (e.key === 'ArrowRight') nextIndex++;
+      else if (e.key === 'ArrowLeft') nextIndex--;
+      else if (e.key === 'ArrowDown') nextIndex += cols;
+      else if (e.key === 'ArrowUp') nextIndex -= cols;
+
+      if (nextIndex < 0) nextIndex = 0;
+      if (nextIndex >= visibleDishIds.length) nextIndex = visibleDishIds.length - 1;
+
+      setFocusedDishIndex(nextIndex);
+
+      // Scroll into view smoothly
+      const targetCard = dishElementsMap.get(visibleDishIds[nextIndex]);
+      if (targetCard) {
+        targetCard.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+      return;
+    }
+
+    // 8. "+" or "-" keys to change qty of focused dish
+    if ((e.key === '+' || e.key === '=') && !isTypingInSearch && !isTypingInNote) {
+      if (focusedDishIndex >= 0 && focusedDishIndex < visibleDishIds.length) {
+        e.preventDefault();
+        changeDishQty(visibleDishIds[focusedDishIndex], 1);
+      }
+    } else if ((e.key === '-' || e.key === '_') && !isTypingInSearch && !isTypingInNote) {
+      if (focusedDishIndex >= 0 && focusedDishIndex < visibleDishIds.length) {
+        e.preventDefault();
+        changeDishQty(visibleDishIds[focusedDishIndex], -1);
+      }
+    }
+  });
+}
+
+// Initialize on boot
+init();
 setInterval(() => {
   if (!currentTableId) loadTables();
-}, 10000);
+}, 8000);
 </script>
 {% endblock %}
