@@ -340,6 +340,32 @@ def create_app(config=None):
             db.create_all()
             seed_data()
             try:
+                from sqlalchemy import inspect, text
+                inspector = inspect(db.engine)
+                with db.engine.begin() as conn:
+                    if 'products' in inspector.get_table_names():
+                        p_cols = [c['name'] for c in inspector.get_columns('products')]
+                        if 'is_veg' not in p_cols:
+                            conn.execute(text("ALTER TABLE products ADD COLUMN is_veg BOOLEAN DEFAULT 1"))
+                    if 'sales' in inspector.get_table_names():
+                        s_cols = [c['name'] for c in inspector.get_columns('sales')]
+                        if 'order_type' not in s_cols:
+                            conn.execute(text("ALTER TABLE sales ADD COLUMN order_type VARCHAR(20) DEFAULT 'COUNTER'"))
+                        if 'table_id' not in s_cols:
+                            conn.execute(text("ALTER TABLE sales ADD COLUMN table_id INTEGER"))
+                        if 'status' not in s_cols:
+                            conn.execute(text("ALTER TABLE sales ADD COLUMN status VARCHAR(20) DEFAULT 'COMPLETED'"))
+                        if 'opened_at' not in s_cols:
+                            conn.execute(text("ALTER TABLE sales ADD COLUMN opened_at TIMESTAMP"))
+                        if 'waiter_name' not in s_cols:
+                            conn.execute(text("ALTER TABLE sales ADD COLUMN waiter_name VARCHAR(100)"))
+                    if 'sale_items' in inspector.get_table_names():
+                        si_cols = [c['name'] for c in inspector.get_columns('sale_items')]
+                        if 'cooking_notes' not in si_cols:
+                            conn.execute(text("ALTER TABLE sale_items ADD COLUMN cooking_notes TEXT"))
+            except Exception as e:
+                morgan_logger.warning(f"Restaurant schema check: {e}")
+            try:
                 from models import Category
                 cat_updates = {
                     'உணவு': 'Food & Beverages',
@@ -364,7 +390,20 @@ def create_app(config=None):
 
 
 def seed_data():
-    from models import Category, Product, Customer, Sale, SaleItem
+    from models import Category, Product, Customer, Sale, SaleItem, DiningTable
+    if DiningTable.query.count() == 0:
+        demo_tables = [
+            DiningTable(table_number="T1", area="Main Hall", capacity=2),
+            DiningTable(table_number="T2", area="Main Hall", capacity=4),
+            DiningTable(table_number="T3", area="Main Hall", capacity=4),
+            DiningTable(table_number="T4", area="Main Hall", capacity=6),
+            DiningTable(table_number="T5", area="AC Dining", capacity=2),
+            DiningTable(table_number="T6", area="AC Dining", capacity=4),
+            DiningTable(table_number="T7", area="AC Dining", capacity=4),
+            DiningTable(table_number="T8", area="AC Dining", capacity=8),
+        ]
+        db.session.bulk_save_objects(demo_tables)
+        db.session.commit()
     if Category.query.count() == 0:
         # Tamil Nadu relevant categories
         categories = [
