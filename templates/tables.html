@@ -909,7 +909,7 @@ function renderTables() {
 }
 
 function handleTableClick(id, status) {
-  const table = allTables.find(t => t.id === id);
+  const table = allTables.find(t => t.id == id);
   if (!table) return;
 
   if (status === 'AVAILABLE') {
@@ -947,8 +947,8 @@ async function submitOpenTable() {
 }
 
 async function openOrderView(id) {
-  currentTableId = id;
-  const table = allTables.find(t => t.id === id);
+  currentTableId = parseInt(id, 10);
+  const table = allTables.find(t => t.id == currentTableId);
   if (!table) return;
 
   document.getElementById('orderTableNumber').textContent = table.table_number;
@@ -1458,7 +1458,7 @@ async function printBill() {
 }
 
 function openSettleModalFromOrder() {
-  const t = allTables.find(tb => tb.id === currentTableId);
+  const t = allTables.find(tb => tb.id == currentTableId);
   if (!t) return;
 
   if (pendingNewItems.length > 0) {
@@ -1597,6 +1597,7 @@ function setupGlobalKeyboardShortcuts() {
           const pid = visibleDishIds[0];
           addDishById(pid);
           searchInput.value = '';
+          searchKeyword = '';
           applyDishFilter();
           searchInput.focus();
         }

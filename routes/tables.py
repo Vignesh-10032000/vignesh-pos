@@ -1,3 +1,4 @@
+import threading
 from flask import Blueprint, request, jsonify
 from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP, ROUND_FLOOR
@@ -8,6 +9,7 @@ from routes.pos import _parse_money, _apportion_discount, TWO_PLACES
 from flask import render_template
 
 tables_bp = Blueprint('tables', __name__)
+kot_lock = threading.Lock()
 
 @tables_bp.route('/tables')
 def tables_page():
@@ -177,32 +179,33 @@ def fire_kot(id):
     if not new_items_to_send:
         return jsonify({'error': 'No new items to send'}), 400
         
-    # Get max kot_number for today
-    today = datetime.utcnow().date()
-    today_start = datetime(today.year, today.month, today.day)
-    last_kot = KOT.query.filter(KOT.created_at >= today_start).order_by(KOT.kot_number.desc()).first()
-    next_kot_number = 1 if not last_kot else last_kot.kot_number + 1
-    
-    new_kot = KOT(
-        kot_number=next_kot_number,
-        order_id=sale.id,
-        table_id=table.id,
-        waiter_name=sale.waiter_name,
-        status='SENT'
-    )
-    db.session.add(new_kot)
-    db.session.flush()
-    
-    for item in new_items_to_send:
-        ki = KOTItem(
-            kot_id=new_kot.id,
-            product_id=item['product_id'],
-            quantity=item['quantity'],
-            cooking_notes=item['cooking_notes']
-        )
-        db.session.add(ki)
+    with kot_lock:
+        # Get max kot_number for today
+        today = datetime.utcnow().date()
+        today_start = datetime(today.year, today.month, today.day)
+        last_kot = KOT.query.filter(KOT.created_at >= today_start).order_by(KOT.kot_number.desc()).first()
+        next_kot_number = 1 if not last_kot else last_kot.kot_number + 1
         
-    db.session.commit()
+        new_kot = KOT(
+            kot_number=next_kot_number,
+            order_id=sale.id,
+            table_id=table.id,
+            waiter_name=sale.waiter_name,
+            status='SENT'
+        )
+        db.session.add(new_kot)
+        db.session.flush()
+        
+        for item in new_items_to_send:
+            ki = KOTItem(
+                kot_id=new_kot.id,
+                product_id=item['product_id'],
+                quantity=item['quantity'],
+                cooking_notes=item['cooking_notes']
+            )
+            db.session.add(ki)
+            
+        db.session.commit()
     return jsonify({'success': True, 'kot': new_kot.to_dict()})
 
 @tables_bp.route('/api/tables/<int:id>/print-bill', methods=['POST'])
